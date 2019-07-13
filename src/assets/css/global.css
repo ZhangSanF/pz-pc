@@ -1,0 +1,220 @@
+body, ol, ul, h1, h2, h3, h4, h5, h6, p, th, td, dl, dd, form, fieldset, legend, input, textarea, select, div {
+  margin: 0;
+  padding: 0;
+  user-select: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-size: 100%;
+  font-weight: normal;
+}
+
+html, body {
+  font-size: 14px;
+  width: 100%;
+  height: 100%;
+  -webkit-tap-highlight-color: transparent;
+  background-color: #f5f6f7;
+  font-family: "Microsoft Yahei", Arial;
+  color: #666;
+}
+
+a {
+  text-decoration: none;
+  color: #333;
+}
+
+em {
+  font-style: normal;
+}
+
+li {
+  list-style: none;
+}
+
+img {
+  border: 0;
+  vertical-align: middle;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+p {
+  word-wrap: break-word;
+}
+
+iframe {
+  border: none;
+}
+
+select {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.wrapper {
+  width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.wrapper-content {
+  width: 1090px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 30px;
+}
+
+.clearfix:before {
+  content: "";
+  display: table;
+}
+
+.clearfix:after {
+  clear: both;
+  content: " ";
+  display: table;
+}
+
+.program {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  clear: both;
+}
+
+.stock-lable {
+  color: #282828;
+  font-size: 16px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #ddd !important;
+  font-weight: bold;
+  margin: 16px 0px;
+}
+
+.fl {
+  float: left;
+}
+
+.fr {
+  float: right;
+}
+
+.clearfix:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.reg-form {
+  width: 500px;
+  margin-bottom: 50px;
+}
+
+.reg-item {
+  margin: 30px 0 0 95px;
+}
+
+.register_main {
+  margin: 0px auto 0px;
+  width: 600px;
+}
+
+.reg_form {
+  float: left;
+  margin-left: 95px;
+}
+
+.el-checkbox {
+  margin-right: 0px !important;
+}
+
+.reg-btn {
+  width: 400px;
+  font-size: 16px;
+  background-color: #E35353;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.register_form .logtit {
+  font-size: 16px;
+  margin-top: 16px;
+  color: #F79900;
+  height: 30px;
+  line-height: 30px;
+  padding-left: 20px;
+  width: 96%;
+  float: left;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #efefef;
+}
+
+.register_form .logtit h3 span {
+  width: 5px;
+  height: 26px;
+  display: block;
+  background: #F79900;
+  float: left;
+  margin-right: 10px;
+  margin-top: 2px;
+}
+
+.register_form .logtit .tishi {
+  color: #bebebe;
+  font-size: 12px;
+}
+
+.reg_form .control-group {
+  padding-bottom: 20px;
+  font-size: 12px;
+  color: #666;
+  position: relative;
+  height: 49px;
+}
+
+.reg_form .control-group label.label {
+  width: 70px;
+  text-align: right;
+  color: #333;
+  margin-right: 10px;
+}
+
+.verify-img {
+  position: absolute;
+  left: 279px;
+  top: 1px;
+  height: 38px;
+  width: 120px;
+  border-radius: 0 5px 5px 0;
+}
+
+.reg_form .control-group label.error {
+  color: red;
+  padding-left: 15px;
+  height: 30px;
+  line-height: 29px;
+  font-size: 14px;
+}
+
+#agree-error {
+  padding-left: 0px;
+  line-height: 10px;
+}
+
+.j-exchange-img {
+  position: absolute;
+  right: -54px;
+  top: 11px;
+}
+
+.login {
+  color: red;
+}
