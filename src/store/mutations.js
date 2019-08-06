@@ -8,8 +8,7 @@ const mutations = {
     
     // 个人信息
     [types.SAVE_USER_INFO](state, obj) {
-        // state.userInfo = data
-        Object.assign(state.userInfo, obj)
+        state.userInfo = obj
     },
 
     // 首页轮播图
@@ -38,10 +37,6 @@ const mutations = {
         state.helpCenter = data
     },
 
-     // 查看文章
-    [types.ABOUT_US_READ](state, data) {
-        state.aboutUsRead = data.info
-    },
     // 合作伙伴
     [types.COOPERATION](state, data) {
         state.cooperation = data
@@ -71,14 +66,17 @@ const mutations = {
     [types.SETTING_VIP](state, data) {
         state.settingVip = data
     },
+
     //实名认证
     [types.REAL_NAME](state, data) {
-        state.userInfo.is_real_name= data
+        state.userInfo.is_real_name= data.is_real_name
+        state.userInfo.real_name= data.real_name
+        state.userInfo.identity_number= data.identity_number
     },
 
     //支付密码
     [types.PAY_PASS](state, data) {
-        state.userInfo.is_pay_password= data
+        state.userInfo.is_pay_password= data.is_pay_password
     },
 
     //初始化密保
@@ -86,6 +84,46 @@ const mutations = {
         state.userInfo.is_protect= data
     },
 
+    //新手任务
+    [types.XSRW_DATA](state, data) {
+        state.xsrwData = data
+    },
+
+    //签到
+    [types.SIGN](state, data) {
+        state.userInfo.is_sign_in = data
+    },
+
+    //上传图片
+    [types.PORTRAIT](state, data) {
+        state.userInfo.portrait = data
+    },
+
+    //获取银行卡列表
+    [types.BANK_LIST](state, data) {
+        state.bankList = data
+    },
+
+    //添加银行卡
+    [types.ADD_BANK](state, data) {
+        state.userInfo.bank_card_number = data.bank_card_number
+        state.userInfo.bank_name = data.bank_name
+    },
+
+    //关于我们参数
+    [types.ABOUT_QUERY](state, obj) {
+        state.aboutQuery = obj
+    },
+
+    //网站公告&&配资百科&&股市行情参数
+    [types.ARTICLE_QUERY](state, obj) {
+        state.articleQuery = obj
+    },
+
+    //配资单列表
+    [types.ORDER_LIST](state, data) {
+        state.orderList = data
+    },
 
 };
 

@@ -3,50 +3,54 @@
         <Title :infoTitle="infoTitle"/>
         <div class="user-box-con">
             <dl class="user-drawings-bank clearfix" v-show="!showBank">
-                <dt>请选择银行卡</dt>
-                <dd class="user-drawings-add-bank" @click="showAddBank">
+                <!-- <dt>请选择银行卡</dt> -->
+                <dd v-if="getUserInfo.bank_card_number && getUserInfo.bank_name" class="user-drawings-add-bank_p">
+                    <p class="user-drawings-bank-num">{{getUserInfo.bank_card_number}}</p>
+                    <div class="content">
+                        <span class="img">{{getUserInfo.bank_name}}</span>
+                    </div>
+                </dd>
+                <dd v-else class="user-drawings-add-bank" @click="showAddBank">
                     <img src="../../assets/image/bank_img.png" alt="" width="66" height="54">
                     <span class="user-drawings-add-bank-txt">添加银行卡</span>
-                </dd>
+                </dd> 
             </dl>
             <div class="add-bank" v-show="showBank">
-                <Bank :bankForm="bankForm" :add="add" :prompt="prompt" />
+                <Bank :prompt="prompt"/>
             </div>
             <h3>填写提现金额：</h3>
             <div class="form-style">
                 <ul>
                     <li class="form-style-item">
                         <label class="form-style-label">提现金额</label>
-                        <input type="text" class="input-text-style">
+                        <input type="text" class="input-text-style" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur">
                         <span class="flmgr">元</span>
-                        <span class="form-style-error">请填写提现金额</span>
                     </li>
-                    <li class="form-style-item">
+                    <li class="form-style-item password-font">
                         <label class="form-style-label">支付密码</label>
-                        <input type="password" class="input-text-style">
-                        <span class="flmgr"></span>
-                        <span class="form-style-error">请填写提现金额</span>
+                        <input v-if="getUserInfo.is_pay_password" type="text" class="input-text-style" v-model="password">
+                        <span v-else><span class="setPass" @click="goSafeSetting(4)">设置支付密码</span>后才可以提现哦~</span>
                     </li>
                     <li class="form-style-item">
                         <label class="form-style-label">验证码</label>
-                        <input type="text" class="input-text-style" placeholder="点击获取验证码" style="width:100px" maxlength="4">
-                        <span class="other">
-                            <img src="" alt="点击获取验证码" title="点击获取验证码">
-                        </span>
-                        <span class="form-style-error">请填写提现金额</span>
+                        <span>
+                            <input type="text" class="input-text-style" placeholder="请输入验证码" style="width:100px" maxlength="4" v-model="smsCode">
+                            <span class="other">
+                                <img @click="changeVerifi" :src="verifySrc" alt="点击获取验证码" title="点击获取验证码">
+                            </span>
+                        </span>                       
                     </li>
                     <li class="form-style-item">
                         <label class="form-style-label"></label>
                         <span class="form-style-value">
-                            <input type="checkbox" id="important">
+                            <input type="checkbox" id="important" v-model="checkboxSelect">
                             <label for="important">我已阅读并确认下方重要提示信息</label>
                         </span>
-                        <span class="form-style-error">请填写提现金额</span>
                     </li>
                 </ul>
             </div>
             <div class="form-style-submit">
-                <span class="btn-style">确认提现</span>
+                <span class="btn-style" @click="payAction">确认提现</span>
             </div>
         </div>
     </div>
@@ -55,8 +59,10 @@
 <script>
 import Title from '@/components/member/Title'
 import Bank from '@/components/member/Bank'
+import { mapGetters, mapActions } from "vuex";
 
 export default {
+    inject: ['reload'],
     components:{ Title, Bank },
     data() {
         return {
@@ -66,32 +72,92 @@ export default {
                     title:'查看提现记录',
                 }
             },
-            bankForm: {
-                name: '周伟',
-                bankType:'',
-                bankNumber:'',
-                bankPhone: '3c0*****d7a0',
-                smsCode:''
-            },
-            add:function(item){
-                console.log(item)
-            },
+            verifySrc: '',
+            showBank: false,         
+            money: '',
+            password: '',
+            smsCode: '',//短信验证码
+            checkboxSelect: false,
             prompt:[
                 '比如您的开户行名称为"工商银行北京宣武门支行"，只需输入关键词"宣武"即可。如果推荐列表中没有符合关键词的信息，',
                 '请您务必在列表中选择开户城市的银行分行，如：工商银行北京市分行营业部。',
             ],
-            showBank: false
+            
         }
     },
+    created() {
+        // 未实名认证跳转
+        if(!this.getUserInfo.is_real_name) {
+            this.$alert('您还未完成身份验证，请先进行实名认证')
+            this.$router.push('/member/safeSetting')
+        }
+        this.getVerifyFun()
+    },
     methods:{
+        toDoMore() {
+            this.$router.push('/member/withdrawalRecord')
+        },
+        ...mapActions(['depositwithdrawplatform', 'getVerify']),
+        goSafeSetting(id) {
+            this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
+        },
         showAddBank() {
             this.showBank = true
+        },
+        moneyKeyUp(e) {
+            //金额强制转浮点型 排除0 .
+            if (e && (e.keyCode === 190 || e.keyCode === 48)) {
+                return;
+            }
+            var re = /^\d{1}\d*\.{0,1}\d{0,2}$/;
+            if (!re.test(this.money)) {
+                this.money = "";
+            }
+        },
+        moneyBlur(e) {
+            this.money = parseFloat(parseFloat(this.money).toFixed(2)) || "";
+        },
+        payAction() {
+            if(!this.money || !this.password || !this.smsCode || !this.checkboxSelect) {
+                this.$alert('请填写完整的信息!');
+                return ;
+            }
+            this.depositwithdrawplatform({
+                method: 'memberWithdrawal',
+                order_amount: this.money,
+                password: this.password
+            }).then((res) => {
+                if(res.code == 200) {
+                    this.reload()
+                }else {
+                    this.$message.error(res.message);
+                }
+            })
+        },
+        getVerifyFun() {
+            this.getVerify().then((res) => {
+                let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+                this.verifySrc = imgUrl
+            })
+        },
+        changeVerifi() {
+            this.getVerifyFun()
         }
+    },
+    computed:{
+        ...mapGetters(['getUserInfo'])
     }
 }
 </script>
 
 <style lang="scss" scoped>
+.setPass{
+    cursor: pointer;
+    color: #333;
+}
+.setPass:hover{
+    color: #e25353;
+}
 .withdrawDeposit{
     background: #fff;border: 1px solid #e0e0e0;border-radius: 3px;
     .user-box-con{
@@ -103,6 +169,30 @@ export default {
             }
             .user-drawings-add-bank{
                 border: 1px dashed #e0e0e0;background: #f5f5f5;
+            }
+            .user-drawings-add-bank_p{
+                border: 1px solid #fe6e00;;background: #f5f5f5;
+                .user-drawings-bank-num{
+                    border-radius: 5px 5px 0 0;
+                    text-align: center;
+                    height: 32px;
+                    line-height: 32px;
+                    border-bottom: 1px solid #e0e0e0;
+                    background: #f5f5f5;
+                    box-sizing: border-box;
+                }
+                .content{
+                    width: 100%;
+                    height: 93px;
+                    background: #fff;
+                    position: relative;
+                    .img{
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%,-50%)
+                    }
+                }
             }
             .user-drawings-add-bank:hover{
                 border: 1px dashed #fe6e00;background: #ffe0c9;
@@ -146,6 +236,9 @@ export default {
                 }
                 .other{
                      margin-right: 8px;height: 33px;overflow: hidden;width: 115px;
+                     img{
+                         width: 113px;height: 30px;cursor: pointer;
+                     }
                 }
                 .form-style-value{
                     width: 460px;margin-right: 10px;display: inline-block;

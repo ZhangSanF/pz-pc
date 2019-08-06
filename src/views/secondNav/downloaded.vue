@@ -8,7 +8,7 @@
                     <p class="brief">{{brief}}</p>
                     <div class="down-btn">
                         <div  class="dpc" @click="toDownLoald(item.src)" @mouseenter="enter(index)" @mouseleave="leave()"  v-for="(item,index) in downData" :key="index">
-                            <span v-show="item.id == '1' "  class="pcLog" style="  background: url('../../assets/image/win-mac-icon.png') no-repeat " alt=""></span>
+                            <span v-show="item.id == '1' "  class="pcLog"  alt=""></span>
                             <span v-show="item.id == '2' " class="iosLog"  alt=""></span>
                             <span v-show="item.id == '3' "  class="anLog" alt=""></span>
                             <span class="text">{{item.name}}</span>
@@ -52,7 +52,7 @@ export default {
             this.current = null;
         },
         toDownLoald (e) {
-            console.log(e)
+            // console.log(e)
         }
     }
 }

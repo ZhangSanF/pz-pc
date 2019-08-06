@@ -8,15 +8,32 @@
                 @click="getInstation(item.value,index)"
                 :key="index"
                 class="state_btn"
-                :class="selected == index ? 'selected' :''"
-                >
-                {{item.lable}}</span>
+                :class="selected == index ? 'selected' :''">
+                    {{item.lable}}
+                </span>
         </el-row>
         <el-row class="user-box-con">
             <Notice :noticeData="noticeData"/>
         </el-row>
         <el-row class="user-box-con" >
-            <Pagination  :pageData="pageData"/>
+            <div class="pagination_content">
+                共&nbsp;{{pageData.total}}&nbsp;条
+                {{sumPage}}&nbsp;页
+                当前第&nbsp;{{pageData.page}}&nbsp;页&nbsp;&nbsp; 
+                <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
+                <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
+                <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
+                <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
+                转到&nbsp;&nbsp;<el-input
+                    type="text"
+                    size="mini"
+                    v-model="pageInput"
+                    class="page"
+                    >
+                </el-input>
+                &nbsp;页&nbsp;&nbsp;
+                <span @click="goPage('jump')">确定</span>
+            </div>
         </el-row>
     </div>
 </template>
@@ -25,6 +42,8 @@
 import Title from '@/components/member/Title'
 import Notice from '@/components/member/Notice'
 import Pagination from '@/components/member/Pagination'
+import { mapGetters, mapActions } from "vuex";
+
 export default {
     components:{ Title , Notice ,Pagination},
     data() {
@@ -32,82 +51,82 @@ export default {
             infoTitle: {
                 title:'站内信息',
             },
-            stateData:[
-                {
-                    lable:'全部',
-                    value: 'all',
-                },
-                {
-                    lable:'未读',
-                    value: 'nosee',
-                },
-                {
-                    lable:'已读',
-                    value: 'see',
-                },
-            ],
-            noticeData:[
-                {
-                    type: '1',
-                    time: '2019-06-30 08:21:11',
-                    title: '配资审核',
-                    info: '亲爱的出彩速配用户，您的 申请配资 审核未通过。',
-                    state: '1',
-                    show: false
-                },
-                {
-                    type: '1',
-                    time: '2019-06-30 08:21:11',
-                    title: '配资审核',
-                    info: '亲爱的出彩速配用户，您的 申请配资 审核未通过。',
-                    state: '2',
-                    show: false
-                },
-                {
-                    type: '1',
-                    time: '2019-06-30 08:21:11',
-                    title: '配资审核',
-                    info: '亲爱的出彩速配用户，您的 申请配资 审核未通过。',
-                    state: '1',
-                    show: false
-                },
-                {
-                    type: '1',
-                    time: '2019-06-30 08:21:11',
-                    title: '配资审核',
-                    info: '亲爱的出彩速配用户，您的 申请配资 审核未通过。',
-                    state: '2',
-                    show: false
-                },
-                {
-                    type: '1',
-                    time: '2019-06-30 08:21:11',
-                    title: '配资审核',
-                    info: '亲爱的出彩速配用户，您的 申请配资 审核未通过。',
-                    state: '2',
-                    show: false
-                },
-            ],
-            selectData:{
-                lable:'全部',
-                value: 'all',
-            },
             selected: '0',
-            pageData: {
-                total: 23,
-                pages: 3 ,
-                nowPage: 1
+            stateData:[
+                {lable:'全部', value: '-1'},
+                {lable:'未读', value: '0'},
+                {lable:'已读', value: '1'},
+            ],
+            stateValue: '-1',
+            page: 1,
+            page_size: 10,
+            noticeData:[],
+            pageData:{},
+            pageInput: '1'
+        }
+    },
+    created() {
+        this.internalMessageFun('-1', this.page, this.page_size)
+    },
+    methods:{
+        ...mapActions(['internalMessage']),
+        getInstation(value,index) {
+            this.page = 1
+            this.stateValue = value
+            this.selected = index
+            this.internalMessageFun(value, this.page, this.page_size)
+        },
+        internalMessageFun(read_status, page, page_size) {
+            this.internalMessage({
+                read_status: read_status,
+                page: page,
+                page_size: page_size
+            }).then((res) => {
+                if(res.code == 200) {
+                    this.noticeData = res.data.rows
+                    this.pageData = res.data
+                }
+            })
+        },
+        goPage(target) {
+            switch(target) {
+                case 'index' : 
+                    if(this.page != 1) {
+                        this.page = 1
+                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                    }
+                    break;
+                case 'prev' : 
+                    if(this.page > 1) {
+                        this.page -- 
+                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                    }
+                    break;
+                case 'next' : 
+                    if(this.page < this.sumPage) {
+                        this.page ++ 
+                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                    }
+                    break;
+                case 'end' : 
+                    if(this.page != this.sumPage) {
+                        this.page = this.sumPage
+                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                    }
+                    break;
+                case 'jump' : 
+                    if(this.sumPage != 1 && this.pageInput <= this.sumPage) {
+                        this.page = this.pageInput
+                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                    }
+                    break;
             }
         }
     },
-    methods:{
-        getInstation(item,index) {
-            if(this.selected == index) return false
-            this.selectData = item
-            this.selected = index
-        },
-        go(page) {
-            console.log(page)
+    computed:{
+        // 计算共多少页
+        sumPage() {
+            return Math.ceil(this.pageData.total/10)
         }
     }
 
@@ -142,5 +161,18 @@ export default {
 }
 .state_btn:hover {
     @extend .selected;
+}
+.page {
+    width:48px; 
+    display: inline-block; 
+}
+.pagination_content {
+    text-align: right
+}
+.pagination_content span{
+    cursor: pointer;
+}
+.pagination_content span:hover {
+    color: #409EFF;
 }
 </style>

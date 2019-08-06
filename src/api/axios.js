@@ -83,8 +83,14 @@ export default {
         }).then(res => {
           if (res && res.data) { 
             resolve(res && res.data);
+            // if(res.code == 200 || res.data.code == '200' || res.data.code == '2000' ) {
+            //   Message.success('操作成功')
+            // }
           }else if(res) {
             resolve(res);
+            // if(res.code == 200 || res.code == '200' || res.code == '2000' ) {
+            //   Message.success('操作成功')
+            // }
           }
         });
       }, 500)
@@ -108,18 +114,46 @@ export default {
       }).then(res => {
         if (res && res.data) { 
           resolve(res && res.data);
-          if(res.code == 200 || res.data.code ) {
-            Message.success('操作成功')
-          }
+          // if(res.code == 200 || res.data.code == 200 || res.code == 2000 ) {
+          //   Message.success('操作成功')
+          // }
         }else if(res) {
           resolve(res);
-          if(res.code == 200) {
-            Message.success('操作成功')
-          }
+          // if(res.code == 200 || res.data.code == 200 || res.code == 2000 ) {
+          //   Message.success('操作成功')
+          // }
         }
       });
     });
-  }
+  },
+  //img get请求
+  imgGet(urlObj, param) {
+    if (urlObj.isOpenLoading) {
+        
+    }
+    return new Promise((resolve, reject) => {
+        axios({
+          method: "get",
+          url: urlObj.url,
+          params: param,
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Format": "json"
+          },
+          responseType: 'arraybuffer',
+          cancelToken: new CancelToken(c => {
+            cancel = c;
+          })
+        }).then(res => {
+          if (res && res.data) { 
+            resolve(res && res.data);
+          }else if(res) {
+            resolve(res);
+          }
+        });
+    });
+  },
 };
 
 //响应拦截器即异常处理
@@ -131,19 +165,24 @@ axios.interceptors.response.use(
       if (error && error.response) {
         switch (error.response.status) {
           case 400:
-            error.message = "错误请求";
-            Message.error(
-              error.response.data.message
-              ?error.response.data.message
-              :error.message
-              )
+            // error.message = "错误请求";
+            // Message.error(
+            //   error.response.data.message 
+            //   ?error.response.data.message
+            //   :error.message
+            //   )
+            error.message = error.response.data.message;
+            // Message.error(error.message)
             break;
           case 401:
             error.message = "未授权，请重新登录";
-            Message.error(error.message)
+            // Message.error(error.message)
             store.commit('IS_LOGIN', false)
-            router.push('/') 
-            // window.location.reload();
+            router.push('/user/login')
+            break;
+          case 4001:
+            error.message = "操作失败,请重试";
+            Message.error(error.message);
             break;
           case 403:
             error.message = "拒绝访问";
@@ -160,7 +199,7 @@ axios.interceptors.response.use(
           case 408:
             error.message = "请求超时";
             Message.error(error.message)
-            router.push('/page408')
+            // router.push('/page408')
             break;
           case 500:
             error.message = "服务器端出错";

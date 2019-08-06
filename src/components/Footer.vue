@@ -7,16 +7,16 @@
                     <div>
                         <p class="first-row">关于我们</p>
                         <p>
-                          <router-link :to="{path: '/user/about',query: {title: '公司简介', active: '0'}}" tag="a">平台简介</router-link>
+                          <a href="javascript:void(0);" @click="toAbout('公司简介', '0')">平台简介</a>
                         </p>
                         <p>
-                          <router-link :to="{path: '/user/about',query: {title: '办公环境', active: '1'}}" tag="a">办公环境</router-link>
+                          <a href="javascript:void(0);" @click="toAbout('办公环境', '1')">办公环境</a>
                         </p>
                         <p>
-                          <router-link :to="{path: '/user/about',query: {title: '联系我们', active: '6'}}" tag="a">联系我们</router-link>
+                          <a href="javascript:void(0);" @click="toAbout('联系我们', '6')">联系我们</a>
                         </p>
                         <p>
-                          <router-link :to="{path: '/user/about',query: {title: '配资细则', active: '2'}}" tag="a">配资细则</router-link>
+                          <a href="javascript:void(0);" @click="toAbout('配资细则', '2')">配资细则</a>
                         </p>
                     </div>
                     <div>
@@ -37,7 +37,7 @@
                     <div>
                         <p class="first-row">贴心指引</p>
                         <p>
-                          <router-link :to="{path: '/user/about',query: {title: '新手指南', active: '3'}}" tag="a">新手指南</router-link>
+                          <a href="javascript:void(0);" @click="toAbout('新手指南', '3')">新手指南</a>
                         </p>
                         <p>
                           <router-link to="/anquan" tag="a">安全保障</router-link>
@@ -49,7 +49,7 @@
                     <div>
                         <p class="first-row">帮助中心</p>
                         <p>
-                          <router-link :to="{path: '/user/about',query: {title: '注册协议', active: '4'}}" tag="a">注册协议</router-link>
+                          <a href="javascript:void(0);" @click="toAbout('注册协议', '4')">注册协议</a>
                         </p>
                         <p>
                           <router-link to="/user/bangzhu" tag="a">帮助中心</router-link>
@@ -62,7 +62,7 @@
                 <div class="qr-code-module">
                     <div class="qr-code-item">
                         <p>
-                            <img src="../assets/image/20190611180622.png" alt="">
+                            <img :src="getSettingBase.weixin_service_img" alt="">
                         </p>
                         <p>扫一扫，微信客服</p>
                     </div>
@@ -70,7 +70,7 @@
                 <div class="qr-code-module">
                     <div class="qr-code-item">
                         <p>
-                            <img src="../assets/image/20190327095659.jpg" alt="">
+                            <img :src="getSettingBase.weixin_public_img" alt="">
                         </p>
                         <p>扫一扫，微信公众号</p>
                     </div>
@@ -114,6 +114,12 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
+  methods: {
+    toAbout(title, active) {
+      this.$router.push('/user/about')
+      this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
+    }
+  },
   computed: {
     ...mapGetters(['getSettingBase'])
   },

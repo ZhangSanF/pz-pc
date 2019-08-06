@@ -87,7 +87,6 @@
 export default {
         data(){
             return{
-                strengthImg: '../../assets/image/pic-16.png',
                 a : false,
                transformData:[
                     {
@@ -122,7 +121,7 @@ export default {
         },
         methods:{
             enter(type) {
-                console.log(type)
+                // console.log(type)
                 this.transformData[type].left = 150
                 this.transformData[type].right = -150
             },

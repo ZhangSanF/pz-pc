@@ -1,6 +1,6 @@
 export const checkRules ={
     //真实姓名
-    [`name`] :[
+    name :[
         { required: true,
             message: '请输入真实姓名',
             trigger: 'blur',
@@ -8,7 +8,7 @@ export const checkRules ={
         }
     ],
     //身份证号
-    [`number`] :[
+    number :[
         { required: true,
             message: '请输入正确身份证号码',
             trigger: 'blur',
@@ -16,16 +16,16 @@ export const checkRules ={
         }
     ],
     //密码
-    [`opwd`]:[
+    opwd:[
         {required:true,  message:"请输入密码", trigger:'blur'}
     ],
-    [`npwd`]:[
+    npwd:[
         {required:true, message:"请输入密码", trigger:'blur'}
     ],
-    [`cpwd`]:[
+    cpwd:[
         {required:true, message:"请输入密码", trigger:'blur'}
     ],
-    [`oldPassword`]:[
+    oldPassword:[
         { required: true,
             message: '支付密码6位数',
             trigger: 'blur',
@@ -33,7 +33,7 @@ export const checkRules ={
             max: 6,
         }
     ],
-    [`newPassword`]:[
+    newPassword:[
         { required: true,
             message: '支付密码6位数',
             trigger: 'blur',
@@ -41,7 +41,7 @@ export const checkRules ={
             max: 6,
         }
     ],
-    [`confirmNewPassword`]:[
+    confirmNewPassword:[
         { required: true,
             message: '支付密码6位数',
             trigger: 'blur',
@@ -50,54 +50,22 @@ export const checkRules ={
         }
     ],
     //问题一
-    [`keyOne`]:[
+    keyOne:[
         {   required: true,
             message: '请选择问题一',
             trigger: 'change',
         },
     ],
     //答案一
-    [`valueOne`]:[
+    valueOne:[
         { required: true, message: '请输入答案一', trigger: 'blur' },
     ],
     //问题二
-    [`keyTwo`]:[
+    keyTwo:[
         { required: true, message: '请选择问题二', trigger: 'change' },
     ],
     //答案二
-    [`valueTwo`]:[
+    valueTwo:[
         { required: true, message: '请输入答案二', trigger: 'blur' },
-    ]
-}
-
-export const bankRules = {
-    cardNum: [
-        {
-            required: true,
-            message: "请输入银行卡号",
-            trigger: "blur"
-        },
-        {
-            //校验默认*号值
-            required: true,
-            pattern: /(^(\d{16,30})$)|\*+/,
-            message: "请输入16~30位纯数字的银行卡卡号",
-            trigger: "blur",
-        }
-    ],
-    bankName: [
-        {
-            required: true,
-            message: "请选择银行名称",
-            trigger: "change",
-            pattern: /.+/
-        }
-    ],
-    cardAddress: [
-        {
-            required: true,
-            message: "请输入银行归属地",
-            trigger: "blur"
-        }
     ]
 }

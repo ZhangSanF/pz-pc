@@ -8,33 +8,59 @@
                     <div class="user-info-detail">
                         <div class="user-head-portrait">
                             <router-link to="/member/userInfo" tag="a">
-                                <img src="../../assets/image/noavatar_middle.gif" alt="">
+                                <img v-if="getUserInfo.portrait == null" src="../../assets/image/noavatar_middle.gif" alt="">
+                                <img v-else :src="getUserInfo.portrait" alt="">
                             </router-link>
                         </div>
                         <div class="user-name">
                             <strong>
-                                <a href="#" title="10086">10086</a>
+                                <router-link to="/member/userInfo" tag="a" :title="getUserInfo.username">
+                                    {{getUserInfo.username}}
+                                </router-link>
                             </strong>
                         </div>
                     </div>
                     <div class="user-info-status clearfix">
                         <el-tooltip class="item" effect="light" placement="bottom">
-                            <span slot="content">您尚未完成实名认证 <a href='' style='color:rgb(20,104,236)'>点击认证</a></span>
-                            <span class="identity-not-static"></span>
+                            <span slot="content">
+                            {{getUserInfo.is_real_name?'您已完成实名认证':'您尚未完成实名认证'}}
+                                <span  
+                                :class="getUserInfo.is_real_name?'':''"
+                                @click="goSafeSetting(2)"
+                                class="blue" >
+                                {{getUserInfo.is_real_name?'点击修改':'点击认证'}}
+                                </span>
+                            </span>
+                            <span :class="getUserInfo.is_real_name?'identity-yes-static':'identity-not-static'"></span>
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" placement="bottom">
-                            <span slot="content">您已绑定手机3c05f33aea8f5db52c250eab11d0d7a0 <a href='' style='color:rgb(20,104,236)'>点击修改</a></span>
-                            <span class="phone-yes-static"></span>
+                            <span slot="content">您已绑定手机{{getUserInfo.mobile}}
+                                <span 
+                                 @click="goSafeSetting(1)"
+                                 class="blue" >点击修改</span>
+                            </span>
+                            <span :class="getUserInfo.mobile?'phone-yes-static':'phone-not-static'" ></span>
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" placement="bottom">
-                            <span slot="content">您已设置支付密码 <a href='' style='color:rgb(20,104,236)'>点击修改</a></span>
-                            <span class="password-yes-static"></span>
+                            <span  slot="content"> 
+                                {{getUserInfo.is_pay_password?'您已设置支付密码':'您未设置支付密码'}} 
+                                <span 
+                                @click="goSafeSetting(4)"
+                                :class="getUserInfo.is_pay_password?'':''"
+                                class="blue" >{{getUserInfo.is_pay_password?'点击修改':'点击设置'}} 
+                                </span>
+                            </span>
+                            <span :class="getUserInfo.is_pay_password?'password-yes-static':'password-not-static'" ></span>
                         </el-tooltip>
-                        <div class="user-info-status-progress"></div>
+                        <div class="user-info-status-progress" v-if="percentage">
+                            <el-progress :percentage="percentage"></el-progress>
+                        </div>
                         <div class="user-info-status-txt">
                             <div style="float:left">
                                 安全等级：
-                                <strong style="color: #00c25f">中</strong>
+                                <strong  style="color: #00c25f" v-if="safeNum == 1" >低</strong>
+                                <strong  style="color: #00c25f" v-if="safeNum == 2" >中</strong>
+                                <strong  style="color: #00c25f" v-if="safeNum == 3" >高</strong>
                             </div>
                             <router-link to="/member/safeSetting" tag="a">[提升]</router-link>
                         </div>
@@ -125,6 +151,8 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
     data() {
         return{
@@ -132,14 +160,16 @@ export default {
             pzgl: false,
             xxgl: false,
             zhgl: false,            
-            activeRouter: ''
+            activeRouter: '',
         }
     },
     created() {
         this.activeRouter = this.$route.path
         this.isNavActive()
+        this.bankList()//银行卡列表
     },
     methods: {
+        ...mapActions(['bankList']),
         // 判断 nav 是否展开
         isNavActive() {
             if(this.activeRouter == '/member/tradingRecord' || 
@@ -150,9 +180,23 @@ export default {
                 this.pzgl = true
             }else if(this.activeRouter == '/member/instation') {
                 this.xxgl = true
-            }else {
+            }else if(this.activeRouter == '/member/userInfo' ||
+                        this.activeRouter == '/member/bankInfo' ||
+                        this.activeRouter == '/member/safeSetting') {
                 this.zhgl = true
             }
+        },
+        goSafeSetting(id) {
+            this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
+        }
+    },
+    computed:{
+        ...mapGetters(['getUserInfo', 'getIsLogin']),
+        safeNum() {
+            return Number(this.getUserInfo.is_real_name) + Number(this.getUserInfo.is_pay_password) + 1
+        },
+        percentage() {
+            return Number(this.safeNum) * 30
         }
     },
     watch: {
@@ -193,17 +237,16 @@ export default {
                     .item{
                         margin-right: 7px;background-color: #eee;cursor: pointer;float: left; height: 30px; width: 29px;
                     }
-                    .identity-not-static{
-                       background: url(../../assets/image/user_sprite.png) no-repeat 0 -711px;
-                    }
-                    .phone-yes-static{
-                        background: url(../../assets/image/user_sprite.png) no-repeat 0 -801px;
-                    }
-                    .password-yes-static{
-                        background: url(../../assets/image/user_sprite.png) no-repeat -31px -31px;
-                    }
+                    .identity-not-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:0 -711px}
+                    .phone-not-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:0 -771px}
+                    .mail-not-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:-31px -60px}
+                    .password-not-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:-31px 0}
+                    .identity-yes-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:0 -742px}
+                    .phone-yes-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:-0px -801px}
+                    .mail-yes-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:-31px -90px}
+                    .password-yes-static{background-image:url(../../assets/image/user_sprite.png);background-repeat:no-repeat;background-position:-31px -31px}
                     .user-info-status-progress{
-                        float: left; width: 136px;height: 8px;margin-top: 8px;border-radius: 5px;background: #ebebeb; 
+                        float: left; width: 136px;height: 8px;margin-top: 8px;
                     }
                     .user-info-status-txt{
                         float: left;margin-top: 10px;width: 138px;
@@ -284,5 +327,18 @@ export default {
             width: 1019px;
         }
     }
+}
+.blue {
+    cursor: pointer;
+    color:rgb(20,104,236)
+}
+.ok-set {
+    color:#00c25f
+}
+</style>
+<style lang="scss">
+.user-info-status-progress{
+    .el-progress__text{display:none;}
+    .el-progress-bar{padding-right: 0;}
 }
 </style>

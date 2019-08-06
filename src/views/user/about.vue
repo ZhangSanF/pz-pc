@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper-content">
+    <div class="wrapper-content about">
         <el-tabs tab-position="left" @tab-click="handleClick" :value="active">
             <el-tab-pane v-for="(item, index) in getAboutUs.rows"  :key="index"  :label="item.title">
                 <Title :infoTitle="item.title"/>
@@ -22,21 +22,20 @@ export default {
     data() {
         return {
             curAboutData: '',
-            title: this.$route.query.title,
-            active: this.$route.query.active || 0,
+            active: '',
         }
     },
     created() {
-        this.getReadArticles({id: '', title: this.title == undefined ? this.getAboutUs.rows[0].title : this.title}).then((res) => {
-            if(res.code == 200) {
-                this.curAboutData = res.data.content
-            }
-        })       
+        this.active = this.getAboutQuery.active
+        this.readArticles(this.getAboutQuery.id, this.getAboutQuery.title)
     },
     methods: {
-        ...mapActions(['getReadArticles']),
+        ...mapActions(['getReadArticles']),      
         handleClick(tab, event) {
-            this.getReadArticles({id: '', title: tab.label}).then((res) => {
+            this.$store.commit('ABOUT_QUERY', {id: '', title: tab.label, active: tab.index})
+        },
+        readArticles(id,title){
+            this.getReadArticles({id:id, title:title}).then((res) => {
                 if(res.code == 200) {
                     this.curAboutData = res.data.content
                 }
@@ -44,24 +43,15 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['getAboutUs']),
+        ...mapGetters(['getAboutUs', 'getAboutQuery']),
     },
     watch:{
-        '$route.query.title':{
-            handler(val, oldVal) {
-                this.getReadArticles({id: '', title: val}).then((res) => {
-                    if(res.code == 200) {
-                        this.curAboutData = res.data.content
-                    }
-                })
+        'getAboutQuery':{
+            handler() {
+                this.active = this.getAboutQuery.active
+                this.readArticles(this.getAboutQuery.id, this.getAboutQuery.title)
             },
-            deep:true
-        },
-        '$route.query.active':{
-            handler(val, oldVal) {
-                this.active = val
-            },
-            deep:true
+            deep: true
         }
     },
 }
@@ -102,11 +92,7 @@ export default {
     .el-tabs__active-bar {
         background-color:#b31d23 !important;
     }
-    .el-tabs__content {
-        background-color: #fff !important;
-        min-height: 800px!important;
-        padding:0 40px ;
-    }
+    
     .el-tabs__nav-wrap::after {
         position: relative;
     }
@@ -114,4 +100,14 @@ export default {
        background-color:#b31d23 !important;
        color: #fff!important;
     }
+</style>
+
+<style lang="scss" >
+.about{
+    .el-tabs__content {
+        background-color: #fff;
+        min-height: 800px !important;
+        padding:0 40px ;
+    }
+}
 </style>

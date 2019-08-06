@@ -38,7 +38,7 @@ export default {
             curTitle: ''
         }
     },
-    created() {
+    created() {       
         this.curTitle = this.getHelpCenter.rows[0].title
         this.getReadArticles({id: '', title: this.getHelpCenter.rows[0].title}).then((res) => {
             if(res.code == 200) {

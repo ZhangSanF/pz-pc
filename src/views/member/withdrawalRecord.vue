@@ -1,11 +1,11 @@
 <template>
-    <div class="tradingRecord">
+    <div class="withdrawalRecord">
         <Title :infoTitle="infoTitle"/>
         <div class="user-box-con-2">
             <div class="classify-selected">
                 <div class="classify-selected-1-a">
                     <dl class="classify-selected-1">
-                        <dt>交易日期</dt>
+                        <dt>提现时间</dt>
                         <dd>
                             <a 
                             href="javascript:void(0);" 
@@ -20,7 +20,7 @@
                 </div>
                 <div class="classify-selected-1-time">
                     <div class="classify-selected-1 change-time">
-                        <p>选择日期</p>
+                        <p class="classify-selected-other-date">选择日期</p>
                         <p class="start-time">
                             <el-date-picker
                             v-model="modelTime"
@@ -31,28 +31,11 @@
                             end-placeholder="结束日期">
                             </el-date-picker>
                         </p>
-                        <!-- <dd>
-                           <datepicker
-                                class="datepicker"                    
-                                :input-class="'datepickerInput'"
-                                :format="dateOption.format"
-                                :language="dateOption.language"
-                                v-model="curSelectTime"
-                            ></datepicker>
-                           <span>-</span>
-                           <datepicker
-                                class="datepicker"                    
-                                :input-class="'datepickerInput'"
-                                :format="dateOption.format"
-                                :language="dateOption.language"
-                                v-model="curSelectTime"
-                            ></datepicker>
-                        </dd> -->
                     </div>
                 </div>
             </div>
             <div class="classify-selected-1">
-                <dt>交易类型</dt>
+                <dt>提现状态</dt>
                 <dd style="width: 500px">
                     <a href="javascript:void(0);" 
                     v-for="(item, index) in dealType" 
@@ -66,29 +49,25 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <td width="132">时间</td>
-                        <td width="126">交易类型</td>
-                        <td width="210" style="text-indent:23px;">交易详情</td>
-                        <td width="80" style="text-align:right">金额</td>
-                        <td width="160" style="text-align:right; padding-right:18px;">余额</td>
+                        <td width="132">申请时间</td>
+                        <td width="156" style="text-indent:65px;">订单号</td>
+                        <td width="100" style="text-align:center;">提现账号</td>
+                        <td width="120" style="text-align:center;">提现金额</td>
+                        <td width="100" style="text-align:right; padding-right:18px;">手续费</td>
+                        <td width="100" style="text-align:right; padding-right:18px;">状态</td>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(item, index) in curData.rows" :key="index">
                         <td class="user-deal-record-time">
-                            {{item.create_time.split(' ')[0]}} <br>
-                            <span>{{item.create_time.split(' ')[1]}}</span>
+                            {{item.createtime.split(' ')[0]}} <br>
+                            <span>{{item.createtime.split(' ')[1]}}</span>
                         </td>
-                        <td>{{item.cn_type}}</td>
-                        <td>
-                            <el-tooltip effect="light" placement="bottom">
-                                <span slot="content">交易序号：{{item.id}}<br>交易类型：{{item.cn_type}}<br>交易对方：@{{item.admin}}@</span>
-                                <span class="icon-xiala"></span>
-                            </el-tooltip>
-                            <span :title="item.remark" class="info-data">{{item.remark}}</span>
-                        </td>
-                        <td class="user-deal-record-money">{{item.change_money}}</td>
-                        <td style="text-align:right; padding-right:18px;">{{item.available_money}}</td>
+                        <td>{{item.order_id}}</td>
+                        <td style="text-align:center;">{{item.username}}</td>
+                        <td style="text-align:center;">{{item.trueamount}}</td>
+                        <td style="text-align:right; padding-right:18px;">{{item.userfee}}</td>
+                        <td style="text-align:right; padding-right:18px;">{{item.cn_protatus}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -118,22 +97,15 @@
 import Title from '@/components/member/Title'
 import { mapGetters, mapActions } from "vuex";
 import { formatDate } from '@/js/utils'
-// import Datepicker from "vuejs-datepicker";
-// import { zh } from "vuejs-datepicker/dist/locale";
 
 export default {
     components:{ Title },
     data() {
         return {
-            // curSelectTime: new Date(),
-            // dateOption: {
-            //     language: zh,
-            //     format: "yyyy-MM-dd"
-            // },
             infoTitle: {
-                title:'交易记录',
+                title:'提现记录',
                 todu:{
-                    title:'',
+                    title:'申请提现',
                 }
             },
             dealDate: [
@@ -143,14 +115,18 @@ export default {
                 {name: '3个月', value: '3'}
             ],
             dealType: [
-                {name: '全部', value: '-1'},
-                {name: '充值', value: '1'} 
+                {name: '全部', value: '2'},
+                {name: '已处理', value: '1'},
+                {name: '未审核', value: '0'},
+                {name: '处理中', value: '-1'} ,
+                {name: '待处理', value: '-2'} ,
+                {name: '已关闭', value: '-3'} 
             ],
             modelTime: '',//model
             start_time: '',// 开始时间
             end_time: '',// 结束时间
             quick_time: '-1',// 快选时间(全部-1，近一周1，一个月2，三个月3)
-            type: '-1',// 交易类型(充值1，全部-1)
+            type: '2',// 交易状态(已关闭-3，待处理-2，处理中-1，未审核0，已处理1，全部2)
             page: 1,// 页码
             page_size: 10,// 每页数量
             curData: [],
@@ -158,12 +134,15 @@ export default {
         }
     },
     created() {
-        this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+        this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
     },
     methods:{
-        ...mapActions(['transacTionrecord']),
-        transacTionrecordFun(start_time, end_time, quick_time, type, page, page_size) {
-            this.transacTionrecord({
+        ...mapActions(['withdrawalrecord']),
+        toDoMore() {
+            this.$router.push('/member/withdrawDeposit')
+        },
+        withdrawalrecordFun(start_time, end_time, quick_time, type, page, page_size) {
+            this.withdrawalrecord({
                 start_time: start_time,
                 end_time: end_time,
                 quick_time: quick_time,
@@ -179,43 +158,43 @@ export default {
         // 选择交易日期
         changeTime(value) {
             this.quick_time = value
-            this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+            this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
         },
         // 选择交易类型
         changeType(value) {
             this.type = value
-            this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+            this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
         },
         goPage(target) {
             switch(target) {
                 case 'index' : 
                     if(this.page != 1) {
                         this.page = 1
-                        this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+                        this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
                     }
                     break;
                 case 'prev' : 
                     if(this.page > 1) {
                         this.page -- 
-                        this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+                        this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
                     }
                     break;
                 case 'next' : 
                     if(this.page < this.sumPage) {
                         this.page ++ 
-                        this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+                        this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
                     }
                     break;
                 case 'end' : 
                     if(this.page != this.sumPage) {
                         this.page = this.sumPage
-                        this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+                        this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
                     }
                     break;
                 case 'jump' : 
                     if(this.sumPage != 1 && this.pageInput <= this.sumPage) {
                         this.page = this.pageInput
-                        this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+                        this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
                     }
                     break;
             }
@@ -237,7 +216,7 @@ export default {
                     this.start_time = ''
                     this.end_time = ''
                 }               
-                this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
+                this.withdrawalrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
             },
             deep: true
         }
@@ -272,7 +251,10 @@ export default {
     display: inline-block;width: 180px;height: 19px;line-height: 25px;overflow: hidden;
     text-overflow: ellipsis;white-space: nowrap;
 }
-.tradingRecord{
+.classify-selected-other-date{
+    font-weight: 700;
+}
+.withdrawalRecord{
     background: #fff;border: 1px solid #e0e0e0;border-radius: 3px;
     .user-box-con-2{
          width: 964px; margin: 0 auto;padding: 15px 0 20px;
@@ -287,17 +269,20 @@ export default {
             }
          }
          .classify-selected-1{
-            height: 26px;line-height: 23px;font-size: 13px;font-family: simsun;margin-bottom: 12px;
+            height: 26px;line-height: 23px;font-size: 13px;margin-bottom: 12px;
             dt{
-                float: left;width: 60px;margin-right: 9px;
+                float: left;
+                height: 24px;
+                width: 65px;
+                font-weight: 700;
             }
             dd{
                 float: left; 
                 a{
-                    padding: 0 8px;display: inline-block;
+                    padding: 0 8px;display: inline-block;margin-right: 5px;
                 }
                 .selected{
-                    background: #fe7b20;color: #fff;
+                    background: #fe7b20;color: #fff;border-radius: 5px;height: 24px;    line-height: 24px;
                 }
             }
         }

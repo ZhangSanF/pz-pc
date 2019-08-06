@@ -11,7 +11,7 @@
                         </el-tooltip>
                     </dt>
                     <dd>
-                        <span class="fmt_money">39803</span>
+                        <span class="fmt_money">{{getUserInfo.available_money | number}}</span>
                     </dd>
                 </dl>
                 <dl class="user-account-balance">
@@ -23,7 +23,7 @@
                         </el-tooltip>
                     </dt>
                     <dd>
-                        <span class="fmt_money">406.00</span>
+                        <span class="fmt_money">{{getUserInfo.gift_money | number}}</span>
                     </dd>
                 </dl>
                 <dl class="user-current-month-earnings">
@@ -40,7 +40,7 @@
                             <span class="pro_tips-1"></span>
                         </el-tooltip>
                     </dt>
-                    <a v-if="!isSign" href="javascript:void(0);" class="btn-style-5" style="margin: 20px 60px;" @click="sign">签到</a>
+                    <a v-if="!getUserInfo.is_sign_in" href="javascript:void(0);" class="btn-style-5" style="margin: 20px 60px;" @click="sign">签到</a>
                     <a v-else href="javascript:void(0);" class="btn-style-5" style="margin: 20px 60px;color:#666;background:#f5f5f5;">已签到</a>
                 </dl>
                 <dl style="border-right:none;">
@@ -60,7 +60,7 @@
                     </dt>
                     <dd>
                         <span class="fmt_money">
-                            <a href="" class="btn-style-5" style="margin:18px;margin-left: 58px;">开启</a>
+                            <a href="#" class="btn-style-5" style="margin:18px;margin-left: 58px;">开启</a>
                         </span>
                     </dd>
                 </dl>
@@ -69,7 +69,7 @@
         <div class="user-box-2">
             <Title :infoTitle="infoTitle"/>
             <div class="user-box-con-2">
-                <PzList :curpzList="curpzList"/>
+                <PzList :curpzList="orderList"/>
             </div>
         </div>
     </div>
@@ -78,59 +78,61 @@
 <script>
 import Title from '@/components/member/Title'
 import PzList from '@/components/member/PzList'
+import { mapGetters, mapActions } from "vuex";
 
 export default {
+    inject: ['reload'],
     components:{ Title, PzList },
     data() {
         return {
-            isSign: false,
             infoTitle: {
                 title:'我的配资',
                 todu:{
                     title:'查看更多配资记录',
                 }
             },
-            curpzList:[
-                {
-                    num: '62520082384884',
-                    cpzj: '11000.00', 
-                    jrzj: '10000', 
-                    fxbzj: '1000.00', 
-                    slx: '60', 
-                    jjx: '10500.00', 
-                    pcx: '12000.00', 
-                    time: '2019/06/26～2019/07/25',
-                    sy: '0.00',
-                    syl: '0.00%',
-                    zh: '10086cs1',
-                    mm: '123456'
-                },
-                {
-                    num: '62520082384884',
-                    cpzj: '11000.00', 
-                    jrzj: '10000', 
-                    fxbzj: '1000.00', 
-                    slx: '60', 
-                    jjx: '10500.00', 
-                    pcx: '12000.00', 
-                    time: '2019/06/26～2019/07/25',
-                    sy: '0.00',
-                    syl: '0.00%',
-                    zh: '10086cs1',
-                    mm: '123456'
-                }
-            ]
         }
     },
+    filters: {
+        number(value) {
+            var toFixedNum = Number(value).toFixed(2);
+            return toFixedNum;
+        }
+    },
+    created() {
+        this.getOrder({
+            page: 1,//页码
+            page_size: 5,//每页数据量
+            order_type: '',//订单类型(1免息2按天3按月4VIP)
+            status: '',//状态(1待审核、2审核通过、3审核失败，4操盘结束))
+            create_time_start: '',//配资时间-起
+            create_time_end: '',//配资时间-止
+            end_time_start: '',//结束时间-起
+            end_time_end: ''//结束时间-止
+        })
+    },
     methods: {
+        ...mapActions(['signin', 'getOrder']),
+        // 签到
         sign() {
-            alert('签到成功')
-            this.isSign = true
+            this.signin().then((res) => {
+                if(res.code == 200) {
+                    this.$store.commit('SIGN', 1)
+                    this.$alert('签到成功');
+                    this.reload()
+                }
+            })
         },
         toDoMore() {
             this.$router.push('/member/myFinancing')
         }
-    }
+    },
+    computed: {
+        ...mapGetters(['getUserInfo', 'getOrderList']),
+        orderList() {
+            return this.getOrderList.list
+        }
+    },
 }
 </script>
 

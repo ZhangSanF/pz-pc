@@ -5,29 +5,26 @@
             <!-- 用户名 -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-tanhao" v-if="getSafeData[0].value == '未设置'"></span>
-                    <span class="icon-check" v-if="getSafeData[0].value !== '未设置'"></span>
-                    <span>{{getSafeData[1].lable}}</span>
+                    <span class="icon-check" ></span>
+                    <span>用户名</span>
                 </div>
                 <div class="safe-value">
-                    <span :class="getSafeData[0].value == '未设置'?' isSet':''">{{getSafeData[0].value?getSafeData[0].value:'&nbsp;'}}</span>
+                    <span >{{getUserInfo.username}}</span>
                 </div>
             </div>
             <!--手机认证  -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-tanhao" v-if="getSafeData[1].value == '未设置'"></span>
-                    <span class="icon-check" v-if="getSafeData[1].value !== '未设置'"></span>
-                    <span>{{getSafeData[1].lable}}</span>
+                    <span class="icon-check" ></span>
+                    <span>手机认证</span>
                 </div>
                 <div class="safe-value">
-                    <span :class="getSafeData[1].value == '未设置'?' isSet':''">{{getSafeData[1].value?getSafeData[1].value:'&nbsp;'}}</span>
+                    <span >{{getUserInfo.mobile}}</span>
                 </div>
-                <div class="safe-edit fr"  @click="show(1,getSafeData[1].showEdit)">
-                    <span class="options-state" v-if="getSafeData[1].value !== '未设置'">{{getSafeData[1].showEdit ? '取消修改':'修改'}} </span>
-                    <span class="options-state" v-else-if="getSafeData[1].value == '未设置'">{{getSafeData[1].showEdit ? '修改':'设置'}} </span>
+                <div class="safe-edit fr"  @click="show(1)">
+                    <span class="options-state" >{{safeData[1].showEdit ? '取消修改':'修改'}} </span>
                 </div>
-                <div class=" edit clearfix"  v-if="getSafeData[1].showEdit">
+                <div class=" edit clearfix"   v-if="safeData[1].showEdit">
                     <div >
                         <div class="user-safety-options-edit"  >
                             <!-- 手机认证组件 -->
@@ -40,31 +37,31 @@
             <!-- 实名认证 -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-tanhao" v-if="getSafeData[2].value == '未设置'"></span>
-                    <span class="icon-check" v-if="getSafeData[2].value !== '未设置'"></span>
-                    <span>{{getSafeData[2].lable}}</span>
+                    <span class="icon-tanhao" v-if="!getUserInfo.is_real_name"></span>
+                    <span class="icon-check" v-if="getUserInfo.is_real_name"></span>
+                    <span>实名认证</span>
                 </div>
                 <div class="safe-value">
-                    <span :class="getSafeData[2].value == '未设置'?' isSet':''">{{getSafeData[2].value?getSafeData[2].value:'&nbsp;'}}</span>
+                    <span :class="!getUserInfo.is_real_name?' isSet':''">{{getUserInfo.is_real_name?'已设置':'未设置'}}</span>
                 </div>
-                <div class="safe-edit fr"  @click="show(2,getSafeData[2].showEdit)">
-                    <router-link to="/" v-if="getSafeData[2].value !== '未设置' " class="options-state service">《服务协议》 </router-link>
-                    <span class="options-state" v-if="getSafeData[2].lable == '实名认证'">{{getSafeData[2].showEdit ? '取消认证':'认证'}} </span>
+                <div class="safe-edit fr"  @click="show(2)">
+                    <a v-if="getUserInfo.is_real_name" @click="toAbout('注册协议', '4')" class="options-state service"  href="javascript:void(0);">《服务协议》</a>
+                    <span class="options-state" >{{safeData[2].showEdit ? '取消认证':'认证'}} </span>
                 </div>
-                <div class=" edit clearfix"  v-if="getSafeData[2].showEdit">
+                <div class=" edit clearfix"  v-if="safeData[2].showEdit">
                     <!-- 实名认证 -->
                     <div class="user-safety-options-edit"  >
                         <!-- 实名认证 -->
                         <el-form
                         :model="verifiedForm"
-                        v-if="getSafeData[2].value == '未设置'"
+                        v-if="!getUserInfo.is_real_name"
                         size="mini"
                         :rules="checkRules"
                         ref="verifiedForm"
                         label-width="200px"
                         class="step1-form">
                             <el-form-item label="用户名">
-                                <span>{{userName}}</span>
+                                <span>{{getUserInfo.username}}</span>
                             </el-form-item>
                             <el-form-item label="真实姓名" prop="name">
                                 <el-input class="step-input" v-model="verifiedForm.name"></el-input>
@@ -76,7 +73,7 @@
                                 <el-button size="mini"  class="step-btn" @click="SubmitRealName()" >提交实名认证</el-button>
                             </el-form-item>
                         </el-form >
-                        <div class="succeed clearfix"  v-if="getSafeData[2].value == '已设置'" >
+                        <div class="succeed clearfix"  v-if="getUserInfo.is_real_name" >
                             <span  class="succeed-true">&nbsp;</span>
                             <span class="succeed-txt" >恭喜您认证成功</span>
                         </div>
@@ -87,20 +84,18 @@
             <!-- 登录密码 -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-tanhao" v-if="getSafeData[3].value == '未设置'"></span>
-                    <span class="icon-check" v-if="getSafeData[3].value !== '未设置'"></span>
-                    <span>{{getSafeData[3].lable}}</span>
+                    <span class="icon-check" ></span>
+                    <span>登录密码</span>
                 </div>
                 <div class="safe-value">
-                    <span :class="getSafeData[3].value == '未设置'?' isSet':''">{{getSafeData[3].value?getSafeData[3].value:'&nbsp;'}}</span>
+                    <span >已设置</span>
                 </div>
-                <div class="safe-edit fr"  @click="show(3,getSafeData[3].showEdit)">
-                    <span class="options-state" v-if="getSafeData[3].value !== '未设置'">{{getSafeData[3].showEdit ? '取消修改':'修改'}} </span>
-                    <span class="options-state" v-else-if="getSafeData[3].value == '未设置'">{{getSafeData[3].showEdit ? '修改':'设置'}} </span>
+                <div class="safe-edit fr"  @click="show(3)">
+                    <span class="options-state" >{{safeData[3].showEdit ? '取消修改':'修改'}} </span>
                 </div>
-                <div class=" edit clearfix"  v-if="getSafeData[3].showEdit">
+                <div class=" edit clearfix"  v-if="safeData[3].showEdit">
                     <!-- 登录密码 -->
-                    <div class="user-safety-options-edit" v-if="getSafeData[3].lable == '登录密码'" >
+                    <div class="user-safety-options-edit"  >
                         <el-form
                         :model="loginPwd"
                         size="mini"
@@ -126,20 +121,21 @@
                     </div>
                 </div>
             </div>
+            <!-- 支付密码 -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-tanhao" v-if="getSafeData[4].value == '未设置'"></span>
-                    <span class="icon-check" v-if="getSafeData[4].value !== '未设置'"></span>
-                    <span>{{getSafeData[4].lable}}</span>
+                    <span class="icon-tanhao" v-if="!getUserInfo.is_pay_password"></span>
+                    <span class="icon-check" v-if="getUserInfo.is_pay_password"></span>
+                    <span>支付密码</span>
                 </div>
                 <div class="safe-value">
-                    <span :class="getSafeData[4].value == '未设置'?' isSet':''">{{getSafeData[4].value?getSafeData[4].value:'&nbsp;'}}</span>
+                    <span :class="!getUserInfo.is_pay_password?' isSet':''">{{getUserInfo.is_pay_password?'已设置':'未设置'}}</span>
                 </div>
-                <div class="safe-edit fr"  @click="show(4,getSafeData[4].showEdit)">
-                    <span class="options-state" v-if="getSafeData[4].value !== '未设置'">{{getSafeData[4].showEdit ? '取消修改':'修改'}} </span>
-                    <span class="options-state" v-else-if="getSafeData[4].value == '未设置'">{{getSafeData[4].showEdit ? '修改':'设置'}} </span>
+                <div class="safe-edit fr"  @click="show(4)">
+                    <span class="options-state" v-if="getUserInfo.is_pay_password">{{safeData[4].showEdit? '取消修改':'修改'}} </span>
+                    <span class="options-state" v-else-if="!getUserInfo.is_pay_password">{{safeData[4].showEdit ? '修改':'设置'}} </span>
                 </div>
-                <div class=" edit clearfix"  v-if="getSafeData[4].showEdit">
+                <div class=" edit clearfix"  v-if="safeData[4].showEdit">
                      <div class="user-safety-options-edit"  >
                         <!-- 设置支付密码 -->
                         <el-form
@@ -147,7 +143,7 @@
                             ref="setPayPwd" 
                             :rules="checkRules" 
                             size="mini"
-                            v-if="!isRetrieve && getSafeData[3].value == '未设置' "
+                            v-if="!isRetrieve && !getUserInfo.is_pay_password "
                             :model="setPayPwdForm"
                             label-width="200px">
                             <el-form-item label="设置支付密码" prop="payPwd">
@@ -167,7 +163,7 @@
                             :rules="checkRules"
                             ref="modifyPayPwd"
                             label-width="200px"
-                            v-if="!isRetrieve && getSafeData[3].value !== '未设置'"
+                            v-if="!isRetrieve && getUserInfo.is_pay_password"
                             class="step1-form">
                             <el-form-item label="原支付密码" prop="oldPassword">
                                 <el-input size="mini" placeholder="请输入答案" v-model="modifyPayPwdForm.oldPassword" class="step-input"></el-input>
@@ -206,21 +202,21 @@
             <!-- 密码保护 -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-tanhao" v-if="getSafeData[5].value == '未设置'"></span>
-                    <span class="icon-check" v-if="getSafeData[5].value !== '未设置'"></span>
-                    <span>{{getSafeData[5].lable}}</span>
+                    <span class="icon-tanhao" v-if="!getUserInfo.is_protect"></span>
+                    <span class="icon-check" v-if="getUserInfo.is_protect"></span>
+                    <span>密码保护</span>
                 </div>
                 <div class="safe-value">
-                    <span :class="getSafeData[5].value == '未设置'?' isSet':''">{{getSafeData[5].value?getSafeData[5].value:'&nbsp;'}}</span>
+                    <span :class="!getUserInfo.is_protect ?' isSet':''">{{getUserInfo.is_protect?'已设置':'未设置'}}</span>
                 </div>
-                <div class="safe-edit fr"  @click="show(5,getSafeData[5].showEdit)">
-                    <span class="options-state" v-if="getSafeData[5].value !== '未设置'">{{getSafeData[5].showEdit ? '取消修改':'修改'}} </span>
-                    <span class="options-state" v-else-if="getSafeData[5].value == '未设置'">{{getSafeData[5].showEdit ? '修改':'设置'}} </span>
+                <div class="safe-edit fr"  @click="show(5)">
+                    <span class="options-state" v-if="getUserInfo.is_protect">{{safeData[5].showEdit ? '取消修改':'修改'}} </span>
+                    <span class="options-state" v-else-if="!getUserInfo.is_protect">{{safeData[5].showEdit ? '取消设置':'设置'}} </span>
                 </div>
-                <div class=" edit clearfix"  v-if="getSafeData[5].showEdit">
+                <div class=" edit clearfix"  v-if="safeData[5].showEdit">
                     <!-- 设置密保 -->
                     <div class="user-safety-options-edit"  >
-                        <div v-if="getSafeData[5].value == '未设置'">
+                        <div v-if="!getUserInfo.is_protect">
                             <el-form 
                                 :model="pwdSafe1From"
                                 size="mini"
@@ -258,8 +254,7 @@
                                         <el-input size="mini"  v-model="pwdSafe1From.valueTwo" placeholder="请输入答案" class="step-input"></el-input>
                                 </el-form-item>
                                 <el-form-item >
-                                    <el-button size="mini" v-if="getSafeData[5].value == '未设置'"  class="step-btn" @click="setSafeStep(1)" >设置</el-button>
-                                    <el-button size="mini"  v-if="getSafeData[5].value !== '未设置'"  class="step-btn" @click="setSafeStep(2)" >重置设置密码保护</el-button>
+                                    <el-button size="mini"   class="step-btn" @click="setSafeStep(1)" >设置</el-button>
                                 </el-form-item>
                             </el-form >
                         </div>
@@ -274,13 +269,18 @@
                                 :rules="checkRules"
                                 v-if="safeSteps == 2  ">
                                 <el-form-item label="当前密保问题1">
-                                    <el-input size="mini" :value="protectionOne" disabled class="step-input"></el-input>
+                                    <el-input size="mini" 
+                                    :value="getUserInfo.userpassword_protection?getUserInfo.userpassword_protection[0]:''" 
+                                    disabled class="step-input">
+                                    </el-input>
                                 </el-form-item>
                                 <el-form-item label="请输入答案" prop="valueOne"  v-show="showAnswer">
                                     <el-input size="mini" v-model="pwdSafe2.valueOne" class="step-input"></el-input>
                                 </el-form-item>
                                 <el-form-item label="当前密保问题2">
-                                    <el-input size="mini"  :value="protectionTwo" disabled class="step-input"></el-input>
+                                    <el-input size="mini"  
+                                    :value="getUserInfo.userpassword_protection?getUserInfo.userpassword_protection[1]:''" 
+                                    disabled class="step-input"></el-input>
                                 </el-form-item>
                                 <el-form-item label="请输入答案" prop="valueTwo"  v-show="showAnswer">
                                     <el-input size="mini"  v-model="pwdSafe2.valueTwo"   class="step-input"></el-input>
@@ -334,11 +334,9 @@ export default {
             active: 0,
             isRetrieve: false,
             safeSteps: 2,
-            userName:'',
             protectionData: protectionData,
             checkRules: checkRules,
-            protectionOne:'', //密保问题1
-            protectionTwo:'', //密保问题2
+            showItem: null,
             showAnswer: false,// 是否显示答案输入框
             safeData:[
             ],
@@ -391,22 +389,46 @@ export default {
             pwdSafe2:{
                 valueOne:'',
                 valueTwo:''
-            }
+            },
+            safeData:[
+                {showEdit: false},
+                {showEdit: false},
+                {showEdit: false},
+                {showEdit: false},
+                {showEdit: false},
+                {showEdit: false}
+            ]
 
         }
     },
     methods:{
         ...mapActions(['initProtection','realNameAuth', 'setPayPassWord','verifyProtection','setLoginPassWord']),
-        show(i,b) {
-            for (let m = 0 ; m <this.getSafeData.length; m++  ) {
-                this.getSafeData[m].showEdit = m -0 !== i
-                ? false
-                :b == true ? false : true
+        show(i) {
+            for (let m = 0 ; m <this.safeData.length; m++  ) {
+                if(i== -1) {
+                    this.safeData[m].showEdit = false
+                }
+                else {
+                    this.safeData[m].showEdit = m -0 !== i
+                    ? false
+                    :this.safeData[m].showEdit == true ? false : true
+                }
             }
         },
-        //找回密码
-        retrievePayPwd(a) {
-            this.isRetrieve =  a
+        // 提交实名认证
+        SubmitRealName() {
+            this.$refs['verifiedForm'].validate((valid) => {
+                if (valid) {
+                    const params = {
+                        real_name: this.verifiedForm.name,
+                        identity_number: this.verifiedForm.number
+                    }
+                    this.realNameAuth(params)
+                    this.show(-1)
+                } else {
+                    console.log('error submit!!')
+                }
+            });
         },
         //修改登录密码
         modifyLoginPwd() {
@@ -417,12 +439,36 @@ export default {
                         newPassword: md5(this.loginPwd.npwd),
                         confirmNewPassword: md5(this.loginPwd.cpwd)
                     }
-                    this.setLoginPassWord(params)
+                    this.setLoginPassWord(params).then((res) => {
+                        if(res.code == 200) {
+                            this.reload()
+                            // this.show(-1)
+                        }
+                    })
+                } else {
+                }
+            });
+        },
+        //设置支付密码
+        setPayPwd() {
+            this.$refs['setPayPwd'].validate((valid) => {
+                if (valid) {
+                    const params = {
+                        oldPassword: '',
+                        newPassword: this.setPayPwdForm.payPwd,
+                        confirmNewPassword: this.setPayPwdForm.againPayPwd
+                    }
+                    this.setPayPassWord(params)
                     this.show(-1,false)
                 } else {
                 }
             });
         },
+        //找回密码
+        retrievePayPwd(a) {
+            this.isRetrieve =  a
+        },
+        
         //修改支付密码
         modifyPayPwd() {
             this.$refs['modifyPayPwd'].validate((valid) => {
@@ -433,7 +479,7 @@ export default {
                         confirmNewPassword: this.modifyPayPwdForm.confirmNewPassword
                     }
                     this.setPayPassWord(params)
-                    this.show(-1,false)
+                    this.show(-1)
                 } else {
                 }
             });
@@ -455,7 +501,7 @@ export default {
                     }
                     params.protection = [this.pwdSafe1From.keyOne,this.pwdSafe1From.keyTwo]
                     this.initProtection(params)
-                   
+                    this.show(-1)
                 } else {
                     console.log('error submit!!')
                 }
@@ -481,52 +527,25 @@ export default {
         safeByPhone() {
 
         },
-        seeProtection(a) {
-            console.log(a);
-
-        },
-        // 提交实名认证
-        SubmitRealName() {
-            this.$refs['verifiedForm'].validate((valid) => {
-                if (valid) {
-                    const params = {
-                        real_name: this.verifiedForm.name,
-                        identity_number: this.verifiedForm.number
-                    }
-                    this.realNameAuth(params)
-                    this.show(-1,false)
-                } else {
-                    console.log('error submit!!')
-                }
-            });
-        },
-        //设置支付密码
-        setPayPwd() {
-            this.$refs['setPayPwd'].validate((valid) => {
-                if (valid) {
-                    const params = {
-                        oldPassword: '',
-                        newPassword: this.setPayPwdForm.payPwd,
-                        confirmNewPassword: this.setPayPwdForm.againPayPwd
-                    }
-                    this.setPayPassWord(params)
-                    this.show(-1,false)
-                } else {
-                }
-            });
+        
+        
+        // 服务协议
+        toAbout(title, active) {
+            this.$router.push('/user/about')
+            this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
         }
     },
     computed: {
-        ...mapGetters(['getSafeData','getUserInfo','getSafeProtection']),
+        ...mapGetters(['getUserInfo']),
     },
-    mounted() {
-        const a = this.getSafeData
-        this.safeData = a
-        const b = this.getSafeData[0].value
-        this.userName = b
-        this.protectionOne = this.getSafeProtection ?  this.getSafeProtection[0] :''
-        this.protectionTwo = this.getSafeProtection ?this.getSafeProtection[1] :''
-    }
+    watch:{
+        '$route.query.showId':{
+            handler(a,b) {
+                if(a) return this.show(a)
+            },
+            deep:true
+        },
+    },
 }
 </script>
 

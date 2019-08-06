@@ -43,12 +43,12 @@
             <marquee onmouseover="this.stop()" onmouseout="this.start()">
               <ul>
                 <li v-for="(item, index) in getAnnouncement.rows" :key="index">
-                  <router-link :to="{path: '/user/article',query: {title: '网站公告', active: '0', id: item.id, showList: false}}" tag="a">{{item.title}}</router-link>
+                  <a href="javascript:void(0);" @click="toArticle('网站公告', '0', item.id, false)">{{item.title}}</a>
                 </li>
               </ul>
             </marquee>
           </div>
-          <router-link class="more-notice" :to="{path: '/user/article',query: {title: '网站公告', active: '0'}}" tag="a">查看更多></router-link>
+          <a href="javascript:void(0);" class="more-notice" @click="toArticle('网站公告', '0', '', true)">查看更多></a>
         </div>
       </div>
       <!-- 统计 -->
@@ -283,14 +283,14 @@
           <div class="bd dd">
             <p>
               <span>股市行情</span>
-              <router-link :to="{path: '/user/article',query: {title: '股市行情', active: '1'}}" tag="a">更多 +</router-link>
+              <a href="javascript:void(0);" @click="toArticle('股市行情', '1', '', true)">更多 +</a>
             </p>
             <ul>
               <li v-for="(item, index) in getStockInfo.rows" :key="index" v-show="index < 6">
-                <router-link :to="{path: '/user/article',query: {title: '股市行情', active: '1', id: item.id, showList: false}}" tag="a">
+                <a href="javascript:void(0);" @click="toArticle('股市行情', '1', item.id, false)">
                   <strong>·</strong>
                   &nbsp;&nbsp;{{item.title}}
-                </router-link>
+                </a>
                 <span class="date">{{(item.create_time).split(" ")[0]}}</span> 
               </li>
             </ul>
@@ -298,14 +298,14 @@
           <div class="bd dd">
             <p>
               <span>配资百科</span>
-              <router-link :to="{path: '/user/article',query: {title: '配资百科', active: '2'}}" tag="a">更多 +</router-link>
+              <a href="javascript:void(0);" @click="toArticle('配资百科', '2', '', true)">更多 +</a>
             </p>
             <ul>
               <li v-for="(item, index) in getEncyclopedias.rows" :key="index" v-show="index < 6">
-                <router-link :to="{path: '/user/article',query: {title: '配资百科', active: '2', id: item.id, showList: false}}" tag="a">
+                <a href="javascript:void(0);" @click="toArticle('配资百科', '2', item.id, false)">
                   <strong>·</strong>
                   &nbsp;&nbsp;{{item.title}}
-                </router-link>
+                </a>
                 <span class="date">{{(item.create_time).split(" ")[0]}}</span>
               </li>
             </ul>
@@ -350,7 +350,6 @@
 import 'swiper/dist/css/swiper.css'  
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { mapGetters, mapActions } from "vuex";
-import { clearTimeout } from 'timers';
 
 export default {
   name: 'home',
@@ -380,12 +379,6 @@ export default {
       profitMoney:2000,//累积利润赚取
       monthMoney:2000,//按月配资余额
       dayMoney:1000,//按天配资余额
-      peiziList:[
-        {title: '免息计划', content: `我出钱，您炒股<br>盈利80%归您<br>最低1000元申请<br>资金放大5倍，最长配资20天`},
-        {title: '按天计划', content: `我出钱，您炒股<br>盈利80%归您<br>最低1000元申请<br>资金放大5倍，最长配资20天`},
-        {title: '按月计划', content: `我出钱，您炒股<br>盈利80%归您<br>最低1000元申请<br>资金放大5倍，最长配资20天`},
-        {title: 'VIP计划', content: `我出钱，您炒股<br>盈利80%归您<br>最低1000元申请<br>资金放大5倍，最长配资20天`}
-      ],
       isExponent: true,
       //今日充值
       todayPrepaid:[
@@ -399,16 +392,12 @@ export default {
     }
   },
   created() {
-    this.getAdvertisement({})
     this.setting()
-    this.getAboutUsListFun('announcement')
-    this.getAboutUsListFun('stock_market')
-    this.getAboutUsListFun('encyclopedias')
     this.getAboutUsListFun('about_us')
     this.getAboutUsListFun('help_center')
   },
   methods:{
-    ...mapActions(['getAdvertisement', 'setting', 'getAboutUsList']),
+    ...mapActions(['getAboutUsList', 'setting']),
     getAboutUsListFun(category_identification) {
       this.getAboutUsList({
         page: 1,
@@ -445,6 +434,11 @@ export default {
       }else {
         this.$router.push('/vipFinancing')
       }
+    },
+    //网站公告&&配资百科&&股市行情跳转
+    toArticle(title, active, id, showList) {
+      this.$router.push('/user/article')
+      this.$store.commit('ARTICLE_QUERY', {title: title, active: active, id: id, showList: showList})
     }
   },
   mounted() {
@@ -458,13 +452,25 @@ export default {
       'getSettingOrder',
       'getStockInfo', 
       'getEncyclopedias',
-      'getAnnouncement'
-    ])
+      'getAnnouncement',
+      'getSettingFree', 
+      'getSettingDays', 
+      'getSettingMonths', 
+      'getSettingVip'
+    ]),
+    peiziList() {
+      return [
+        {title: '免息计划', content: `我出钱，您炒股<br>盈利${this.getSettingFree.free_divided}%归您<br>最低${this.getSettingFree.free_min_money}元申请<br>资金放大5倍，最长配资20天`},
+        {title: '按天计划', content: `低门槛${this.getSettingDays.days_min_money}元起<br>资金放大1-10倍<br>支持单票满仓<br>利息用几天算几天，短线投资更便捷`},
+        {title: '按月计划', content: `低门槛${this.getSettingMonths.months_min_money}元起<br>资金放大1-10倍<br>支持单票满仓<br>长线配资更划算，利息最低0.6%`},
+        {title: 'VIP计划', content: `${this.getSettingVip.vip_min_money}元起申请<br>资金放大10倍以上<br>利息减半，VIP服务<br>交易佣金万一，最高可以配资${this.getSettingVip.vip_max_money}`}
+      ]
+    }
   },
   watch: {
     //累积配资人数
     'getSettingOrder.lenders_quantity':{
-      handler(newVal, oldVal) {  
+      handler(newVal, oldVal) { 
         let _this = this
         let _run = () => {     
           setTimeout(() => {

@@ -7,8 +7,6 @@ const routes =  [
         {
             path: '/home',
             component: () => import ('@/views/secondNav/home'),//网站首页
-
-
         },
         {
             path: '/freefee',
@@ -48,6 +46,14 @@ const routes =  [
             component: () => import ('@/views/user/login'),//用户登录
         },
         {
+            path: '/user/findPassword',
+            component: () => import ('@/views/user/findPassword'),//找回密码
+        },
+        {
+            path: '/user/authentication',
+            component: () => import ('@/views/user/authentication'),//验证身份
+        },
+        {
             path: '/user/about',
             component: () => import ('@/views/user/about'),//关于我们
         },
@@ -83,6 +89,14 @@ const routes =  [
             {
                 path: 'tradingRecord',
                 component: () => import ('@/views/member/tradingRecord'),//交易记录
+                meta: {
+                    auth: true,
+                    keep: true
+                }
+            },
+            {
+                path: 'withdrawalRecord',
+                component: () => import ('@/views/member/withdrawalRecord'),//提现记录
                 meta: {
                     auth: true,
                     keep: true

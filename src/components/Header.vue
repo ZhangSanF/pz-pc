@@ -11,7 +11,7 @@
                     <span v-if="!getIsLogin"><router-link to="/user/register" tag="a">免费注册</router-link>  |</span>
                     <span v-else><a href="javascript:void(0);" @click="exitLogin">退出</a>  |</span>
                     <span><router-link to="/user/bangzhu" tag="a">帮助中心</router-link>  |</span>
-                    <span><router-link to="/user/about" tag="a">关于我们</router-link></span>
+                    <span><a href="javascript:void(0);" @click="toAbout('公司简介', '0')">关于我们</a></span>
                 </div>
             </div>
             <div class="header">
@@ -54,7 +54,7 @@ import { mapGetters, mapActions } from "vuex";
 
 export default {
     methods:{
-        ...mapActions(['logout',  'isLogin']),
+        ...mapActions(['logout']),
         // 返回首页
         toHome() {
             this.$router.push('/home')
@@ -62,11 +62,15 @@ export default {
         // 退出登录
         exitLogin() {
             this.logout()
+        },
+        // 关于我们
+        toAbout(title, active) {
+            this.$router.push('/user/about')
+            this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
         }
     },
     mounted() {
-        //判断是否登录
-        this.isLogin()
+
     },
     computed: {
         ...mapGetters(['getIsLogin', 'getSettingBase'])

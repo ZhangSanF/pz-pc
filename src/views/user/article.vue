@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper-content">
+    <div class="wrapper-content article">
         <div class="header">&nbsp;&nbsp;&nbsp;首页 &gt; {{title}}</div>
         <el-tabs tab-position="left"  @tab-click="handleClick" :value="active">
             <el-tab-pane v-for="(item,index) in aboutData" :key="index" :label="item.label">
@@ -14,7 +14,12 @@
                     <div class="list_bottom">
                         <div class="list_bottom_right">
                             <ul>
-                                共<span>{{articleData.total}}</span> 条{{articleData.page}} 页&nbsp;当前第&nbsp;1&nbsp;页&nbsp;&nbsp; <a href="#" class="prevnext delcolor">首页</a> <a href="javascript:void(0);" class="prevnext delcolor">上一页</a> <a href="javascript:void(0);" class="prevnext delcolor">下一页</a>
+                                共&nbsp;<span>{{articleData.total}}</span>&nbsp;条
+                                {{sumPage}}&nbsp;页&nbsp;
+                                当前第&nbsp;{{articleData.page}}&nbsp;页&nbsp;&nbsp;
+                                <a @click="goPage('index')" href="javascript:void(0);" class="prevnext delcolor">首页&nbsp;</a> 
+                                <a @click="goPage('prev')" href="javascript:void(0);" class="prevnext delcolor">&nbsp;上一页&nbsp;</a> 
+                                <a @click="goPage('next')" href="javascript:void(0);" class="prevnext delcolor">&nbsp;下一页&nbsp;</a>
                             </ul>
                         </div>
                     </div>
@@ -40,42 +45,48 @@ export default {
                 {label:'配资百科', name: 'encyclopedias'}
             ],
             articleData: [], // 列表
-            showList: true, // 内容列表开关
             infoContent: '', // 内容
-            title: this.$route.query.title,
-            active: this.$route.query.active || 0,
+            active: '',
+            showList: true, // 内容列表开关
+            title: '',
+            page: 1,
+            page_size: 20,
         }
     },
     created() {
+        this.title = this.getArticleQuery.title
+        this.showList = this.getArticleQuery.showList
+        this.active = this.getArticleQuery.active
         this.showArticleData(this.title)
-        if(this.$route.query.showList != undefined) {
-            let id = this.$route.query.id
-            this.showList = false
-            this.getReadArticles({id: id, title: this.title}).then((res) => {
+        if(this.showList == false) {
+            this.readArticles(this.getArticleQuery.id, this.getArticleQuery.title)
+        }    
+    },
+    methods: {
+        ...mapActions(['getReadArticles', 'getAboutUsList']),
+        // 获取内容
+        readArticles(id,title){
+            this.getReadArticles({id:id, title:title}).then((res) => {
                 if(res.code == 200) {
                     this.infoContent = res.data.content
                 }
             })
-        }
-        // console.log(this.showList)
-        // console.log(this.$route.query.showList)
-    },
-    methods: {
-        ...mapActions(['getReadArticles']),
+        },
+        // 点击左边列表
         handleClick(tab, event) {
             this.showList = true
             this.title = tab.label
+            this.active = tab.index
             this.showArticleData(tab.label)
+            this.$store.commit('ARTICLE_QUERY', {title: tab.label, active: tab.index, id: '', showList: true})
         },
         // 点击列表显示内容
         infoData(id, title) {
             this.showList = false
-            this.getReadArticles({id: id, title: title}).then((res) => {
-                if(res.code == 200) {
-                    this.infoContent = res.data.content
-                }
-            })
+            this.readArticles(id, title)
+            this.$store.commit('ARTICLE_QUERY', {title: title, active: this.active, id: id, showList: false})
         },
+        // 根据 title 显示列表内容 
         showArticleData(target) {
             if(target == '网站公告') {
                 this.articleData = this.getAnnouncement
@@ -84,11 +95,52 @@ export default {
             }else {
                 this.articleData = this.getEncyclopedias
             }
+        },
+        getAboutUsListFun(page, page_size, category_identification) {
+            this.getAboutUsList({
+                page: page,
+                page_size: page_size,
+                category_identification: category_identification
+            })
+        },
+        goPage(target) {
+            let category_identification;
+            if(this.title == '网站公告') {
+                category_identification = 'announcement'
+            }else if(this.title == '股市行情') {
+                category_identification = 'stock_market'
+            }else {
+                category_identification = 'encyclopedias'
+            }
+            switch(target) {
+                case 'index' : 
+                    if(this.page != 1) {
+                        this.page = 1
+                        this.getAboutUsListFun(this.page, this.page_size, category_identification);
+                    }
+                    break;
+                case 'prev' : 
+                    if(this.page > 1) {
+                        this.page -- 
+                        this.getAboutUsListFun(this.page, this.page_size, category_identification);
+                    }
+                    break;
+                case 'next' : 
+                    if(this.page < this.sumPage) {
+                        this.page ++ 
+                        this.getAboutUsListFun(this.page, this.page_size, category_identification);
+                    }
+                    break;
+            }
         }
     },
     computed:{
-        ...mapGetters(['getStockInfo', 'getEncyclopedias', 'getAnnouncement']),
-    } 
+        ...mapGetters(['getStockInfo', 'getEncyclopedias', 'getAnnouncement', 'getArticleQuery']),
+        // 计算共多少页
+        sumPage() {
+            return Math.ceil(this.articleData.total/20)
+        }
+    }
 }
 </script>
 
@@ -125,11 +177,7 @@ export default {
     .el-tabs__active-bar {
         background-color:#b31d23 !important;
     }
-    .el-tabs__content {
-        background-color: #fff !important;
-        min-height: 800px!important;
-        padding:20px 40px ;
-    }
+    
     .el-tabs__nav-wrap::after {
         position: relative;
     }
@@ -159,4 +207,13 @@ export default {
     .list_bottom {
         margin-top: 20px;
     }
+</style>
+<style lang="scss">
+.article{
+    .el-tabs__content {
+        background-color: #fff ;
+        min-height: 800px !important;
+        padding:20px 40px ;
+    }
+}
 </style>

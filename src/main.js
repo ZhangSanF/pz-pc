@@ -4,7 +4,8 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
-import { getLocalStorage } from './config/mUtils'
+import 'vue-area-linkage/dist/index.css'; // v2 or higher
+import VueAreaLinkage from 'vue-area-linkage';
 import { 
   Button,
   Row,
@@ -16,7 +17,6 @@ import {
   Form,
   FormItem,
   Input,
-  InputNumber,
   Checkbox,
   Tabs,
   TabPane,
@@ -24,9 +24,16 @@ import {
   Radio,
   RadioGroup,
   Upload,
+  DatePicker,
+  Loading,
+  Dialog,
+  Card,
+  Alert,
+  MessageBox,
+  Collapse,
+  CollapseItem,
+  Progress,
  } from 'element-ui'
-Vue.config.productionTip = false
-Vue.prototype.$message = Message;
 Vue.use(Button)
 Vue.use(Col)
 Vue.use(Row)
@@ -43,6 +50,21 @@ Vue.use(Tooltip);
 Vue.use(Radio);
 Vue.use(RadioGroup);
 Vue.use(Upload);
+Vue.use(DatePicker);
+Vue.use(Loading.directive);
+Vue.use(Dialog);
+Vue.use(Card);
+Vue.use(Alert);
+Vue.use(Collapse);
+Vue.use(CollapseItem);
+Vue.use(Progress);
+
+Vue.use(VueAreaLinkage);
+
+Vue.config.productionTip = false
+Vue.prototype.$message = Message;
+Vue.prototype.$alert = MessageBox.alert;
+Vue.prototype.$confirm = MessageBox.confirm;
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -50,6 +72,12 @@ new Vue({
   store,
   components: { App },
   template: '<App/>',
+  created() {
+    // 判断是否登录
+    store.dispatch('isLogin')
+    // 获取基础数据
+    store.dispatch('setting')
+  },
   mounted() {
 
   }

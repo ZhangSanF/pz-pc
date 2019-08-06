@@ -1,20 +1,14 @@
 <template>
-    <div >
+    <div class="user-info-box">
         <div class="user-box-2">
             <Title :infoTitle="infoTitle"/>
             <el-row class="user-box-con">
                 <el-col >
                     <div class="user-information user-box-con-1 user-information-detail user-information-detail-show">
-                        <div class="user-portrait">
-                            <img class="user-img" src="../../assets/image/user_portrait.jpg" width="120" height="120"> 
-                            <el-upload
-                            class="avatar-uploader top"
-                            :action="UploadAction"
-                            :show-file-list="false"
-                            :on-success="handleAvatarSuccess"
-                            :before-upload="beforeAvatarUpload">
-                                修改头像
-                            </el-upload>
+                        <div class="user-portrait" @click="showUpImg">
+                            <img v-if="getUserInfo.portrait == null" class="user-img" src="../../assets/image/user_portrait.jpg" width="120" height="120">
+                            <img v-else class="user-img" :src="getUserInfo.portrait" alt="" width="120" height="120">
+                            <span class="top">修改头像</span>
                         </div>
                         <table class="name-table">
                             <tbody>
@@ -36,10 +30,17 @@
                                     <td class="user-info-value ">{{getUserInfo.real_name}}</td>
                                     <td class="user-info-state">
                                         <el-tooltip effect="light" placement="left-start">
-                                            <span slot="content">您已认证个人实名信息，如需修改请联系客服人员，<a class="a-style" href="#">在线客服</a></span>
+                                            <span slot="content" v-if="getUserInfo.is_real_name">
+                                                您已认证个人实名信息，如需修改请联系客服人员，
+                                                <a class="a-style" href="#">在线客服</a>
+                                            </span>
+                                            <span slot="content" v-else>
+                                                您未认证个人实名信息，
+                                                <a class="a-style" href="javascript:void(0);" @click="goSafeSetting(2)">实名认证</a>
+                                            </span>
                                             <div>
-                                                <span class="icon-check"></span>
-                                                <span class="icon-font">已认证</span>
+                                                <span :class="getUserInfo.is_real_name ? 'icon-check' : 'icon-no-check'"></span>
+                                                <span class="icon-font">{{getUserInfo.is_real_name?'已认证':'未认证'}}</span>
                                             </div>
                                         </el-tooltip>
                                     </td>
@@ -49,10 +50,17 @@
                                     <td class="user-info-value ">{{getUserInfo.identity_number}}</td>
                                     <td class="user-info-state">
                                         <el-tooltip effect="light" placement="left-start">
-                                            <span slot="content">您已绑定身份证，如需修改请联系客服人员，<a class="a-style" href="#">在线客服</a></span>
+                                            <span slot="content" v-if="getUserInfo.is_real_name">
+                                                您已绑定身份证，如需修改请联系客服人员，
+                                                <a class="a-style" href="#">在线客服</a>
+                                            </span>
+                                            <span slot="content" v-else>
+                                                您未绑定身份证，实名认证即可成功绑定身份证，
+                                                <a class="a-style" href="javascript:void(0);" @click="goSafeSetting(2)">实名认证</a>
+                                            </span>
                                             <div>
-                                                <span class="icon-check"></span>
-                                                <span class="icon-font">已绑定</span>
+                                                <span :class="getUserInfo.is_real_name ? 'icon-check' : 'icon-no-check'"></span>
+                                                <span class="icon-font">{{getUserInfo.is_real_name?'已绑定':'未绑定'}}</span>
                                             </div>
                                         </el-tooltip>
                                     </td>
@@ -62,7 +70,10 @@
                                     <td class="user-info-value ">{{getUserInfo.mobile}}</td>
                                     <td class="user-info-state">
                                         <el-tooltip effect="light" placement="left-start">
-                                            <span slot="content">您已绑定手机号，<a class="a-style" href="#">点击修改</a></span>
+                                            <span slot="content">
+                                                您已绑定手机号，
+                                                <a class="a-style" href="javascript:void(0);" @click="goSafeSetting(1)">点击修改</a>
+                                            </span>
                                             <div>
                                                 <span class="icon-check"></span>
                                                 <span class="icon-font">已认证</span>
@@ -80,10 +91,10 @@
                     <div v-if="!edit" class="user-information user-box-con-1 user-information-detail user-information-detail-show">
                         <table>
                             <tbody>
-                                <tr>
+                                <!-- <tr>
                                     <td class="user-info-label">出生日期</td>
                                     <td class="user-info-value ">{{getUserInfo.address}}</td>
-                                </tr>
+                                </tr> -->
                                 <tr>
                                     <td class="user-info-label">性别</td>
                                     <td class="user-info-value">{{getUserInfo.gender == true ? '男' : '女'}}</td>
@@ -93,12 +104,24 @@
                                     <td class="user-info-value ">{{getUserInfo.education}}</td>
                                 </tr>
                                 <tr>
+                                    <td class="user-info-label">省份</td>
+                                    <td class="user-info-value ">{{getUserInfo.province}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="user-info-label">城市</td>
+                                    <td class="user-info-value ">{{getUserInfo.city}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="user-info-label">地区</td>
+                                    <td class="user-info-value ">{{getUserInfo.area}}</td>
+                                </tr>
+                                <tr>
                                     <td class="user-info-label">通讯地址</td>
                                     <td class="user-info-value">{{getUserInfo.address}}</td>
                                 </tr>
                                 <tr>
                                     <td class="user-info-label">婚姻状态</td>
-                                    <td class="user-info-value">{{getUserInfo.marital_status}}</td>
+                                    <td class="user-info-value">{{getUserInfo.marital_status == '1' ? '已婚' : '未婚'}}</td>
                                 </tr>
                                 <tr>
                                     <td class="user-info-label">现就职于</td>
@@ -112,21 +135,33 @@
                                     <td class="user-info-label">月收入</td>
                                     <td class="user-info-value ">{{getUserInfo.monthly_income}}</td>
                                 </tr>
+                                <tr>
+                                    <td class="user-info-label">紧急联系人</td>
+                                    <td class="user-info-value ">{{getUserInfo.emergency_name}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="user-info-label">紧急联系人手机</td>
+                                    <td class="user-info-value ">{{getUserInfo.emergency_mobile}}</td>
+                                </tr>
+                                <tr>
+                                    <td class="user-info-label">紧急联系人关系</td>
+                                    <td class="user-info-value ">{{getUserInfo.emergency_relationship}}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <el-form ref="editForm" label-width="266px" size="small "  v-if="edit" :model="editForm" >
-                        <el-form-item label="出生日期((不可修改))" >
+                        <!-- <el-form-item label="出生日期((不可修改))" >
                             {{editForm.birthday}}
-                        </el-form-item>
+                        </el-form-item> -->
                         <el-form-item label="性别" >
-                            <el-radio-group v-model="editForm.sex" >
+                            <el-radio-group v-model="editForm.gender" >
                                 <el-radio :label="true">男</el-radio>
                                 <el-radio :label="false">女</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="本人学历" >
-                            <el-select v-model="editForm.xueli"  placeholder="请选择">
+                            <el-select v-model="editForm.education"  placeholder="请选择">
                                 <el-option
                                 v-for="item in education"
                                 :key="item.label"
@@ -135,23 +170,35 @@
                                 </el-option>
                             </el-select>  
                         </el-form-item>
+                        <el-form-item label="身份证所处地" >
+                            <area-cascader type="text" :level="1" v-model="selectedCity" :data="pcaa"></area-cascader>
+                        </el-form-item>                    
+                        <!-- <el-form-item label="省份" >
+                            <el-input type="text" maxlength="30" show-word-limit v-model="editForm.province" placeholder="请输入省份"></el-input>
+                        </el-form-item> -->
+                        <!-- <el-form-item label="城市" >
+                            <el-input type="text" maxlength="30" show-word-limit v-model="editForm.city" placeholder="请输入城市"></el-input>
+                        </el-form-item> -->
+                        <!-- <el-form-item label="地区" >
+                            <el-input type="text" maxlength="30" show-word-limit v-model="editForm.area" placeholder="请输入地区"></el-input>
+                        </el-form-item> -->
                         <el-form-item label="通讯地址" >
-                            <el-input v-model="editForm.school" placeholder="请输入通讯地址"></el-input>
+                            <el-input type="text" maxlength="100" show-word-limit v-model="editForm.address" placeholder="请输入通讯地址"></el-input>
                         </el-form-item>
                         <el-form-item label="婚姻状态" >
-                            <el-radio-group v-model="editForm.merriage" >
-                                <el-radio  label="0">已婚</el-radio>
-                                <el-radio  label="1">未婚</el-radio>
+                            <el-radio-group v-model="editForm.marital_status" >
+                                <el-radio label="1">已婚</el-radio>
+                                <el-radio label="0">未婚</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="现就职于" >
-                            <el-input   v-model="editForm.address" placeholder="请输入"></el-input>
+                            <el-input maxlength="100" show-word-limit v-model="editForm.working_company" placeholder="请输入"></el-input>
                         </el-form-item>
                         <el-form-item label="职位" >
-                            <el-input  v-model="editForm.position" placeholder="请输入职位"></el-input>
+                            <el-input maxlength="30" show-word-limit v-model="editForm.job" placeholder="请输入职位"></el-input>
                         </el-form-item>
                         <el-form-item label="月收入" >
-                            <el-select v-model="editForm.shouru"   placeholder="请选择">
+                            <el-select v-model="editForm.monthly_income"   placeholder="请选择">
                                 <el-option
                                 v-for="item in education1"
                                 :key="item.value"
@@ -159,6 +206,15 @@
                                 :value="item.label">
                                 </el-option>
                             </el-select>
+                        </el-form-item>
+                        <el-form-item label="紧急联系人" >
+                            <el-input type="text" maxlength="12"  v-model="editForm.emergency_name" placeholder="请输入紧急联系人"></el-input>
+                        </el-form-item>
+                        <el-form-item label="紧急联系人手机" >
+                            <el-input type="text" v-model="editForm.emergency_mobile" placeholder="请输入紧急联系人手机"></el-input>
+                        </el-form-item>
+                        <el-form-item label="紧急联系人关系" >
+                            <el-input type="text" maxlength="30"  v-model="editForm.emergency_relationship" placeholder="请输入紧急联系人关系"></el-input>
                         </el-form-item>
                         <el-form-item  >
                             <el-button size="mini" type="warning" @click="saveInfo">保存</el-button>
@@ -169,6 +225,29 @@
             </el-row>
             <Warm :warmData="warmData"/>
         </div>
+        <div class="upImg-box" v-if="isShowUpImg">
+            <div class="ps2-con">
+                <div class="ps1-title">
+                    <h2>上传头像</h2>
+                    <p @click="closeUpImg">╳</p>
+                </div>
+                <div class="uploading-portrait-con">
+                    <span class="input-box">
+                        <span>上传图片</span>
+                        <input id="pop_file" class="file" type="file" accept=".jpg,.jpeg,.png" v-on:change="uploadFile($event)" name="fileTrans" ref="file" value="" />
+                    </span>                   
+                    <img id="preview" src="" style="max-width: 100px;max-height: 100px;"/>
+                </div>
+                <div class="uploading-portrait-btn">
+                    <p class="font">
+                        您可以上传JPG、GIF或PNG文件<br>
+                        上传图片最大2M
+                    </p>
+                    <span @click="upPortrait">保存</span>
+                    <span style="color: #666;background: #efefef;" @click="closeUpImg">取消</span>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -176,24 +255,31 @@
 import Title from '@/components/member/Title'
 import Warm from '@/components/member/Warm'
 import { mapGetters, mapActions } from "vuex";
-import {baseUrl} from "@/config/env";
+import { pcaa } from 'area-data'; // v5 or higher
+
 export default {
     components:{ Title ,Warm },
     inject: ['reload'],
     data() {
         return {
-            editForm: {
-                birthday:'1984-09-16',
-                xueli:'',
-                shouru:'',
-                address: '',
-                school: '',
-                position: '',
-                merriage:'',
-                sex: ''
+            selectedCity: [],
+            pcaa: pcaa,
+             editForm: {
+                // birthday:'1984-09-16',
+                gender: '',//性别
+                education:'',//本人学历
+                province: '',//省份
+                city: '',//城市
+                area: '',//地区
+                address: '',//通讯地址
+                marital_status:'',//婚姻
+                working_company: '',//现就职于 
+                job: '',//职位
+                monthly_income:'',   //月收入
+                emergency_name: '', //   紧急联系人 
+                emergency_mobile: '', //   紧急联系人手机    
+                emergency_relationship: '', //   紧急联系人关系         
             },
-            imageUrl:'',
-            UploadAction: baseUrl +'/index/member/portraitupload',
             education: [
                 { label: '高中及以下' }, 
                 { label: '大专' }, 
@@ -214,6 +300,7 @@ export default {
                     title:'修改个人信息',
                 }
             },
+            isShowUpImg: false,
             //温馨提示数组
             warmData: [
                 '请您根据自身真实情况填写，出彩速配会对用户的所有资料进行严格保密。',
@@ -235,35 +322,70 @@ export default {
             });
             this.editForm = obj
         },
+        goSafeSetting(id) {
+            this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
+        },
+        showUpImg() {
+            this.isShowUpImg = true
+        },
+        closeUpImg() {
+            this.isShowUpImg = false
+        },
         // 保存个人信息
         saveInfo() {
             let obj = {
-                gender: this.editForm.sex,//性别
-                marital_status: this.editForm.merriage,//婚姻
-                emergency_mobile: '15854123584', //紧急联系人手机
-                education: this.editForm.xueli,//本人学历
-                address: this.editForm.school,//通讯地址
-                working_company:this.editForm.address,//现就职于
-                job: this.editForm.position, //职位
-                monthly_income: this.editForm.shouru, //月收入
+                gender: this.editForm.gender || this.getUserInfo.gender,//性别
+                education: this.editForm.education || this.getUserInfo.education,//本人学历                
+                province: this.editForm.province || this.getUserInfo.province,//省份
+                city: this.editForm.city || this.getUserInfo.city,//城市
+                area: this.editForm.area || this.getUserInfo.area,//地区
+                address: this.editForm.address || this.getUserInfo.address,//通讯地址
+                marital_status: this.editForm.marital_status || this.getUserInfo.marital_status,//婚姻
+                working_company:this.editForm.working_company || this.getUserInfo.working_company,//现就职于 
+                job: this.editForm.job || this.getUserInfo.job, //职位
+                monthly_income: this.editForm.monthly_income || this.getUserInfo.monthly_income, //月收入
+                emergency_name: this.editForm.emergency_name || this.getUserInfo.emergency_name, //紧急联系人  
+                emergency_mobile: this.editForm.emergency_mobile || this.getUserInfo.emergency_mobile, //紧急联系人手机            
+                emergency_relationship: this.editForm.emergency_relationship || this.getUserInfo.emergency_relationship, //紧急联系人关系
             }
-            this.getModifybasicdata(obj)
-            this.reload()
+            this.getModifybasicdata(obj).then(res=>{
+                if( res.code == 200){
+                    Object.assign(this.$store.state.userInfo, obj)
+                    this.reload()
+                } else {
+                    this.$message.error(res.message);
+                }    
+            })
         },
-        //上传头像
-        uploadImg() {
-
-            // this.portraitUpload()
-        },
-        handleAvatarSuccess(res, file) {
-            this.imageUrl = URL.createObjectURL(file.raw);
-        },
-        beforeAvatarUpload(file) {
-            const isLt2M = file.size / 1024 / 1024 < 2;
-            if (!isLt2M) {
-            this.$message.error('上传头像图片大小不能超过 2MB!');
+        // 设置上传图片的显示
+        uploadFile() {
+            const file = document.getElementById('pop_file');
+            const fileObj = file.files[0];
+            const windowURL = window.URL || window.webkitURL;
+            const img = document.getElementById('preview');
+            if(file && fileObj) {
+                const dataURl = windowURL.createObjectURL(fileObj);
+                img.setAttribute('src',dataURl);
             }
-            return  isLt2M;
+        },
+        // 上传图像
+        upPortrait() {
+            const oFiles = document.getElementById("pop_file")
+            if(oFiles.value != '') {
+                const fileSize = oFiles.files[0].size / 1024 
+                if(fileSize > 500) {
+                    this.$alert('上传图片要小于500kb!');
+                }else {
+                    let params = new FormData();
+                    params.append('file',oFiles.files[0]);
+                    this.portraitUpload(params).then((res) => {
+                        if(res.code == 200) {
+                            this.$store.commit('PORTRAIT', res.data.info)
+                            this.reload()
+                        }
+                    })
+                }
+            }
         }
     },
     computed: {
@@ -273,12 +395,91 @@ export default {
 
     },
     watch: {
-
+        'selectedCity': {
+            handler(val, b) {
+                this.editForm.province = val[0]
+                this.editForm.city = val[1]
+                this.editForm.area = val[2]
+            },
+            deep: true
+        }
     }
 }
 </script>
 
 <style lang="scss" scoped>
+.input-box{
+    display: inline-block;
+    width: 80px;
+    height: 30px;
+    overflow: hidden;
+    position: relative;
+    background: #da4848;
+    color: #fff;
+    line-height: 30px;
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+}
+.file {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: 30px;
+    opacity: 0;
+}
+.upImg-box{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    background: rgba(166,166,166,.3);
+    .ps2-con{
+        position: absolute;top: 50%;left: 50%;transform: translate(-50%,-50%);background: #fff;border-radius: 5px;
+        border: 1px solid #e0e0e0;background: #fff;margin: 5px;width: 450px;
+        .ps1-title{
+            border-bottom: 1px solid #e5e5e5;height: 40px;background: #f3f3f3;border-radius: 3px 3px 0 0;
+            display: flex;justify-content: space-between;align-items: center;padding-left:10px;box-sizing: border-box;
+            h2{
+                text-indent: 15px;color: #333;font-size: 14px;font-weight: 700;
+            }
+            p{
+                font-size: 20px;color: #8f8f8f;padding: 0 10px;cursor: pointer;
+            }
+        }
+        .uploading-portrait-con{
+            padding-top: 15px;padding-left: 15px;display: flex;align-items: center;justify-content: space-between;padding-right: 50px;
+        }
+        .uploading-portrait-btn{
+            position: relative;
+            padding-left: 295px;
+            padding-bottom: 30px;
+            padding-top: 10px;
+            width: 140px;
+            span{
+                display: inline-block;
+                padding:  0 15px;
+                text-align: center;
+                height: 24px;
+                line-height: 24px;
+                color: #fff;
+                background: #fe7b20;
+                cursor: pointer;
+                margin-right: 5px;
+            }
+            .font{
+                position: absolute;
+                top: 22px;
+                left: 22px;
+                color: #666;
+                line-height: 18px;
+            }
+        }
+    }
+}
 .user-box-2{
     border: 1px solid #e0e0e0;
     border-radius: 3px;
@@ -362,6 +563,13 @@ img {
     vertical-align: middle;
     background: url(../../assets/image/user_sprite.png) no-repeat -17px -842px;
 }
+.icon-no-check{
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+    background: url(../../assets/image/user_sprite.png) no-repeat -34px -842px;
+}
 .icon-font{
     display: inline-block;
 }
@@ -409,4 +617,15 @@ img {
 .user-information-detail {
     border-top: 1px solid #e0e0e0;
 }
+</style>
+<style lang="scss">
+.user-info-box{
+    .area-select .area-selected-trigger{
+        padding:0 0 0 10px
+    }
+    .area-select.large{
+        width: 100%;
+    }
+}
+
 </style>

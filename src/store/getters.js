@@ -1,86 +1,52 @@
-//是否登录
-export const getIsLogin = (state) => {return state.isLogin}
+import {compare} from '../js/utils'
 
-export const getVerify = (state) => {return state.verify?state.verify:null}
+//是否登录
+export const getIsLogin = state => state.isLogin
 
 // 个人信息
-export const getUserInfo = (state) => {
-    console.log(state.userInfo)
-    return state.userInfo?state.userInfo:null}
+export const getUserInfo = state =>  state.userInfo?state.userInfo:null
 
 //首页轮播图
-export const getPcIndexCarousel = (state) => {return state.pcIndexCarousel}
+export const getPcIndexCarousel = state => state.pcIndexCarousel
 
 //股市行情
-export const getStockInfo = state => {return state.stockInfo}
+export const getStockInfo = state => state.stockInfo
 //配资百科
-export const getEncyclopedias = state => {return state.encyclopedias}
+export const getEncyclopedias = state =>  state.encyclopedias
 //网站公告
-export const getAnnouncement = state => {return state.announcement}
+export const getAnnouncement = state =>  state.announcement
 //关于我们
-export const getAboutUs = state => {return state.aboutUs}
+export const getAboutUs = state =>  state.aboutUs
 //帮助中心
-export const getHelpCenter = state => {return state.helpCenter}
+export const getHelpCenter = state =>  state.helpCenter
 
-//关于我们
-export const getAboutUsRead = state => {return state.aboutUsRead}
 // 合作伙伴
-export const getCooperation = state => {return state.cooperation}
-
-//安全设置
-export const getSafeData = state => {
-    let data = []
-    const a = {
-        lable:'用户名',
-        value: state.userInfo.username,
-        showEdit: false,
-    }
-    const b = {
-        lable:'手机认证',
-        value: state.userInfo.mobile,
-        showEdit: false,
-    } 
-    const c = {
-        lable:'实名认证',
-        value: state.userInfo.is_real_name?'已设置':'未设置' ,
-        showEdit: false,
-    } 
-    const d = {
-        lable:'登录密码',
-        value: '已设置',
-        showEdit: false,
-    }
-    const e = {
-        lable:'支付密码',
-        value: state.userInfo.is_pay_password ?'已设置':'未设置',
-        showEdit: false,
-    }
-    const f = {
-        lable:'密码保护',
-        value: state.userInfo.is_protect ?'已设置':'未设置',
-        showEdit: false,
-    } 
-    data.push(a)
-    data.push(b)
-    data.push(c)
-    data.push(d)
-    data.push(e)
-    data.push(f)
-    return data
-}
+export const getCooperation = state => state.cooperation
 
 // 充值
-export const getPayData = (state) => {return state.payData}
+export const getPayData = state => state.payData
 
 // 系统配置
-export const getSettingBase = (state) => {return state.settingBase}
-export const getSettingOrder = (state) => {return state.settingOrder}
-export const getSettingFree = (state) => {return state.settingFree}
-export const getSettingDays = (state) => {return state.settingDays}
-export const getSettingMonths = (state) => {return state.settingMonths}
-export const getSettingVip = (state) => {return state.settingVip}
+export const getSettingBase = state =>  state.settingBase
+export const getSettingOrder = state =>  state.settingOrder
+export const getSettingFree = state =>  state.settingFree
+export const getSettingDays = state =>  state.settingDays
+export const getSettingMonths = state =>  state.settingMonths
+export const getSettingVip = state =>  state.settingVip
 
-// 密保问题
-export const getSafeProtection = state => {return state.userInfo.password_protection}
+//新手任务
+export const getXsrwData = state =>  {
+    return state.xsrwData.sort(compare("sort"));
+}
 
+//获取银行卡列表
+export const getBankList = state =>  state.bankList
 
+//关于我们参数
+export const getAboutQuery = state =>  state.aboutQuery
+
+//网站公告&&配资百科&&股市行情参数
+export const getArticleQuery = state =>  state.articleQuery
+
+//配资单列表
+export const getOrderList = state =>  state.orderList

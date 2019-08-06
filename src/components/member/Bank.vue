@@ -1,45 +1,33 @@
 <template>
     <div class="bank_content" >
-        <el-form ref="bankForm" label-width="100px" size="small "   :model="bankForm">
+        <el-form ref="bankForm" label-width="100px" size="small">
             <el-form-item label="持卡人" >
-                {{bankForm.name}}
+                {{getUserInfo.real_name}}
             </el-form-item>
             <el-form-item label="银行" >
-                <el-select class="bank_input" v-model="bankForm.bankType"  placeholder="请选择">
+                <el-select class="bank_input" v-model="bankForm.bank_name"  placeholder="请选择">
                     <el-option
-                    v-for="item in bankList"
-                    :key="item.name"
-                    :value="item.name">
+                        v-for="(item, index) in getBankList"
+                        :key="index"
+                        :value="item">
                     </el-option>
                 </el-select>
             </el-form-item>
             <el-form-item label="卡号" >
-                <el-input  v-model="bankForm.bankNumber" class="bank_input"  placeholder="请输入卡号"></el-input>
+                <el-input  v-model="bankForm.bank_card_number" class="bank_input"  placeholder="请输入卡号"></el-input>
             </el-form-item>
             <el-form-item label="开户城市" >
-                <el-select class="bank_city" v-model="bankForm.bankType"  placeholder="请选择">
-                    <el-option
-                    v-for="item in bankList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    </el-option>
-                </el-select>
-                <el-select class="bank_city" v-model="bankForm.bankType"  placeholder="请选择">
-                    <el-option
-                    v-for="item in bankList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
-                    </el-option>
-                </el-select>
+                <area-select type="text" v-model="selectedCity" :data="pca" :placeholders="['请选择省','请选择市']"></area-select>
+            </el-form-item>          
+            <el-form-item label="开户行" >
+                <el-input  v-model="bankForm.bank_branch_name" class="bank_input"  placeholder="请输入开户行"></el-input>
             </el-form-item>
             <el-form-item label="手机号码" >
-                <span class="bank_city fl" >{{bankForm.bankPhone}}</span>
-                <el-button class="bank_city "  type="warning" size="mini">获取短信验证码</el-button>
+                <span class="bank_city fl" >{{getUserInfo.mobile}}</span>
+                <el-button class="bank_city" type="warning" size="mini">获取短信验证码</el-button>
             </el-form-item>
             <el-form-item label="短信验证码" >
-                 <el-input  v-model="bankForm.smsCode" class="bank_input"  placeholder="请输入短信验证码"></el-input>
+                 <el-input  v-model="smsCode" class="bank_input"  placeholder="请输入短信验证码"></el-input>
             </el-form-item>
             <el-form-item v-if="prompt.length > 0" label="温馨提示" >
                  <p class="prompt" v-for="(item,index) in prompt" :key="index">
@@ -55,47 +43,33 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+import { pca } from 'area-data'; // v5 or higher
+
 export default {
+    inject: ['reload'],
     props:{
-        bankForm: {
-            type: Object,
-            default: ()=> { return {} }
-        },
         prompt: {
             type: Array,
             default: ()=> { return [] }
-        },
-        add: {
-            type: Function,
-        },
+        }
     },
     data() {
         return {
-            bankList: [
-                { value: "gongshang", name: "工商银行" },
-                { value: "longye", name: "农业银行" },
-                { value: "jianshe", name: "建设银行" },
-                { value: "zhaoshang", name: "招商银行" },
-                { value: "zhongguo", name: "中国银行" },
-                { value: "pufa", name: "浦发银行" },
-                { value: "zhongxin", name: "中信银行" },
-                { value: "jiaotong", name: "交通银行" },
-                { value: "minshen", name: "民生银行" },
-                { value: "xingye", name: "兴业银行" },
-                { value: "youzhen", name: "邮政银行" },
-                { value: "guangda", name: "光大银行" },
-                { value: "huaxia", name: "华夏银行" },
-                { value: "zheshang", name: "浙商银行" },
-                { value: "baoshang", name: "包商银行" },
-                { value: "beijing", name: "北京银行" },
-                { value: "shanghai", name: "上海银行" },
-                { value: "hrb", name: "哈尔滨银行" },
-                { value: "jiangsu", name: "江苏银行" },
-            ],
-
+            selectedCity: [],
+            pca: pca,
+            bankForm: {
+                bank_name: '', //开户银行
+                bank_card_number: '',//卡号
+                bank_province: '',//省
+                bank_city: '',//市
+                bank_branch_name: ''//支行名称
+            },
+            smsCode: '',//短信验证码
         }
     },
     methods:{
+        ...mapActions(['bindBankCard']),
         resetForm() {
             const obj = this.bankForm? this.bankForm: {}
             Object.keys(obj).forEach(function(key){
@@ -104,9 +78,59 @@ export default {
             });
             this.bankForm = obj
         },
-        parentToDo() {
-            console.log(this)
-            this.$parent.toDoMore()
+        add(obj) {
+            if(
+                !obj.bank_name || 
+                !obj.bank_card_number || 
+                !obj.bank_province ||
+                !obj.bank_city ||
+                !obj.bank_branch_name ||
+                !this.smsCode
+            ) {
+                this.$alert('请填写完整信息');
+                return
+            }
+
+            // if(obj.bank_name == '') {
+            //     this.$message({type: "error", message: "开户银行不能为空"})
+            //     return false
+            // }
+            // let regex = /^([1-9]{1})(\d{15}|\d{18})$/
+            // if(obj.bank_card_number == '' || !regex.test(obj.bank_card_number)) {
+            //     this.$message({type: "error", message: "请填写正确的银行卡号"})
+            //     return false
+            // }
+            // if(obj.bank_province == '' || obj.bank_city == '') {
+            //     this.$message({type: "error", message: "开户城市不能为空"})
+            //     return false
+            // }
+            // if(obj.bank_branch_name == '') {
+            //     this.$message({type: "error", message: "开户行不能为空"})
+            //     return false
+            // }
+            // if(this.smsCode == '') {
+            //     this.$message({type: "error", message: "验证码不能为空"})
+            //     return false
+            // }
+
+            this.bindBankCard(obj).then((res) => {
+                if(res.code == 200) {
+                    this.$store.commit('ADD_BANK', {bank_card_number: res.data.bank_card_number, bank_name: res.data.bank_name})
+                    this.reload()
+                }
+            })
+        }
+    },
+    computed: {
+        ...mapGetters(['getUserInfo', 'getBankList'])
+    },
+    watch:{
+        'selectedCity': {
+            handler(val, b) {
+                this.bankForm.bank_province = val[0]
+                this.bankForm.bank_city = val[1]
+            },
+            deep: true
         }
     }
 }
@@ -124,5 +148,18 @@ export default {
     .prompt {
         color: #e25353;
     }
-
+</style>
+<style lang="scss">
+.bank_content{
+    .area-select-wrap .area-select{
+        margin-left: 0;
+    }
+    .area-select .area-selected-trigger{
+        padding:0 0 0 10px
+    }
+    .area-selectable-list-wrap{
+        margin: 0;
+        top: 34px !important;
+    }
+}
 </style>

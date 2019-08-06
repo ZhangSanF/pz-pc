@@ -1,7 +1,6 @@
 body, ol, ul, h1, h2, h3, h4, h5, h6, p, th, td, dl, dd, form, fieldset, legend, input, textarea, select, div {
   margin: 0;
   padding: 0;
-  user-select: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -116,7 +115,7 @@ select {
 }
 
 .reg-item {
-  margin: 30px 0 0 95px;
+  margin: 23px 0 0 95px;
 }
 
 .register_main {

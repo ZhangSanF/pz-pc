@@ -13,14 +13,11 @@ module.exports = {
     // proxyTable: {},
     proxyTable: {
       '/': { 
-        // target: 'https://www-kaijiangwang-dev.e2048.com',
-        // target: 'https://www-kaijiangwang2-dev.e2048.com',
         target: 'https://www-peizi-dev.e2048.com',
-        // target: 'https://api.kaijiangwang-gray.e2048.com',
         changeOrigin: true,
         secure: false,
         pathRewrite: {
-          '^/': '/'
+          '^/': ''
         }
       }
     },
@@ -54,6 +51,7 @@ module.exports = {
 
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
+
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
 
@@ -61,7 +59,7 @@ module.exports = {
      * Source Maps
      */
 
-    productionSourceMap: true,
+    productionSourceMap: false,
     // https://webpack.js.org/configuration/devtool/#production
     devtool: '#source-map',
 

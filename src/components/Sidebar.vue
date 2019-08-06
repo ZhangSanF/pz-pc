@@ -17,7 +17,7 @@
             </div>
         </span>
         <span>
-            <a href="" class="xszn">
+            <a class="xszn" href="javascript:void(0);" @click="toAbout('新手指南', '3')">
                 <img src="../assets/image/ct_sidebar-3.png" alt="新手指南">
                 <p>新手指南</p>
             </a>
@@ -26,29 +26,39 @@
             <img src="../assets/image/ct_sidebar-4.png" alt="微信客服">
             <p>微信客服</p>
             <div class="saoma">
-                <img class="wxkf" src="../assets/image/20190611180622.png" alt="">
+                <img class="wxkf" :src="getSettingBase.weixin_service_img" alt="">
             </div>
         </span>
         <span>
             <img src="../assets/image/ct_sidebar-4.png" alt="网站APP">
             <p>网站APP</p>
             <div class="saoma">
-                <img class="wxkf" src="../assets/image/20190612105808.png" alt="">
+                <img class="wxkf" :src="getSettingBase.website_app_img" alt="">
             </div>
         </span>
         <span>
             <img src="../assets/image/ct_sidebar-4.png" alt="网站APP">
             <p>交易APP</p>
             <div class="saoma">
-                <img class="wxkf" src="../assets/image/20190327145339.png" alt="">
+                <img class="wxkf" :src="getSettingBase.shares_app_img" alt="">
             </div>
         </span>
     </div>
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
-    
+    methods: {
+        toAbout(title, active) {
+            this.$router.push('/user/about')
+            this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
+        }
+    },
+    computed: {
+        ...mapGetters(['getSettingBase'])
+    } 
 }
 </script>
 

@@ -9,58 +9,60 @@
                     </div>
                 </div>
             <div class="reg-form">
-                <el-form ref="ruleForm" :model="ruleForm"  :rules="rules" >
-                    <el-form-item  prop="username"  class="reg-item" style="" >
-                        <el-input  placeholder="请输入用户名(字母数字组合),开头为字母,6-12位数"  autocomplete="off" v-model.trim="ruleForm.username "></el-input>
-                    </el-form-item>
-                    <el-form-item  prop="mobile" class="reg-item">
-                        <el-input type="phone"  placeholder="请输入11位中国大陆手机号"  v-model.trim="ruleForm.mobile"></el-input>
-                    </el-form-item>
-                    <el-form-item prop="verifi" class="reg-item" >
-                        <el-input class="verifi-input"  placeholder="请输入验证码"  v-model.trim="ruleForm.verifi">
-                             <el-button slot="append" @click="changeVerifi" >
-                                <img :src="verifySrc" alt="">
-                             </el-button>
-                        </el-input>
-                    </el-form-item>
-                    <el-form-item prop="smsCode" class="reg-item" >
-                        <el-input class="verifi-input"  placeholder="请输入验证码"  v-model.trim="ruleForm.smsCode">
-                            <template slot-scope="">
-                                <el-button slot="append" @click="getCode"  >点击发送验证码</el-button>
-                            </template>
-                        </el-input>
+                <el-form ref="ruleForm" :model="ruleForm"  :rules="rules"  >
+                    <el-form-item  prop="username" class="reg-item" >
+                        <el-input  placeholder="请输入用户名" v-model.trim="ruleForm.username"></el-input>
                     </el-form-item>
                     <el-form-item  prop="password"  class="reg-item">
-                        <el-input type="password" placeholder="请输入密码"  v-model.trim="ruleForm.password" autocomplete="off"></el-input>
+                        <el-input class="password-font" type="text"  placeholder="请输入密码"  v-model.trim="ruleForm.password" ></el-input>
                     </el-form-item>
                     <el-form-item   class="reg-item" prop="confirm_password">
-                        <el-input type="password" placeholder="请再次输入密码"  v-model.trim="ruleForm.confirm_password" autocomplete="off"></el-input>
+                        <el-input class="password-font" type="text"  placeholder="请再次输入密码"  v-model.trim="ruleForm.confirm_password"></el-input>
+                    </el-form-item>
+                    <el-form-item  prop="mobile" class="reg-item">
+                        <el-input  type="phone"  placeholder="请输入11位中国大陆手机号"  v-model.trim="ruleForm.mobile"></el-input>
+                    </el-form-item>
+                    <el-form-item prop="verifi" class="reg-item" >
+                        <el-input  class="verifi-input"  placeholder="请输入验证码"   v-model.trim="ruleForm.verifi">
+                             <el-button slot="append" @click="changeVerifi" >
+                                <img :src="verifySrc" alt="">                              
+                             </el-button>
+                        </el-input>
+                    </el-form-item>   
+                    <el-form-item prop="smsCode" class="reg-item" >
+                        <el-input  class="verifi-input"  placeholder="请输入验证码"  v-model.trim="ruleForm.smsCode">
+                            <template slot-scope="">
+                                <el-button slot="append" @click="getCode">点击发送验证码</el-button>
+                            </template>
+                        </el-input>
+                    </el-form-item>                    
+                    <el-form-item  class="reg-item">
+                        <el-input  placeholder="请输入推荐人,如果没有，可以不填写" v-model.trim="ruleForm.invitation_code"></el-input>
                     </el-form-item>
                     <el-form-item  class="reg-item">
-                        <el-input  placeholder="请输入推荐人,如果没有，可以不填写" v-model.trim="ruleForm.recommend"></el-input>
-                    </el-form-item>
-                    <el-form-item  class="reg-item">
-                       <el-checkbox  v-model="isAgree" >同意</el-checkbox> <a href="">《注册服务协议 》</a>
+                       <el-checkbox  v-model="isAgree" >同意</el-checkbox> 
+                       <a href="javascript:void(0);" @click="toAbout('注册协议', '4')">《注册服务协议》</a>
                         <router-link  class="fr login"  to="login" tag="a">[立即登录]</router-link>
-                        <span  class="fr">已有账号</span >
+                        <span  class="fr" style="color: #333;">已有账号</span >
                     </el-form-item>
                     <el-form-item  class="reg-item">
-                            <el-button v-if="canSave" class="reg-btn" style="" @click="toRegister">同意协议并注册</el-button>
-                            <el-button v-else disabled class="reg-btn"  >立即登录</el-button>
+                            <el-button class="reg-btn" @click="toRegister">同意协议并注册</el-button>
                     </el-form-item>
                 </el-form>
             </div>
-
         </div>
         </div>
+        <ActionsReg ref="mychild" :ruleForm="ruleForm"/>
     </div>
 </template>
 <script>
-import { mapActions,mapState ,mapGetters } from "vuex";
-import {getSessionStorage} from '../../config/mUtils'
-import md5 from 'js-md5';
+import { mapActions } from "vuex";
+import { getUrlKey } from '@/js/utils'
+import ActionsReg from '@/components/ActionsReg'
+
 export default {
         name: 'register',
+        components:{ ActionsReg },
         data(){
             let checkPass = (rule, value, callback) => {
                 if (value === '') {
@@ -72,26 +74,22 @@ export default {
                 }
             };
             return{
-                verifySrc: 'https://www-peizi-dev.e2048.com/index/account/verify',
+                verifySrc: '',
                 isAgree: true,
-                canSave: true,
                 ruleForm: {
                     username: '',
                     verifi: '',
                     mobile: '',
                     smsCode: '',
-                    recommend: '',
+                    invitation_code: '',//邀请码
+                    agent_code: getUrlKey("agent_code") || '',//代理码(地址栏)
                     password:'',
                     confirm_password:''
-                },
-                loginPwd: {
-                    password:'',
-                    confirm_password:'',
                 },
                 rules: {
                     password: [
                         { required: true, 
-                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,21}$/, 
+                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, 
                             message: '密码6-20位字母和数字组合',
                             max: 20,
                             min: 6,
@@ -99,7 +97,7 @@ export default {
                     ],
                     confirm_password: [
                         { required: true, 
-                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,21}$/,
+                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
                             message: '密码6-20位字母和数字组合',
                             max: 20,
                             min: 6,
@@ -108,16 +106,16 @@ export default {
                     ],
                     username: [
                         { required: true,  
-                            pattern: /^[a-zA-Z][a-zA-Z0-9]{6,12}$/,
-                            message: '用户名6-12位字母和数字组合',
-                            max: 12,
+                            pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9_]+$/,
+                            message: '用户名由6-16字母和数字和下划线组合且必须以字母开头',
+                            max: 16,
                             min: 6,
                             trigger: 'blur' },
                     ],
                     mobile: [
                         {
                             required: true,
-                            pattern: /^((\+?[0-9]{1,4})|(\(\+86\)))?(13[0-9]|14[0-9]|15[0-9]|17[0-9]|18[0-9])\d{8}$/,
+                            pattern: /^[1]([3-9])[0-9]{9}$/,
                             message: '手机号不正确',
                             max: 11,
                             min: 11,
@@ -143,51 +141,60 @@ export default {
                 }
             }
         },
+        created() {
+            this.getVerifyFun()
+        },
         methods:{
-            ...mapActions(["login",'register','getVerify']),
-            toRegister() {
+            ...mapActions(['getVerify']),
+            toAbout(title, active) {
+                this.$router.push('/user/about')
+                this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
+            },
+            toRegister() {              
                 this.$refs['ruleForm'].validate((valid) => {
-                    if (valid) {
-                        if(!this.canSave) return false
-                        this.canSave = false
-                        const a =  md5(this.ruleForm.password)
-                        const b =  md5(this.ruleForm.confirm_password)
-                        const md5Password = {
-                            password: a,
-                            confirm_password: b
-                        }
-                        this.register(Object.assign(this.ruleForm, md5Password))
-                        this.canSave = true
-                    } else {
-                        console.log('error submit!!')
+                    if (valid) {                      
+                        if(!this.isAgree) return this.$message.error(`请勾选注册服务协议`);
+                        // 执行子组件方法发请求
+                        this.$refs.mychild.actionsReg()
                     }
                 });
             },
+            getVerifyFun() {
+                this.getVerify().then((res) => {
+                    let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+                    this.verifySrc = imgUrl
+                })
+            },
             changeVerifi() {
-                this.verifySrc = 'https://www-peizi-dev.e2048.com/index/account/verify'
+                this.getVerifyFun()
             },
-            getCode() {
-                console.log(3)
-            },
-            toLogin() {
-
-            },
-        },
-        computed: {
-            ...mapState(["userInfo","isLogin"]),
-            ...mapGetters(['getUserInfo'])
-        },
+            getCode() {}
+        }
     }
 </script>
 <style lang="scss" scoped>
     .index {
         width: 100% !important;
         background-color: #fff;
-        padding-bottom: 200px 
+        // padding-bottom: 200px 
     }
     .reg-bg {
+        background: url(../../assets/image/login.jpg) no-repeat left top;
         background-size: 100% 100%;
-        padding: 65px 0px 0 0px !important;
+        padding: 65px 0px !important;
     }
-
+    .register_main{
+        width: 600px;
+        // margin: 0px auto 65px auto;
+        background-color: #FFF;
+        padding: 10px 30px 30px 30px;
+        border-radius: 5px;
+    }
+.fr{
+           color: #bebebe;
+    font-size: 12px;
+   }
+   .login{
+           color: #f77e76;
+   }
 </style>

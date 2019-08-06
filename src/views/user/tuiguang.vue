@@ -8,7 +8,9 @@
         <div class="invite-input">
             <div class="main">
                 <div class="input">
-                    <input type="text" readonly="readonly" value="登陆后获得分享链接">
+                    <input v-if="!getIsLogin" type="text" readonly="readonly" value="登陆后获得分享链接">
+                    <input v-else type="text" ref="selectInput" readonly="readonly" :value="generalizeUrl">
+                    <a href="javascript:void(0);" @click="copyValue"></a>
                 </div>
             </div>
         </div>
@@ -33,8 +35,30 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
-    
+    data() {
+        return {
+            generalizeUrl: ''
+        }
+    },
+    created() {
+        this.generalizeUrl = location.href.replace(location.href.match(/\/([^/]*)$/)[1], `register?agent_code=${this.getUserInfo.agent_code}`)
+    },
+    methods: {
+        // 复制
+        copyValue() {
+            if(this.getIsLogin) {
+                this.$refs.selectInput.select()
+                document.execCommand("Copy")
+                this.$alert('复制成功', {type: 'success'})
+            }
+        }
+    },
+    computed: {
+        ...mapGetters(['getUserInfo', 'getIsLogin'])
+    }
 }
 </script>
 
@@ -54,6 +78,14 @@ export default {
              input{
                 outline:none;border: none;width: 390px;height: 35px;font-size: 20px;text-align: center;line-height: 35px;color: #e74a4a;
                 display: inline-block;background-repeat: no-repeat;background-position: center center;margin: 3px;
+             }
+             a{
+                 display: inline-block;
+                background-repeat: no-repeat;
+                background-position: center center;
+                float: right;
+                width: 88px;
+                height: 41px;
              }
         }
     }
