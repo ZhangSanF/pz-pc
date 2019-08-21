@@ -132,9 +132,10 @@
             this.money = '';
             this.date = '';
             this.$alert('您的存款信息已提交，请稍后客服处理！', '提交成功', {type: 'success'});
-          }else{
-            this.$alert(`${res.message}`, '提交失败', {type: 'error'});
           }
+          // else{
+          //   this.$alert(`${res.message}`, '提交失败', {type: 'error'});
+          // }
         })
         .catch(err=>{
           this.$alert(`${err}`, '提交失败', {type: 'error'});

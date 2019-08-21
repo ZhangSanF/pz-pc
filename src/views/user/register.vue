@@ -9,7 +9,7 @@
                     </div>
                 </div>
             <div class="reg-form">
-                <el-form ref="ruleForm" :model="ruleForm"  :rules="rules"  >
+                <el-form ref="ruleForm" :model="ruleForm"  :rules="checkRules">
                     <el-form-item  prop="username" class="reg-item" >
                         <el-input  placeholder="请输入用户名" v-model.trim="ruleForm.username"></el-input>
                     </el-form-item>
@@ -21,23 +21,26 @@
                     </el-form-item>
                     <el-form-item  prop="mobile" class="reg-item">
                         <el-input  type="phone"  placeholder="请输入11位中国大陆手机号"  v-model.trim="ruleForm.mobile"></el-input>
-                    </el-form-item>
-                    <el-form-item prop="verifi" class="reg-item" >
-                        <el-input  class="verifi-input"  placeholder="请输入验证码"   v-model.trim="ruleForm.verifi">
+                    </el-form-item>   
+                    <el-form-item prop="mobile_verify_code" class="reg-item" >
+                        <el-input  class="verifi-input"  placeholder="请输入手机验证码"  v-model.trim="ruleForm.mobile_verify_code">
+                            <template slot-scope="">
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'one'">点击发送验证码</el-button>
+                                <el-button slot="append" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
+                                <el-button slot="append" class="second" v-if="isShowSmsCode == 'three'">{{smsCodeNumber}}秒</el-button>
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                            </template>
+                        </el-input>
+                    </el-form-item> 
+                    <el-form-item prop="captcha" class="reg-item" >
+                        <el-input  class="verifi-input"  placeholder="请输入验证码"   v-model.trim="ruleForm.captcha">
                              <el-button slot="append" @click="changeVerifi" >
                                 <img :src="verifySrc" alt="">                              
                              </el-button>
                         </el-input>
-                    </el-form-item>   
-                    <el-form-item prop="smsCode" class="reg-item" >
-                        <el-input  class="verifi-input"  placeholder="请输入验证码"  v-model.trim="ruleForm.smsCode">
-                            <template slot-scope="">
-                                <el-button slot="append" @click="getCode">点击发送验证码</el-button>
-                            </template>
-                        </el-input>
-                    </el-form-item>                    
+                    </el-form-item>                   
                     <el-form-item  class="reg-item">
-                        <el-input  placeholder="请输入推荐人,如果没有，可以不填写" v-model.trim="ruleForm.invitation_code"></el-input>
+                        <el-input  placeholder="请输入推荐人，如果没有，可以不填写" v-model.trim="ruleForm.invitation_code"></el-input>
                     </el-form-item>
                     <el-form-item  class="reg-item">
                        <el-checkbox  v-model="isAgree" >同意</el-checkbox> 
@@ -52,100 +55,49 @@
             </div>
         </div>
         </div>
-        <ActionsReg ref="mychild" :ruleForm="ruleForm"/>
     </div>
 </template>
 <script>
-import { mapActions } from "vuex";
+import { mapActions } from "vuex"
 import { getUrlKey } from '@/js/utils'
-import ActionsReg from '@/components/ActionsReg'
+import { checkRules } from '@/config/rules.js'
+import md5 from 'js-md5'
 
 export default {
         name: 'register',
-        components:{ ActionsReg },
         data(){
-            let checkPass = (rule, value, callback) => {
-                if (value === '') {
-                callback(new Error('请再次输入密码'));
-                } else if (value !== this.ruleForm.password) {
-                callback(new Error('两次输入密码不一致!'));
-                } else {
-                callback();
-                }
-            };
+            // let checkPass = (rule, value, callback) => {
+            //     if (value === '') {
+            //     callback(new Error('请再次输入密码'));
+            //     } else if (value !== this.ruleForm.password) {
+            //     callback(new Error('两次输入密码不一致!'));
+            //     } else {
+            //     callback();
+            //     }
+            // };
             return{
-                verifySrc: '',
+                checkRules: checkRules,
                 isAgree: true,
+                verifySrc: '',              
+                isShowSmsCode: 'one',
+                smsCodeNumber: 10,
                 ruleForm: {
                     username: '',
-                    verifi: '',
+                    captcha: '',
                     mobile: '',
-                    smsCode: '',
+                    mobile_verify_code: '',
                     invitation_code: '',//邀请码
                     agent_code: getUrlKey("agent_code") || '',//代理码(地址栏)
                     password:'',
                     confirm_password:''
-                },
-                rules: {
-                    password: [
-                        { required: true, 
-                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, 
-                            message: '密码6-20位字母和数字组合',
-                            max: 20,
-                            min: 6,
-                            trigger: 'blur' },
-                    ],
-                    confirm_password: [
-                        { required: true, 
-                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-                            message: '密码6-20位字母和数字组合',
-                            max: 20,
-                            min: 6,
-                            trigger: 'blur' },
-                        { validator: checkPass, trigger: 'blur' }
-                    ],
-                    username: [
-                        { required: true,  
-                            pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9_]+$/,
-                            message: '用户名由6-16字母和数字和下划线组合且必须以字母开头',
-                            max: 16,
-                            min: 6,
-                            trigger: 'blur' },
-                    ],
-                    mobile: [
-                        {
-                            required: true,
-                            pattern: /^[1]([3-9])[0-9]{9}$/,
-                            message: '手机号不正确',
-                            max: 11,
-                            min: 11,
-                            trigger: 'blur'
-                        },
-                    ],
-                    verifi: [
-                            { required: true, 
-                                pattern: /^\w{4}$/i,
-                                message: '验证码4位数',
-                                max: 4,
-                                min: 4,
-                                trigger: 'blur' },
-                    ],
-                    smsCode: [
-                            { required: true, 
-                                pattern: /^\w{6}$/i, 
-                                message: '短信验证码限制6位',
-                                max: 6,
-                                min: 6,
-                                trigger: 'blur' },
-                    ],
-                }
+                }                          
             }
         },
         created() {
             this.getVerifyFun()
         },
         methods:{
-            ...mapActions(['getVerify']),
+            ...mapActions(['getVerify', 'sendSmsCode', 'register', 'getMemberinfo']),
             toAbout(title, active) {
                 this.$router.push('/user/about')
                 this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
@@ -154,8 +106,31 @@ export default {
                 this.$refs['ruleForm'].validate((valid) => {
                     if (valid) {                      
                         if(!this.isAgree) return this.$message.error(`请勾选注册服务协议`);
-                        // 执行子组件方法发请求
-                        this.$refs.mychild.actionsReg()
+                        if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
+                            let reg = this.ruleForm
+                            let actionData = {
+                                username: reg.username,
+                                captcha: reg.captcha,//图片验证码
+                                mobile: reg.mobile,
+                                mobile_verify_code: reg.mobile_verify_code,//短信验证码
+                                invitation_code: reg.invitation_code,//邀请码
+                                agent_code: reg.agent_code,//代理码(地址栏)
+                                password: md5(reg.password),
+                                confirm_password: md5(reg.confirm_password),
+                            }
+                            this.register(actionData).then(res=>{ 
+                                if( res.code == 200) {
+                                    this.$message.success(res.message)
+                                    this.getMemberinfo()
+                                    this.$store.commit('IS_LOGIN', true)
+                                    this.$router.push({path:'/member'})
+                                }else {
+                                    this.getVerifyFun()
+                                }
+                            })
+                        }else {
+                            this.$message.error(`请点击发送手机验证码`);
+                        }
                     }
                 });
             },
@@ -168,11 +143,46 @@ export default {
             changeVerifi() {
                 this.getVerifyFun()
             },
-            getCode() {}
+            //获取手机验证码
+            getCode() {
+                let _this = this
+                let re = /^[1]([3-9])[0-9]{9}$/;
+                if (re.test(_this.ruleForm.mobile)) {
+                    _this.isShowSmsCode = 'two'
+                    let obj = {
+                        template: 'register',
+                        mobile: _this.ruleForm.mobile
+                    }
+                    _this.sendSmsCode(obj).then((res) => {
+                        if(res.code == 200) {
+                            _this.$message.success(res.message)
+                            _this.isShowSmsCode = 'three'
+                            let _run = () => {
+                                setTimeout(() => {
+                                    _this.smsCodeNumber--
+                                    if (_this.smsCodeNumber > 0) {
+                                        _run();
+                                    } else {
+                                        _this.isShowSmsCode = 'four'
+                                        _this.smsCodeNumber = 10
+                                    }
+                                }, 1000);
+                            };
+                            _run();
+                        }else {
+                            _this.isShowSmsCode = 'one'
+                            // this.$message.error(`${res.message}`);
+                        }
+                    })
+                }
+            }
         }
     }
 </script>
 <style lang="scss" scoped>
+    .second{
+        padding: 0 50px;
+    }
     .index {
         width: 100% !important;
         background-color: #fff;

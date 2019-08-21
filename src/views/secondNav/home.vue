@@ -4,7 +4,7 @@
       <div class="carousel">       
         <swiper :options="swiperOption" v-if="getPcIndexCarousel.length > 1">
           <swiper-slide v-for="(item, index) in getPcIndexCarousel" :key="index">
-            <img :src="item.img" alt="">
+            <img style="cursor: pointer;" :src="item.img" @click="goImgUrl(item.url)" alt="">
           </swiper-slide>
           <div class="swiper-pagination" slot="pagination"></div>
         </swiper>
@@ -158,11 +158,13 @@
               <h3 class="right-tit">行情中心</h3>
               <div class="s_menu">
                 <ul>
-                  <li>
-                    <a href="javascript:void(0);" :class="isExponent ? 'active' : ''" @click="isExponent = true">上证指数</a>
-                  </li>
-                  <li>
-                    <a href="javascript:void(0);" :class="!isExponent ? 'active' : ''" @click="isExponent = false">深证指数</a>
+                  <li v-for="(item, index) in exponentList" :key="index">
+                    <a 
+                    @click="changExponent(item.lable)" 
+                    :class="item.lable == isExponent ? 'active' : ''" 
+                    href="javascript:void(0);">
+                    {{item.name}}
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -170,55 +172,63 @@
             <div class="mod_left">
               <div class="hq_con">
                 <div class="hq_txt">
-                  <a href="#">分时线</a>
-                  <a href="#">日K线</a>
-                  <a href="#">周K线</a>
-                  <a href="#">月K线</a>
+                  <a 
+                  @click="changLine(item.lable)"
+                  :class="item.lable == isLine ? 'cur' : ''"
+                  href="javascript:void(0);" 
+                  v-for="(item, index) in exponentLine" 
+                  :key="index">
+                  {{item.name}}
+                  </a>
                 </div>
                 <div class="hq_img">
-                  <img src="http://image.sinajs.cn/newchart/min/n/sh000001.gif" width="550" height="300" alt="">
+                  <img :src="imgUrl" width="550" height="300" alt="">
                 </div>
               </div>
               <div class="hq_sv">
                 <div class="hq_st">
-                  <div class="hq_a1">
-                    <li class="sv">2968.60</li>
-                    <li class="dw"></li>
-                    <li class="icon-right">-28.20</li>
-                    <li class="icon-right">-0.94%</li>
+                  <!-- 1 -->
+                  <div class="hq_a1" :style="{color: upDown ? '#FF0000' : '#009900'}">
+                    <li class="sv">{{zhishu1[1] | number}}</li>
+                    <li class="ico" v-if="upDown"></li>
+                    <li class="dw" v-else></li>
+                    <li class="icon-right">{{zhishu1[2] | number}}</li>
+                    <li class="icon-right">{{zhishu1[3] | number}}%</li>
                   </div>
-                  <div class="hq_aq1_xq">
+                  <!-- 2 -->
+                  <div class="hq_aq1_xq" >
                     <p>
                       <span>
                         <span class="xq-color">今开：</span>
-                        <font>2992.24</font>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{zhishu2[1] | number}}</font>
                       </span>
                       <span>
                         <span class="xq-color">成交量：</span>
-                        <font>1.08亿手</font>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{makeQuantity}}手</font>
                       </span>
                       <span>
                         <span class="xq-color">振幅：</span>
-                        <font>1.04%</font>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{amplitude | number}}%</font>
                       </span>
                       <span>
                         <span class="xq-color">最高：</span>
-                        <font>2992.24</font>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{zhishu2[4] | number}}</font>
+                      </span>
+                      <span>
+                        <span class="xq-color">最低：</span>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{zhishu2[5] | number}}</font>
                       </span>
                       <span>
                         <span class="xq-color">成交额：</span>
-                        <font>2992.24</font>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{yesterdayClosed}}</font>
                       </span>
                       <span>
                         <span class="xq-color">昨收：</span>
-                        <font>1097.56亿</font>
-                      </span>
-                      <span>
-                        <span class="xq-color">总市值：</span>
-                        <font>2992.24</font>
+                        <font :style="{color: upDown ? '#FF0000' : '#009900'}">{{zhishu2[2] | number}}</font>
                       </span>
                     </p>
                   </div>
+                  <!-- 3 -->
                   <div class="gupiao">
                     <table>
                       <thead>
@@ -227,21 +237,9 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#ff3646">2.89%</td>
-                        </tr>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#ff3646">2.89%</td>
-                        </tr>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#ff3646">2.89%</td>
-                        </tr>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#ff3646">2.89%</td>
+                        <tr v-for="(item, index) in goUp" :key="index" v-show="index < 4">
+                          <td>{{item.split(',')[1]}}</td>
+                          <td style="color:#FF0000">{{item.split(',')[5]}}%</td>
                         </tr>
                       </tbody>
                     </table>
@@ -252,21 +250,9 @@
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#237c02">2.89%</td>
-                        </tr>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#237c02">2.89%</td>
-                        </tr>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#237c02">2.89%</td>
-                        </tr>
-                        <tr>
-                          <td>次新股</td>
-                          <td style="color:#237c02">2.89%</td>
+                        <tr v-for="(item, index) in goDown" :key="index" v-show="index < 4">
+                          <td>{{item.split(',')[1]}}</td>
+                          <td style="color:#009900">{{item.split(',')[5]}}%</td>
                         </tr>
                       </tbody>
                     </table>
@@ -344,14 +330,22 @@
         </div>
       </div>
     </div>
+    
 </template>
 
 <script>
 import 'swiper/dist/css/swiper.css'  
 import { swiper, swiperSlide } from 'vue-awesome-swiper'
 import { mapGetters, mapActions } from "vuex";
+import { goImgUrl, format } from '@/js/utils'
 
 export default {
+  filters: {
+    number(value) {
+      var toFixedNum = Number(value).toFixed(2);
+      return toFixedNum;
+    }
+  },
   name: 'home',
   components: { swiper, swiperSlide },
   data() {
@@ -379,7 +373,6 @@ export default {
       profitMoney:2000,//累积利润赚取
       monthMoney:2000,//按月配资余额
       dayMoney:1000,//按天配资余额
-      isExponent: true,
       //今日充值
       todayPrepaid:[
         {phone: '1', money: 58888},{phone: '2', money: 46666},{phone: '3', money: 58888},
@@ -389,22 +382,36 @@ export default {
       ],
       top: -45,
       isTransition: false,
+      isExponent: 'topExponent',
+      exponentList: [//指数list
+        {name: '上证指数', lable: 'topExponent'},
+        {name: '深证指数', lable: 'shenExponent'}
+      ],
+      isLine: 'minuteLine',
+      exponentLine: [//指数线
+        {name: '分时线', lable: 'minuteLine'},
+        {name: '日K线', lable: 'dayLine'},
+        {name: '周K线', lable: 'weekLine'},
+        {name: '月K线', lable: 'monthLine'},
+      ],
+      goUp: [],//领涨板块
+      goDown: [],//领跌板块
+      imgUrl: 'http://image.sinajs.cn/newchart/min/n/sh000001.gif',
+      zhishu1:[],
+      zhishu2:[]
     }
   },
   created() {
     this.setting()
-    this.getAboutUsListFun('about_us')
-    this.getAboutUsListFun('help_center')
+    //初始为上证指数
+    this.zhishu1 = hq_str_s_sh000001.split(',')
+    this.zhishu2 = hq_str_sh000001.split(',')
+    //获取领涨，跌板块
+    this.goUp = sinaindustry_up
+    this.goDown = sinaindustry_down
   },
   methods:{
-    ...mapActions(['getAboutUsList', 'setting']),
-    getAboutUsListFun(category_identification) {
-      this.getAboutUsList({
-        page: 1,
-        page_size: 20,
-        category_identification: category_identification
-      })
-    },
+    ...mapActions(['setting']),
     //新闻今日充值
     showPrepaid() {     
       let _this = this     
@@ -439,10 +446,54 @@ export default {
     toArticle(title, active, id, showList) {
       this.$router.push('/user/article')
       this.$store.commit('ARTICLE_QUERY', {title: title, active: active, id: id, showList: showList})
+    },
+    // 改变行情中心
+    changExponent(lable) {
+      // 上证指数
+      if(lable == 'topExponent') {
+        this.zhishu1 = hq_str_s_sh000001.split(',')
+        this.zhishu2 = hq_str_sh000001.split(',')
+        this.imgUrl = 'http://image.sinajs.cn/newchart/min/n/sh000001.gif'
+      }else {// 深证指数
+        this.zhishu1 = hq_str_s_sz399001.split(',')
+        this.zhishu2 = hq_str_sz399001.split(',')
+        this.imgUrl = 'http://image.sinajs.cn/newchart/min/n/sz399001.gif'
+      }
+      this.isLine = 'minuteLine'
+      this.isExponent = lable
+    },
+    // 改变分时线
+    changLine(lable) {
+      // 上证指数
+      if(this.isExponent == 'topExponent') {
+        if(lable == 'minuteLine') {//分时线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/min/n/sh000001.gif'
+        }else if(lable == 'dayLine') {//日K线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/daily/n/sh000001.gif'
+        }else if(lable == 'weekLine') {//周K线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/weekly/n/sh000001.gif'
+        }else {//月K线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/monthly/n/sh000001.gif'
+        }
+      }else {// 深证指数
+        if(lable == 'minuteLine') {//分时线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/min/n/sz399001.gif'
+        }else if(lable == 'dayLine') {//日K线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/daily/n/sz399001.gif'
+        }else if(lable == 'weekLine') {//周K线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/weekly/n/sz399001.gif'
+        }else {//月K线
+          this.imgUrl = 'http://image.sinajs.cn/newchart/monthly/n/sz399001.gif'
+        }
+      }    
+      this.isLine = lable
+    },
+    goImgUrl(url) {
+      goImgUrl(url)
     }
   },
   mounted() {
-    this.showPrepaid()
+    this.showPrepaid()     
   },
   computed: {
     ...mapGetters([
@@ -454,17 +505,40 @@ export default {
       'getEncyclopedias',
       'getAnnouncement',
       'getSettingFree', 
+      'getFreeMoney',
       'getSettingDays', 
       'getSettingMonths', 
       'getSettingVip'
     ]),
     peiziList() {
-      return [
-        {title: '免息计划', content: `我出钱，您炒股<br>盈利${this.getSettingFree.free_divided}%归您<br>最低${this.getSettingFree.free_min_money}元申请<br>资金放大5倍，最长配资20天`},
-        {title: '按天计划', content: `低门槛${this.getSettingDays.days_min_money}元起<br>资金放大1-10倍<br>支持单票满仓<br>利息用几天算几天，短线投资更便捷`},
-        {title: '按月计划', content: `低门槛${this.getSettingMonths.months_min_money}元起<br>资金放大1-10倍<br>支持单票满仓<br>长线配资更划算，利息最低0.6%`},
-        {title: 'VIP计划', content: `${this.getSettingVip.vip_min_money}元起申请<br>资金放大10倍以上<br>利息减半，VIP服务<br>交易佣金万一，最高可以配资${this.getSettingVip.vip_max_money}`}
-      ]
+      if(this.getSettingFree.money_range != undefined) {
+        return [
+          {title: '免息计划', content: `我出钱，您炒股<br>盈利${this.getSettingFree.divided}%归您<br>最低${this.getSettingFree.money_range.min}元申请<br>资金放大5倍，最长配资20天`},
+          {title: '按天计划', content: `低门槛${this.getSettingDays.money_range.min}元起<br>资金放大1-10倍<br>支持单票满仓<br>利息用几天算几天，短线投资更便捷`},
+          {title: '按月计划', content: `低门槛${this.getSettingMonths.money_range.min}元起<br>资金放大1-10倍<br>支持单票满仓<br>长线配资更划算，利息最低0.6%`},
+          {title: 'VIP计划', content: `${this.getSettingVip.money_range.min}元起申请<br>资金放大10倍以上<br>利息减半，VIP服务<br>交易佣金万一，最高可以配资${this.getSettingVip.money_range.max}`}
+        ]
+      }
+    },
+    //计算成交量
+    makeQuantity() {
+      return format(this.zhishu2[8])
+    },
+    // 成交额
+    yesterdayClosed() {
+      return format(this.zhishu2[9])
+    },
+    // 计算振幅((最高-最低)/昨收)
+    amplitude() {
+      return (this.zhishu2[4] - this.zhishu2[5])/this.zhishu2[2] * 100
+    },
+    // 涨跌(最新指数比较昨收)
+    upDown() {
+      if(this.zhishu1[1] > this.zhishu2[2]) {//今日大于昨收
+        return true
+      }else {
+        return false
+      }
     }
   },
   watch: {
@@ -754,13 +828,19 @@ export default {
           .hq_a1{
             padding-left: 80px;border-bottom: solid 1px #e4e4e4;padding-top: 20px;overflow: hidden;padding-bottom: 20px;
             li{
-              color: rgb(0, 153, 0);    float: left;font-size: 18px;line-height: 36px;
+              float: left;font-size: 18px;line-height: 36px;
             }
             .sv{
               float: left;font-size: 24px;
             }
             .dw{
               width: 35px;height: 36px;background-image: url(../../assets/image/index_tr_down.jpg);background-repeat: no-repeat;background-position: center center;
+            }
+            .ico{
+              width: 35px;height: 36px;
+              background-image: url(../../assets/image/index_tr_up.jpg);
+              background-repeat: no-repeat;
+              background-position: center center;
             }
             .icon-right{
               font-size: 12px;margin-right: 15px;height: 16px;line-height: 16px;width: 70px;
@@ -774,7 +854,7 @@ export default {
                 text-align: right;
               }
               font{
-                color: #237C02;
+                // color: #237C02;
               }
             }
           }

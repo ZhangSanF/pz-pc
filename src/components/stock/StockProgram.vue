@@ -163,9 +163,8 @@ export default {
     },
     data(){
         return{
-            myDate: new Date().getHours(),
             interest:0.00,
-            serviceQQ:'356377777',
+            serviceQQ:'xxx',
             pzSel :[],
             termDatas: {},
             active: 0,
@@ -257,6 +256,9 @@ export default {
             this.$parent.showEnter = true
             this.$parent.pzObj = obj
             this.$parent.pzSureData = pzData
+            // 回到顶部
+            document.body.scrollTop = 0
+            document.documentElement.scrollTop = 0
         },
     },
     computed: {
@@ -294,9 +296,10 @@ export default {
         sumManagement() {
             return ((this.mFee*1000) * (this.term*1000))/1000000
         },
-        // 时间判断显示是否为当日生效&下个交易日生效
+        // 时间判断显示是否为当日生效(true)&下个交易日生效(false)
         showTake() {
-            if(this.myDate > 12) {
+            let myDate = new Date().getHours()
+            if(myDate >= 12) {
                 return false
             }else {
                 return true

@@ -28,18 +28,18 @@
                     </li>
                     <li class="form-style-item password-font">
                         <label class="form-style-label">支付密码</label>
-                        <input v-if="getUserInfo.is_pay_password" type="text" class="input-text-style" v-model="password">
+                        <input v-if="getUserInfo.is_pay_password" type="text" class="input-text-style" v-model.trim="password">
                         <span v-else><span class="setPass" @click="goSafeSetting(4)">设置支付密码</span>后才可以提现哦~</span>
                     </li>
-                    <li class="form-style-item">
+                    <!-- <li class="form-style-item">
                         <label class="form-style-label">验证码</label>
                         <span>
-                            <input type="text" class="input-text-style" placeholder="请输入验证码" style="width:100px" maxlength="4" v-model="smsCode">
+                            <input type="text" class="input-text-style" placeholder="请输入验证码" style="width:100px" maxlength="4" v-model.trim="smsCode">
                             <span class="other">
                                 <img @click="changeVerifi" :src="verifySrc" alt="点击获取验证码" title="点击获取验证码">
                             </span>
                         </span>                       
-                    </li>
+                    </li> -->
                     <li class="form-style-item">
                         <label class="form-style-label"></label>
                         <span class="form-style-value">
@@ -72,12 +72,12 @@ export default {
                     title:'查看提现记录',
                 }
             },
-            verifySrc: '',
+            // verifySrc: '',
             showBank: false,         
             money: '',
             password: '',
-            smsCode: '',//短信验证码
-            checkboxSelect: false,
+            // smsCode: '',//短信验证码
+            checkboxSelect: true,
             prompt:[
                 '比如您的开户行名称为"工商银行北京宣武门支行"，只需输入关键词"宣武"即可。如果推荐列表中没有符合关键词的信息，',
                 '请您务必在列表中选择开户城市的银行分行，如：工商银行北京市分行营业部。',
@@ -91,7 +91,7 @@ export default {
             this.$alert('您还未完成身份验证，请先进行实名认证')
             this.$router.push('/member/safeSetting')
         }
-        this.getVerifyFun()
+        // this.getVerifyFun()
     },
     methods:{
         toDoMore() {
@@ -118,7 +118,7 @@ export default {
             this.money = parseFloat(parseFloat(this.money).toFixed(2)) || "";
         },
         payAction() {
-            if(!this.money || !this.password || !this.smsCode || !this.checkboxSelect) {
+            if(!this.money || !this.password || !this.checkboxSelect) {
                 this.$alert('请填写完整的信息!');
                 return ;
             }
@@ -128,21 +128,23 @@ export default {
                 password: this.password
             }).then((res) => {
                 if(res.code == 200) {
+                    this.$message.success(res.message)
                     this.reload()
                 }else {
-                    this.$message.error(res.message);
+                    // this.$message.error(res.message);
+                    // this.getVerifyFun()
                 }
             })
         },
-        getVerifyFun() {
-            this.getVerify().then((res) => {
-                let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
-                this.verifySrc = imgUrl
-            })
-        },
-        changeVerifi() {
-            this.getVerifyFun()
-        }
+        // getVerifyFun() {
+        //     this.getVerify().then((res) => {
+        //         let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+        //         this.verifySrc = imgUrl
+        //     })
+        // },
+        // changeVerifi() {
+        //     this.getVerifyFun()
+        // }
     },
     computed:{
         ...mapGetters(['getUserInfo'])

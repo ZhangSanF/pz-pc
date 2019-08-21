@@ -7,23 +7,55 @@
                     <h3 class="tit">{{tit}}</h3>
                     <p class="brief">{{brief}}</p>
                     <div class="down-btn">
-                        <div  class="dpc" @click="toDownLoald(item.src)" @mouseenter="enter(index)" @mouseleave="leave()"  v-for="(item,index) in downData" :key="index">
-                            <span v-show="item.id == '1' "  class="pcLog"  alt=""></span>
-                            <span v-show="item.id == '2' " class="iosLog"  alt=""></span>
-                            <span v-show="item.id == '3' "  class="anLog" alt=""></span>
+                        <a :href="getSettingBase.shares_pc_url" class="dpc">
+                            <el-tooltip effect="light" placement="right">
+                                <div slot="content">
+                                    <p class="ti-title">下载说明</p>
+                                    <p>安装前请退出360杀毒软件!</p>
+                                </div>
+                                <div>
+                                    <span class="pcLog win-mac-icon"></span>
+                                    <span class="text">Win版下载</span>
+                                </div>
+                            </el-tooltip>
+                        </a>
+                        <a href="javascript:void(0);" class="dpc">
+                            <el-tooltip effect="light" placement="right">
+                                <div slot="content">
+                                    <img :src="getSettingBase.shares_app_img" alt="">
+                                </div>
+                                <div>
+                                    <span class="iosLog win-mac-icon"></span>
+                                    <span class="text">IOS版下载</span>
+                                </div>
+                            </el-tooltip>                           
+                        </a>
+                        <a href="javascript:void(0);" class="dpc">
+                            <el-tooltip effect="light" placement="right">
+                                <div slot="content">
+                                    <img :src="getSettingBase.shares_app_img" alt="">
+                                </div>
+                                <div>
+                                    <span class="anLog win-mac-icon"></span>
+                                    <span class="text">安卓版下载</span>
+                                </div>
+                            </el-tooltip>                             
+                        </a>
+                        <!-- <a  class="dpc" @mouseenter="enter(index)" @mouseleave="leave()"  v-for="(item,index) in downData" :key="index">
+                            <span v-show="item.id == '1' "  class="pcLog win-mac-icon"  alt=""></span>
+                            <span v-show="item.id == '2' " class="iosLog win-mac-icon"  alt=""></span>
+                            <span v-show="item.id == '3' "  class="anLog win-mac-icon" alt=""></span>
                             <span class="text">{{item.name}}</span>
                             <div>
-                                <img class="show" v-show="item.id == '1' && isMoveOn &&index==current " src="../../assets/image/20190327145339.png" alt="">
+                                <img class="show" v-show="item.id == '1' && isMoveOn &&index==current " :src="getSettingBase.shares_app_img" alt="">
                             </div>
                             <div>
-                                <img class="show" v-show="item.id == '2' && isMoveOn &&index==current " src="../../assets/image/20190327145339.png" alt="">
+                                <img class="show" v-show="item.id == '2' && isMoveOn &&index==current " :src="getSettingBase.shares_app_img" alt="">
                             </div>
                             <div>
-                                 <img class="show" v-show="item.id == '3' && isMoveOn &&index==current " src="../../assets/image/20190327145339.png" alt="">
+                                 <img class="show" v-show="item.id == '3' && isMoveOn &&index==current " :src="getSettingBase.shares_app_img" alt="">
                             </div>
-                            <!-- <div v-show="isMoveOn &&index==current"  v-html="item.img" class="show">
-                            </div> -->
-                        </div>
+                        </a> -->
                     </div>
                 </div>
             </div>
@@ -32,14 +64,37 @@
 </template>
 
 <script>
-import downLoaded from '../../textJson/downLoaded.json'
+import { mapGetters, mapActions } from "vuex";
+
 export default {
     data(){
         return{
             isMoveOn: false ,
             tit: '股票交易软件',
             brief: '不再是旁观者，属于您自己的交易软件',
-            downData: downLoaded.data
+            downData: [
+                {
+                    "id":"1",
+                    "name":"Win版下载",
+                    "img":"<img src='../../assets/image/20190327095659.jpg'>",
+                    "src": ``,
+                    "logImg": "<img src='../../assets/image/20190327095659.jpg'>"
+                },
+                {
+                    "id":"2",
+                    "name":"IOS版下载",
+                    "img": "<img src='../../assets/image/20190327095659.jpg'>",
+                    "src": "./",
+                    "logImg": "<img src='../../assets/image/20190327095659.jpg'>"
+                },
+                {
+                    "id":"3",
+                    "name":"安卓版下载",
+                    "img": "<img src='../../assets/image/20190327095659.jpg'>",
+                    "src": "./",
+                    "logImg": "<img src='../../assets/image/20190327095659.jpg'>"
+                }
+            ]
         }
     },
     methods:{
@@ -50,15 +105,18 @@ export default {
         leave(){
             this.isMoveOn = false;
             this.current = null;
-        },
-        toDownLoald (e) {
-            // console.log(e)
         }
-    }
+    },
+    computed: {
+        ...mapGetters(['getSettingBase'])
+    },
 }
 </script>
 
 <style lang="scss" scoped>
+    .ti-title{
+        font-size: 17px; font-weight: 500;color: #000;
+    }
     .body-container.down-bg {
         background: url('../../assets/image/9195421.jpg') no-repeat;
         background-size: 100% 100%;
@@ -87,6 +145,7 @@ export default {
         padding: 30px 0px 0px 28px;
     }
     .down-btn .dpc {
+        cursor: pointer;
         border-radius: 7px;
         width: 300px;
         height: 62px;
@@ -101,16 +160,36 @@ export default {
     .dpc {
         position: relative;
     }
+    // .dpc:hover .show{
+    //     display: block;
+    // }
     .pcLog {
-        background: url('../../assets/image/win-mac-icon.png') no-repeat 0 -30px;
+        background: url(../../assets/image/win-mac-icon.png) no-repeat;
+    }
+    .iosLog{
+        background: url(../../assets/image/win-mac-icon.png) no-repeat  -60px 1px;
+    }
+    .anLog{
+        background: url(../../assets/image/win-mac-icon.png) no-repeat -122px 1px;
     }
     .text {
         color: #000;
     }
     .show {
+        // display: none;
         position: absolute;
         top: 0;
-        left: 300px;
+        left: 305px;
+    }
+    .win-mac-icon{
+        width: 50px;
+        height: 50px;
+        display: block;
+        float: left;
+        position: relative;
+        top: 5px;
+        left: 22px;
+        
     }
 </style>
 

@@ -171,8 +171,8 @@ export default {
             // trader_money - member_money 配资资金
             // 根据 order_type 拿到警告线 1免息2按天3按月4VIP
             switch (order_type) {
-                case 1 : return (trader_money - member_money) + (member_money*this.getSettingFree.free_warning_line)/100; break;
-                case 2 : return (trader_money - member_money) + (member_money*this.getSettingDays.days_warning_line)/100; break;
+                case 1 : return (trader_money - member_money) + (member_money*this.getSettingFree.warning_line)/100; break;
+                case 2 : return (trader_money - member_money) + (member_money*this.getSettingDays.warning_line)/100; break;
                 case 3 : return (trader_money - member_money) + (member_money*this.getSettingMonths.months_warning_line)/100; break;
                 case 4 : return (trader_money - member_money) + (member_money*this.getSettingVip.vip_warning_line)/100; break;
             }
@@ -180,8 +180,8 @@ export default {
         // 平仓线(平仓线 = 配资资金 + 本金 * 平仓线)
         closeLine(trader_money, member_money, order_type) {
             switch (order_type) {
-                case 1 : return (trader_money - member_money) + (member_money*this.getSettingFree.free_close_line)/100; break;
-                case 2 : return (trader_money - member_money) + (member_money*this.getSettingDays.days_close_line)/100; break;
+                case 1 : return (trader_money - member_money) + (member_money*this.getSettingFree.close_line)/100; break;
+                case 2 : return (trader_money - member_money) + (member_money*this.getSettingDays.close_line)/100; break;
                 case 3 : return (trader_money - member_money) + (member_money*this.getSettingMonths.months_close_line)/100; break;
                 case 4 : return (trader_money - member_money) + (member_money*this.getSettingVip.vip_close_line)/100; break;
             }

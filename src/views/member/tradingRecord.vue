@@ -69,8 +69,8 @@
                         <td width="132">时间</td>
                         <td width="126">交易类型</td>
                         <td width="210" style="text-indent:23px;">交易详情</td>
-                        <td width="80" style="text-align:right">金额</td>
-                        <td width="160" style="text-align:right; padding-right:18px;">余额</td>
+                        <td width="100" style="text-align:right;padding-right:45px;">金额</td>
+                        <td width="140" style="text-align:right; padding-right:18px;">余额</td>
                     </tr>
                 </thead>
                 <tbody>
@@ -87,7 +87,7 @@
                             </el-tooltip>
                             <span :title="item.remark" class="info-data">{{item.remark}}</span>
                         </td>
-                        <td class="user-deal-record-money">{{item.change_money}}</td>
+                        <td class="user-deal-record-money"><span class="change-money" title="变动金额">{{item.change_money}}</span> | <span class="gift-change-money" title="管理费">{{item.gift_change_money}}</span> </td>
                         <td style="text-align:right; padding-right:18px;">{{item.available_money}}</td>
                     </tr>
                 </tbody>
@@ -246,6 +246,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.change-money{
+    display: inline-block;width: 70px;text-align: center;
+}
+.gift-change-money{
+     display: inline-block;width: 50px;text-align: center;
+}
 .page {
     width:48px; 
     display: inline-block; 

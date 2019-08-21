@@ -9,6 +9,7 @@ const state = {
     aboutUs: [],//关于我们
     helpCenter: [],//帮助中心
     cooperation: [],//合作伙伴
+    industryCertification: [],//底部行业认证
     payData:{},//充值
     settingBase:{},//系统配置
     settingOrder:{},//系统配置
@@ -30,6 +31,7 @@ const state = {
         showList: ''
     },
     orderList:[],//配资单列表
+    userPhone: ''//手机号码
 };
 
 export default state;

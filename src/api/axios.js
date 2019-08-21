@@ -52,7 +52,6 @@ export default {
             cancel = c;
           })
         }).then(res => {
-          // console.log(res)
           if (res && res.data) { 
             resolve(res && res.data);
           }else if(res) {
@@ -159,6 +158,7 @@ export default {
 //响应拦截器即异常处理
 axios.interceptors.response.use(
     response => {
+      // console.log(response.data.message)
       return response;
     },
     error => {
@@ -172,13 +172,13 @@ axios.interceptors.response.use(
             //   :error.message
             //   )
             error.message = error.response.data.message;
-            // Message.error(error.message)
+            Message.error(error.message)
             break;
           case 401:
             error.message = "未授权，请重新登录";
             // Message.error(error.message)
             store.commit('IS_LOGIN', false)
-            router.push('/user/login')
+            // router.push('/user/login')
             break;
           case 4001:
             error.message = "操作失败,请重试";
@@ -199,7 +199,6 @@ axios.interceptors.response.use(
           case 408:
             error.message = "请求超时";
             Message.error(error.message)
-            // router.push('/page408')
             break;
           case 500:
             error.message = "服务器端出错";

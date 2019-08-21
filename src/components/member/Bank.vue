@@ -14,7 +14,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="卡号" >
-                <el-input  v-model="bankForm.bank_card_number" class="bank_input"  placeholder="请输入卡号"></el-input>
+                <el-input  v-model.trim="bankForm.bank_card_number" class="bank_input"  placeholder="请输入卡号"></el-input>
             </el-form-item>
             <el-form-item label="开户城市" >
                 <area-select type="text" v-model="selectedCity" :data="pca" :placeholders="['请选择省','请选择市']"></area-select>
@@ -23,11 +23,15 @@
                 <el-input  v-model="bankForm.bank_branch_name" class="bank_input"  placeholder="请输入开户行"></el-input>
             </el-form-item>
             <el-form-item label="手机号码" >
-                <span class="bank_city fl" >{{getUserInfo.mobile}}</span>
-                <el-button class="bank_city" type="warning" size="mini">获取短信验证码</el-button>
+                <el-input  v-model.trim="bankPhone" class="bank_input"  placeholder="请输入手机号码"></el-input>
+                <!-- <span class="bank_city fl" >{{getUserInfo.mobile}}</span> -->
             </el-form-item>
             <el-form-item label="短信验证码" >
-                 <el-input  v-model="smsCode" class="bank_input"  placeholder="请输入短信验证码"></el-input>
+                 <el-input  v-model.trim="bankForm.mobile_verify_code" class="bank_input"  placeholder="请输入短信验证码"></el-input>
+                 <el-button @click="getVerify" v-if="isShowSmsCode == 'one'" size="mini" class="bank_city" type="warning">获取短信验证码</el-button>
+                <el-button v-if="isShowSmsCode == 'two'" size="mini" class="bank_city" type="warning">短信发送中...</el-button>
+                <el-button v-if="isShowSmsCode == 'three'" size="mini" class="bank_city" type="warning">验证码{{smsCodeNumber}}秒有效</el-button>
+                <el-button @click="getVerify" v-if="isShowSmsCode == 'four'" size="mini" class="bank_city" type="warning">重新获取验证码</el-button>
             </el-form-item>
             <el-form-item v-if="prompt.length > 0" label="温馨提示" >
                  <p class="prompt" v-for="(item,index) in prompt" :key="index">
@@ -63,13 +67,16 @@ export default {
                 bank_card_number: '',//卡号
                 bank_province: '',//省
                 bank_city: '',//市
-                bank_branch_name: ''//支行名称
+                bank_branch_name: '',//支行名称
+                mobile_verify_code: ''//短信验证码
             },
-            smsCode: '',//短信验证码
+            bankPhone: '',
+            isShowSmsCode: 'one',
+            smsCodeNumber: 10
         }
     },
     methods:{
-        ...mapActions(['bindBankCard']),
+        ...mapActions(['bindBankCard', 'sendSmsCode']),
         resetForm() {
             const obj = this.bankForm? this.bankForm: {}
             Object.keys(obj).forEach(function(key){
@@ -77,6 +84,7 @@ export default {
                 obj[key] =  ''
             });
             this.bankForm = obj
+            this.bankPhone = ''
         },
         add(obj) {
             if(
@@ -85,7 +93,7 @@ export default {
                 !obj.bank_province ||
                 !obj.bank_city ||
                 !obj.bank_branch_name ||
-                !this.smsCode
+                !obj.mobile_verify_code
             ) {
                 this.$alert('请填写完整信息');
                 return
@@ -115,11 +123,48 @@ export default {
 
             this.bindBankCard(obj).then((res) => {
                 if(res.code == 200) {
+                    this.$message.success(res.message)
                     this.$store.commit('ADD_BANK', {bank_card_number: res.data.bank_card_number, bank_name: res.data.bank_name})
                     this.reload()
                 }
+                // else {
+                //     this.$message.error(`${res.message}`);
+                // }
             })
-        }
+        },
+        // 获取短信验证码
+        getVerify() {
+            let _this = this
+            let re = /^[1]([3-9])[0-9]{9}$/;
+            if (re.test(_this.bankPhone)) {
+                _this.isShowSmsCode = 'two'
+                let obj = {
+                    template: 'bank_card',
+                    mobile: _this.bankPhone
+                }
+                _this.sendSmsCode(obj).then((res) => {
+                    if(res.code == 200) {
+                        _this.$message.success(res.message)
+                        _this.isShowSmsCode = 'three'
+                        let _run = () => {
+                            setTimeout(() => {
+                                _this.smsCodeNumber--
+                                if (_this.smsCodeNumber > 0) {
+                                    _run();
+                                } else {
+                                    _this.isShowSmsCode = 'four'
+                                    _this.smsCodeNumber = 10
+                                }
+                            }, 1000);
+                        };
+                        _run();
+                    }else {
+                        _this.isShowSmsCode = 'one'
+                        // this.$message.error(`${res.message}`);
+                    }
+                })
+            }
+        },
     },
     computed: {
         ...mapGetters(['getUserInfo', 'getBankList'])

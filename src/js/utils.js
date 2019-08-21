@@ -47,3 +47,56 @@ export const formatDate = (time,format='YY-MM-DD') => {
 export const  getUrlKey = (name) => {
   return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.href) || [, ""])[1].replace(/\+/g, '%20')) || ''
 }
+
+// 广告图片跳转
+export const goImgUrl = (url) => {
+  if (url == '' || url == undefined) {
+    return 
+  } else {
+    window.open(url);
+  } 
+}
+
+/**
+ * 数字转 xx万 xx亿
+ * @param {value} value 
+ * @param {symbol} symbol 
+ */
+export const format = (value,symbol) =>{  //两个参数，一个是值，一个是货币类型（￥,$）
+  var obj = {
+    symbol:symbol||"",    //货币类型
+    int:undefined,    //整数位
+    dec:undefined,  //小数位
+    targ:"",          //正负
+    times:['','万','亿','万亿','亿亿']
+  }
+  value = String(value);
+  var reg = /^-?\d+\.?\d+$/;
+  if(!reg.test(value)){
+    alert("请输入数字");
+    return false;
+  }
+  
+  if(value[0]=="-"){
+    obj.targ = "-";
+    value = value.substring(1,value.length)
+  }
+  
+  var times = 0;
+  value = Number(value);
+  while(value > 10000){
+    value = value/10000;
+    times++;
+  }
+
+  value = value.toFixed(2)
+
+  var arr = String(value).split(".")
+  obj.dec = arr[1];
+  obj.int = arr[0];
+  if(obj.int.length>3){
+    obj.int = obj.int.replace(/(.{1})/,'$1,')
+  }
+
+  return obj.symbol+obj.targ+obj.int+"."+obj.dec+obj.times[times];
+}

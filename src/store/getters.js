@@ -23,6 +23,9 @@ export const getHelpCenter = state =>  state.helpCenter
 // 合作伙伴
 export const getCooperation = state => state.cooperation
 
+// 底部行业认证
+export const getIndustryCertification = state => state.industryCertification
+
 // 充值
 export const getPayData = state => state.payData
 
@@ -50,3 +53,6 @@ export const getArticleQuery = state =>  state.articleQuery
 
 //配资单列表
 export const getOrderList = state =>  state.orderList
+
+//手机号
+export const getUserPhone = state =>  state.userPhone

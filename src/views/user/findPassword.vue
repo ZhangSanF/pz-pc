@@ -9,20 +9,19 @@
                     </div>
                 </div>
             <div class="reg-form find-password">
-                <el-form ref="loginForm" :model="loginForm"  :rules="rules" >
+                <el-form ref="eloginForm" :model="loginForm"  :rules="checkRules" >
                     <el-form-item  prop="username"  class="reg-item" style="">
                         <span class="text">用户名</span>
-                        <el-input  placeholder="请输入用户名(字母数字组合)" autocomplete="off" v-model="loginForm.username"></el-input>
+                        <el-input  placeholder="请输入用户名" v-model.trim="loginForm.username"></el-input>
                     </el-form-item>                   
-                    <el-form-item prop="verifi" class="reg-item" >
+                    <el-form-item prop="captcha" class="reg-item" >
                         <span class="text">验&nbsp;证&nbsp;码</span>
-                        <el-input class="verifi-input"  placeholder="请输入验证码" v-model="loginForm.verifi">
+                        <el-input class="verifi-input"  placeholder="请输入验证码" v-model.trim="loginForm.captcha">
                              <el-button slot="append" @click="changeVerifi" >
                                   <img :src="verifySrc" alt="">
                              </el-button>
                         </el-input>
                     </el-form-item>
-
                     <el-form-item  class="reg-item">
                             <el-button v-if="canSave" class="reg-btn" @click="toNext">下一步</el-button>
                             <el-button v-else disabled class="reg-btn">下一步</el-button>
@@ -35,56 +34,56 @@
     </div>
 </template>
 <script>
-import { mapActions } from "vuex";
-
+import { mapActions } from "vuex"
+import { checkRules } from '@/config/rules.js'
 
 export default {
-        name: 'login',
         data(){
             return{
+                canSave: true,
+                checkRules: checkRules,
                 verifySrc: '',
                 loginForm: {
                     username: '',
-                    verifi: ''
-                },
-                canSave: true,
-                rules: {
-                    verifi: [
-                            { required: true, 
-                                pattern: /^\w{4}$/i,
-                                message: '验证码4位数',
-                                max: 4,
-                                min: 4,
-                                trigger: 'blur' },
-                    ],
-                    username: [
-                        { required: true,  
-                            pattern: /^[a-zA-Z][a-zA-Z0-9]{5,11}$/,
-                            message: '用户名6-12位字母和数字组合',
-                            max: 12,
-                            min: 6,
-                            trigger: 'blur' },
-                    ]
-                }
+                    captcha: ''
+                }               
             }
         },
         created() {
             this.getVerifyFun()
         },
         methods:{
-            ...mapActions(['getVerify']),
-
+            ...mapActions(['getVerify', 'verifyUserName']),
             getVerifyFun() {
                 this.getVerify().then((res) => {
                     let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
                     this.verifySrc = imgUrl
                 })
             },
+            // 改变验证码
             changeVerifi() {
                 this.getVerifyFun()
             },
             toNext() {
-                    
+                this.$refs['eloginForm'].validate((valid) => {
+                    if (valid) {
+                        if(!this.canSave) return false
+                        this.canSave = false
+                        // 判断用户是否存在
+                        this.verifyUserName(this.loginForm).then((res) => {
+                            if(res.code == 200) {
+                                this.canSave = true                               
+                                this.$store.commit('USER_PHONE', res.data.info)
+                                this.$router.push('/user/authentication')
+                            }else {
+                                this.canSave = true
+                                // this.$message.error(res.message);
+                                this.loginForm = {}
+                                this.getVerifyFun()
+                            }
+                        })
+                    }
+                });
             }
         }
     }

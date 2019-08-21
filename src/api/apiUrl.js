@@ -214,3 +214,45 @@ export function withdrawalrecordApi(){
         url: '/server/index/member/withdrawalrecord'
     }
 }
+
+//短信验证码(发送)
+export function sendSmsCodeApi(){
+    return {
+        url: '/server/index/index/sendsmscode'
+    }
+}
+
+//短信验证码(验证)
+export function verifySmsCodeApi(){
+    return {
+        url: '/server/index/index/verifysmscode'
+    }
+}
+
+//用户是否存在
+export function verifyUserNameApi(){
+    return {
+        url: '/server/index/account/verifyusername'
+    }
+}
+
+// 修改手机号
+export function changeMobileApi(){
+    return {
+        url: '/server/index/member/changemobile'
+    }
+}
+
+// 找回支付密码
+export function retrievepayPassWordApi(){
+    return {
+        url: '/server/index/member/retrievepaypassword'
+    }
+}
+
+// 找回登陆密码
+export function retrievePasswordApi(){
+    return {
+        url: '/server/index/account/retrievepassword'
+    }
+}

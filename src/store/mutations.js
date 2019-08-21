@@ -42,6 +42,11 @@ const mutations = {
         state.cooperation = data
     },
 
+    // 底部行业认证
+    [types.INDUSTRY_CERTIFICATION](state, data) {
+        state.industryCertification = data
+    },
+
     // 充值
     [types.PAY_DATA](state, data) {
         state.payData = data
@@ -81,7 +86,8 @@ const mutations = {
 
     //初始化密保
     [types.PROTECT](state, data) {
-        state.userInfo.is_protect= data
+        state.userInfo.is_protect = data.is_protect
+        state.userInfo.password_protection = data.password_protection
     },
 
     //新手任务
@@ -123,6 +129,16 @@ const mutations = {
     //配资单列表
     [types.ORDER_LIST](state, data) {
         state.orderList = data
+    },
+
+    //修改手机号
+    [types.SET_MOBILE](state, data) {
+        state.userInfo.mobile = data
+    },
+
+    //手机号
+    [types.USER_PHONE](state, data) {
+        state.userPhone = data
     },
 
 };

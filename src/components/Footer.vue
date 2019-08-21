@@ -96,14 +96,8 @@
               <p>{{getSettingBase.site_description}}</p>
             </div>
           </div>
-            <a href="">
-                <img height="40px" src="../assets/image/label_sm_90030.png" alt="">
-            </a>
-            <a href="">
-                <img height="40px" src="../assets/image/crz2.png" alt="">
-            </a>
-            <a href="">
-                <img height="40px" src="../assets/image/shiming.png" alt="">
+            <a :href="item.url" v-for="(item, index) in getIndustryCertification" :key="index" target="_blank">
+                <img class="tab-img" :src="item.img" alt="">
             </a>
         </div>
       </div>
@@ -121,12 +115,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['getSettingBase'])
+    ...mapGetters(['getSettingBase', 'getIndustryCertification'])
   },
 }
 </script>
 
 <style scoped lang="scss">
+.tab-img{
+  height: 40px;margin-right: 10px;
+}
   .footer-module{
     clear: both;background: #414141;color: #fff;border-top: 1px solid #eee;padding-bottom: 25px;height: 250px;
     .footer-nav{

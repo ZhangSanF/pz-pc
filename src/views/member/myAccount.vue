@@ -69,7 +69,28 @@
         <div class="user-box-2">
             <Title :infoTitle="infoTitle"/>
             <div class="user-box-con-2">
-                <PzList :curpzList="orderList"/>
+                <PzList v-if="orderList.length > 0" :curpzList="orderList"/>
+                <!-- 无数据显示 -->
+                <div v-else>
+                    <div class="pz_addtian">
+                        <div class="pz_imgline clearfix">
+                            <img src="../../assets/image/mline.png" alt="">
+                            <h2>按天配资</h2>
+                        </div>
+                        <router-link to="/dayFinancing" tag="a" class="pz_addye">
+                            <span></span>
+                        </router-link>
+                    </div>
+                    <div class="pz_addyue">
+                        <div class="pz_imgline clearfix">
+                            <img src="../../assets/image/mline.png" alt="">
+                            <h2>按月配资</h2>
+                        </div>
+                        <router-link to="/monthFinancing" tag="a" class="pz_addye1">
+                            <span></span>
+                        </router-link>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -81,7 +102,6 @@ import PzList from '@/components/member/PzList'
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-    inject: ['reload'],
     components:{ Title, PzList },
     data() {
         return {
@@ -118,8 +138,7 @@ export default {
             this.signin().then((res) => {
                 if(res.code == 200) {
                     this.$store.commit('SIGN', 1)
-                    this.$alert('签到成功');
-                    this.reload()
+                    this.$alert('签到成功')
                 }
             })
         },
@@ -137,6 +156,62 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.pz_imgline{
+    img{
+        float: left;
+        margin-right: 10px;
+        margin-top: 5px;
+    }
+    h2{
+        float: left;
+        line-height: 25px;
+        color: #666;
+        font-size: 14px;
+    }
+}
+.pz_addye{
+    width: 964px;
+    height: 160px;
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+    display: block;
+    span{
+        display: block;
+        background: url(../../assets/image/peizi_addtian1.png) no-repeat center 0;
+        height: 84px;
+        margin-top: 25px;
+    } 
+}
+.pz_addyue{
+    margin-top: 20px;
+}
+.pz_addye1{
+    width: 964px;
+    height: 160px;
+    border: 1px solid #eaeaea;
+    border-radius: 5px;
+    display: block;
+    span{
+        display: block;
+        background: url(../../assets/image/peizi_addyue1.png) no-repeat center 0;
+        height: 84px;
+        margin-top: 25px;
+    } 
+}
+.pz_addye:hover {
+    border: 1px solid #da4848;
+    border-radius: 5px;
+}
+.pz_addye:hover span{
+    background: url(../../assets/image/peizi_addtian2.png) no-repeat center 0;
+}
+.pz_addye1:hover {
+    border: 1px solid #da4848;
+    border-radius: 5px;
+}
+.pz_addye1:hover span{
+    background: url(../../assets/image/peizi_addyue2.png) no-repeat center 0;
+}
 .user-box,.user-box-2{
     border: 1px solid #e0e0e0;border-radius: 3px; margin-top: 15px; background: #fff;
 }

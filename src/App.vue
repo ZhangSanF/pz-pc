@@ -33,6 +33,8 @@ export default {
     this.getAboutUsListFun('announcement')
     this.getAboutUsListFun('stock_market')
     this.getAboutUsListFun('encyclopedias')
+    this.getAboutUsListFun('about_us')
+    this.getAboutUsListFun('help_center')
   },
   methods: {
     ...mapActions(['getAdvertisement', 'getAboutUsList']),

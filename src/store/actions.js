@@ -4,28 +4,12 @@ import router from '../router'
 import {  Message } from 'element-ui'
 
 //注册
-export const register = ({commit, state, dispatch},params) =>{
-    return api.register(params).then(res=>{ 
-        if( res.code == 200) {
-            const login  = {
-                username: params.username,
-                password: params.password
-            }
-            api.login(login).then(res=>{
-                if(res.code == 200){
-                    dispatch('getMemberinfo')
-                    commit(types.IS_LOGIN, true)
-                    router.push({path:'/member'})
-                }
-            })
-        }else {
-            Message.error(res.message)
-        }
-    })
+export const register = ({commit, state},params) =>{
+    return api.register(params)
 }
 
 //登录
-export const login = ({commit, state, dispatch},params) =>{
+export const login = ({commit, state},params) =>{
     return api.login(params)
 }
 
@@ -63,6 +47,7 @@ export const getAdvertisement = ({commit, state},params) =>{
         if( res.code == 200){
             commit(types.PC_INDEX_CAROUSEL, res.data.pc_index_carousel)// 轮播
             commit(types.COOPERATION, res.data.cooperation)// 合作伙伴
+            commit(types.INDUSTRY_CERTIFICATION, res.data.industry_certification)// 底部行业认证
         }
     })
 }
@@ -71,14 +56,14 @@ export const getAdvertisement = ({commit, state},params) =>{
 export const setting = ({commit, state}) =>{
     return api.getSetting().then(res=>{
         if( res.code == 200){
-            document.title = res.data.base.site_name;
-            document.querySelector('#favicon').setAttribute('href',res.data.base.site_favicon);
-            commit(types.SETTING_BASE, res.data.base) // base
-            commit(types.SETTING_ORDER, res.data.order) // order
-            commit(types.SETTING_FREE, res.data.free) // free
-            commit(types.SETTING_DAYS, res.data.days) // days
-            commit(types.SETTING_MONTHS, res.data.months) // months
-            commit(types.SETTING_VIP, res.data.vip) // vip
+            document.title = res.data.system.base.site_name;
+            document.querySelector('#favicon').setAttribute('href',res.data.system.base.site_favicon);
+            commit(types.SETTING_BASE, res.data.system.base) // base
+            commit(types.SETTING_ORDER, res.data.credit.base) // order
+            commit(types.SETTING_FREE, res.data.credit.free) // free
+            commit(types.SETTING_DAYS, res.data.credit.day) // days
+            commit(types.SETTING_MONTHS, res.data.credit.month) // months
+            commit(types.SETTING_VIP, res.data.credit.vip) // vip
         }
     })
 }
@@ -128,46 +113,33 @@ export const depositwithdrawplatform = ({commit, state},params) =>{
 
 //初始化密保
 export const initProtection = ({commit, state},params) =>{
-    return api.initProtection(params.data).then(res=>{
-        if(res.code == 200){
-            commit(types.PROTECT, true)
-            router.push('/member/safeSetting')
-        }
-    })
+    return api.initProtection(params)
+}
+
+//验证密保
+export const verifyProtection = ({commit, state},params) =>{
+    return api.verifyProtection(params)
+}
+
+//更换密保
+export const changeProtection = ({commit, state},params) =>{
+    return api.changeProtection(params)
 }
 
 //实名认证
 export const realNameAuth = ({commit, state},params) =>{
-    return api.realNameAuth(params).then(res=>{
-        if(res.code == 200){
-            commit(types.REAL_NAME, {is_real_name: true, real_name: params.real_name, identity_number: params.identity_number})
-        }
-    })
+    return api.realNameAuth(params)
 }
 
 //设置支付密码
 export const setPayPassWord = ({commit, state},params) =>{
-    return api.changePayPassword(params).then(res=>{
-        if(res.code == 200){
-            commit(types.PAY_PASS, {is_pay_password: true})
-        }
-    })
+    return api.changePayPassword(params)
 }
 
 
 //设置登录密码
 export const setLoginPassWord = ({commit, state},params) =>{
     return api.changeLoginPassword(params)
-}
-
-
-//验证密保
-export const verifyProtection = ({commit, state},params) =>{
-    return api.verifyProtection(params).then(res=>{
-        if(res.code == 200){
-            
-        }
-    })
 }
 
 //上传头像
@@ -253,4 +225,34 @@ export const transacTionrecord = ({commit, state},params) =>{
 //提现记录
 export const withdrawalrecord = ({commit, state},params) =>{
     return api.withdrawalrecord(params)
+}
+
+//短信验证码(发送)
+export const sendSmsCode = ({commit, state},params) =>{
+    return api.sendSmsCode(params)
+}
+
+//短信验证码(验证)
+export const verifySmsCode = ({commit, state},params) =>{
+    return api.verifySmsCode(params)
+}
+
+//用户是否存在
+export const verifyUserName = ({commit, state},params) =>{
+    return api.verifyUserName(params)
+}
+
+//修改手机号
+export const changeMobile = ({commit, state},params) =>{
+    return api.changeMobile(params)
+}
+
+// 找回支付密码
+export const retrievepayPassWord = ({commit, state},params) =>{
+    return api.retrievepayPassWord(params)
+}
+
+// 找回登陆密码
+export const retrievePassword = ({commit, state},params) =>{
+    return api.retrievePassword(params)
 }

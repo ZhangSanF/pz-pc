@@ -44,20 +44,20 @@ export default {
         ...mapGetters(['getSettingMonths']),
         monthData() {
             return {
-                warning_line: `${this.getSettingMonths.months_warning_line}`,//警告线
-                close_line: `${this.getSettingMonths.months_close_line}`,//平仓线
-                stepOne : `${this.getSettingMonths.months_min_money} - ${this.getSettingMonths.months_max_money}`,//选择获得资金
-                max:`${this.getSettingMonths.months_max_money}`,//限制最大金额
-                min:`${this.getSettingMonths.months_min_money}`,//限制最小金额
-                divisor: `${this.getSettingMonths.months_divisor_num}`,//限制整数倍
+                warning_line: `${this.getSettingMonths.warning_line}`,//警告线
+                close_line: `${this.getSettingMonths.close_line}`,//平仓线
+                stepOne : `${this.getSettingMonths.money_range.min} - ${this.getSettingMonths.money_range.max}`,//选择获得资金
+                max:`${this.getSettingMonths.money_range.max}`,//限制最大金额
+                min:`${this.getSettingMonths.money_range.min}`,//限制最小金额
+                divisor: `${this.getSettingMonths.money_divisor}`,//限制整数倍
                 period:{//交易日
-                    min: `${this.getSettingMonths.months_range.min}`,
-                    max: `${this.getSettingMonths.months_range.max}`
+                    min: `${this.getSettingMonths.time_range.min}`,
+                    max: `${this.getSettingMonths.time_range.max}`
                 },
                 stepTwo: '选择杠杆，资金放大2-10倍',
-                remarkOne: `不小于${this.getSettingMonths.months_min_money}，不大于${this.getSettingMonths.months_max_money}，且为${this.getSettingMonths.months_divisor_num}的整数倍`,
+                remarkOne: `不小于${this.getSettingMonths.money_range.min}，不大于${this.getSettingMonths.money_range.max}，且为${this.getSettingMonths.money_divisor}的整数倍`,
                 remark: '按月收取管理费',
-                placeholder: `最少${this.getSettingMonths.months_min_money}元，最多${this.getSettingMonths.months_max_money}元`,
+                placeholder: `最少${this.getSettingMonths.money_range.min}元，最多${this.getSettingMonths.money_range.max}元`,
                 interestNum : 0
             } 
         },

@@ -76,7 +76,7 @@ export function depositwithdrawplatform(params) {
 //验证密保
 export function verifyProtection(params) {
     if(!params && params !== Object ) return false
-    return axios.post(urls.verifyProtectionApi(params));
+    return axios.post(urls.verifyProtectionApi(), params);
 }
 
 //初始化密保
@@ -86,9 +86,9 @@ export function initProtection(params) {
 }
 
 //更换密保
-export function changeProtection() {
+export function changeProtection(params) {
     if(!params && params !== Object ) return false
-    return axios.post(urls.changeProtectionApi());
+    return axios.post(urls.changeProtectionApi(), params);
 }
 
 //修改支付密码
@@ -181,4 +181,40 @@ export function transacTionrecord(params) {
 export function withdrawalrecord(params) {
     if(!params && params !== Object ) return false
     return axios.post(urls.withdrawalrecordApi(),params);
+}
+
+//短信验证码(发送)
+export function sendSmsCode(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.sendSmsCodeApi(),params);
+}
+
+//短信验证码(验证)
+export function verifySmsCode(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.verifySmsCodeApi(),params);
+}
+
+//用户是否存在
+export function verifyUserName(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.verifyUserNameApi(),params);
+}
+
+//修改手机号
+export function changeMobile(params) {
+    if(!params && params !== Object ) return false
+    return axios.post(urls.changeMobileApi(),params);
+}
+
+// 找回支付密码
+export function retrievepayPassWord(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.retrievepayPassWordApi(),params);
+}
+
+// 找回登陆密码
+export function retrievePassword(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.retrievePasswordApi(),params);
 }

@@ -164,6 +164,10 @@ export default {
         }
     },
     created() {
+        // 判断登录状态
+        if(!this.getIsLogin) {
+            this.$router.push({path: '/user/login', query: {redirect: this.$route.path}})
+        }
         this.activeRouter = this.$route.path
         this.isNavActive()
         this.bankList()//银行卡列表

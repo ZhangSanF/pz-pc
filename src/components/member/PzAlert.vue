@@ -117,12 +117,12 @@ export default {
                     this.$message.success(res.message)
                 }else {
                     this.closeAlert()
-                    this.$alert(
-                        `${res.message}`,
-                        {
-                            type: 'error'
-                        }
-                    )
+                    // this.$alert(
+                    //     `${res.message}`,
+                    //     {
+                    //         type: 'error'
+                    //     }
+                    // )
                 }
             })
         },
@@ -157,19 +157,21 @@ export default {
                     this.$message.success(res.message)
                 }else {
                     this.closeAlert()
-                    this.$alert(
-                        `${res.message}`,
-                        {
-                            type: 'error'
-                        }
-                    )
+                    // this.$alert(
+                    //     `${res.message}`,
+                    //     {
+                    //         type: 'error'
+                    //     }
+                    // )
                 }
             })
         },
         // 提取收益
         extractAction(data) {
             //提取收益必须在当天的9点之前和15点之后
-            if(new Date().getHours() < 15 || new Date().getHours() > 9) return this.$message.error(`请在9点之前和15点之后提取收益`);
+            let timer = new Date().getHours()
+            console.log(timer)
+            if(timer < 15 && timer > 9) return this.$message.error(`请在9点之前和15点之后提取收益`);
             if(this.extract == '') return this.$message.error(`请输入金额`);
             if(this.extract < 100) return this.$message.error(`金额不小于100`);
             this.getModifyorderr(Object.assign({extractMoney: this.extract}, data)).then((res) => {
@@ -178,12 +180,12 @@ export default {
                     this.$message.success(res.message)
                 }else {
                     this.closeAlert()
-                    this.$alert(
-                        `${res.message}`,
-                        {
-                            type: 'error'
-                        }
-                    )
+                    // this.$alert(
+                    //     `${res.message}`,
+                    //     {
+                    //         type: 'error'
+                    //     }
+                    // )
                 }
             })
         },
@@ -196,31 +198,33 @@ export default {
                     this.$message.success(res.message)
                 }else {
                     this.closeAlert()
-                    this.$alert(
-                        `${res.message}`,
-                        {
-                            type: 'error'
-                        }
-                    )
+                    // this.$alert(
+                    //     `${res.message}`,
+                    //     {
+                    //         type: 'error'
+                    //     }
+                    // )
                 }
             })
         },
         // 终止操盘
         endAction(data) {
-            //终止操盘必须在当天的9点之前和15点之后
-            if(new Date().getHours() < 15 || new Date().getHours() > 9) return this.$message.error(`请在9点之前和15点之后终止操盘`);
+            //终止操盘必须在当天的9点之前和15点之后          
+            let timer = new Date().getHours()
+            console.log(timer)
+            if(timer < 15 && timer > 9) return this.$message.error(`请在9点之前和15点之后终止操盘`);
             this.getModifyorderr(Object.assign({end: 'end'}, data)).then((res) => {
                 if(res.code == 200) {
                     this.closeAlert()
                     this.$message.success(res.message)
                 }else {
                     this.closeAlert()
-                    this.$alert(
-                        `${res.message}`,
-                        {
-                            type: 'error'
-                        }
-                    )
+                    // this.$alert(
+                    //     `${res.message}`,
+                    //     {
+                    //         type: 'error'
+                    //     }
+                    // )
                 }
             })
         },
@@ -240,8 +244,8 @@ export default {
         // 计算续期时间
         periodData() {
             if(this.computedData.order_type == 2) {
-                this.renewalTimeMax = this.getSettingDays.days_range.max
-                return this.timeFun(this.getSettingDays.days_range.min, this.getSettingDays.days_range.max, 2)
+                this.renewalTimeMax = this.getSettingDays.time_range.max
+                return this.timeFun(this.getSettingDays.time_range.min, this.getSettingDays.time_range.max, 2)
             }else if(this.computedData.order_type == 3) {
                 this.renewalTimeMax = this.getSettingMonths.months_range.max
                 return this.timeFun(this.getSettingMonths.months_range.min, this.getSettingMonths.months_range.max, 3)

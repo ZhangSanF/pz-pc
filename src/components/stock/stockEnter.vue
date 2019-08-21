@@ -66,12 +66,10 @@
             </div>
 
             <div class="pz-agmt-btn">
-                <h3>如果您不清楚规则，或有其他疑问，请拨打客服400-8357-678或与在线客服联系</h3>
+                <h3>如果您不清楚规则，或有其他疑问，请拨打客服 {{getSettingBase.service_telephone}} 或与在线客服联系</h3>
                 <label>
                     <span><input type="checkbox" v-model="isCheckbox" id="agreementCheckbox">我已经同意</span>
-                    <a style="color:#f00;" href="#">《出彩速配配资协议》</a>
-                    <!-- <router-link :to="{path: '/user/article',query: {title: '注册协议', active: '1'}}" tag="a"> -->
-                    <!-- </router-link> -->
+                    <a style="color:#f00;" href="javascript:void(0);" @click="toAbout('配资合作协议', '11')">《出彩速配配资协议》</a>
                 </label>
                 <span href="javascript:;" class="pz-me" @click="applyFinancing()">确认配资</span>
             </div>
@@ -130,7 +128,7 @@ export default {
     },
     data(){
         return{
-            isCheckbox: false
+            isCheckbox: true
         }
     },
     methods:{
@@ -140,9 +138,13 @@ export default {
             if(this.isCheckbox == false) return this.$message.error('请填写完整信息！');
             this.addOrder(this.pzObj)
         },
+        toAbout(title, active) {
+            this.$router.push('/user/about')
+            this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
+        }
     },
     computed: {
-        ...mapGetters(['getUserInfo']),
+        ...mapGetters(['getUserInfo', 'getSettingBase']),
         // 计算账户余额
         moneyC() {
             // 共需要多少金额

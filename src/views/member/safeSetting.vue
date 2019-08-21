@@ -1,5 +1,5 @@
 <template>
-    <div class="user-box-2">
+    <div class="user-box-2 safe-setting">
         <Title :infoTitle="infoTitle"/>
         <el-row class="user-box-con-1" >
             <!-- 用户名 -->
@@ -64,10 +64,10 @@
                                 <span>{{getUserInfo.username}}</span>
                             </el-form-item>
                             <el-form-item label="真实姓名" prop="name">
-                                <el-input class="step-input" v-model="verifiedForm.name"></el-input>
+                                <el-input class="step-input" v-model.trim="verifiedForm.name"></el-input>
                             </el-form-item>
                             <el-form-item label="身份证号码" prop="number">
-                                <el-input class="step-input" v-model="verifiedForm.number"></el-input>
+                                <el-input class="step-input" v-model.trim="verifiedForm.number"></el-input>
                             </el-form-item>
                             <el-form-item >
                                 <el-button size="mini"  class="step-btn" @click="SubmitRealName()" >提交实名认证</el-button>
@@ -88,7 +88,7 @@
                     <span>登录密码</span>
                 </div>
                 <div class="safe-value">
-                    <span >已设置</span>
+                    <span>已设置</span>
                 </div>
                 <div class="safe-edit fr"  @click="show(3)">
                     <span class="options-state" >{{safeData[3].showEdit ? '取消修改':'修改'}} </span>
@@ -104,19 +104,18 @@
                         label-width="200px"
                         class="step1-form">
                             <el-form-item label="原登录密码" prop="opwd" >
-                                <el-input class="step-input" v-model="loginPwd.opwd"></el-input>
+                                <el-input  class="step-input password-font" v-model.trim="loginPwd.opwd"></el-input>
                             </el-form-item>
                             <el-form-item label="新登录密码" prop="npwd">
-                                <el-input class="step-input" v-model="loginPwd.npwd"></el-input>
+                                <el-input class="step-input password-font" v-model.trim="loginPwd.npwd"></el-input>
                             </el-form-item>
                             <el-form-item label="再次输入新登录密码" prop="cpwd">
-                                <el-input class="step-input" v-model="loginPwd.cpwd"></el-input>
+                                <el-input class="step-input password-font" v-model.trim="loginPwd.cpwd"></el-input>
                             </el-form-item>
                             <el-form-item >
                                 <el-button size="mini"  class="step-btn" @click="modifyLoginPwd()" >修改登录密码</el-button>
                             </el-form-item>
                         </el-form >
-
                         <Warm :warmData="pwdWarm"/>
                     </div>
                 </div>
@@ -136,66 +135,10 @@
                     <span class="options-state" v-else-if="!getUserInfo.is_pay_password">{{safeData[4].showEdit ? '修改':'设置'}} </span>
                 </div>
                 <div class=" edit clearfix"  v-if="safeData[4].showEdit">
-                     <div class="user-safety-options-edit"  >
-                        <!-- 设置支付密码 -->
-                        <el-form
-                            class="step1-form" 
-                            ref="setPayPwd" 
-                            :rules="checkRules" 
-                            size="mini"
-                            v-if="!isRetrieve && !getUserInfo.is_pay_password "
-                            :model="setPayPwdForm"
-                            label-width="200px">
-                            <el-form-item label="设置支付密码" prop="payPwd">
-                                <el-input size="mini" v-model="setPayPwdForm.payPwd" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item label="再次输入支付密码" prop="againPayPwd">
-                                <el-input size="mini"  v-model="setPayPwdForm.againPayPwd" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item >
-                                <el-button size="mini"  class="step-btn" @click="setPayPwd(1)" >设置支付密码</el-button>
-                            </el-form-item>
-                        </el-form>
-                        <!-- 修改支付密码 -->
-                        <el-form 
-                            :model="modifyPayPwdForm"
-                            size="mini"
-                            :rules="checkRules"
-                            ref="modifyPayPwd"
-                            label-width="200px"
-                            v-if="!isRetrieve && getUserInfo.is_pay_password"
-                            class="step1-form">
-                            <el-form-item label="原支付密码" prop="oldPassword">
-                                <el-input size="mini" placeholder="请输入答案" v-model="modifyPayPwdForm.oldPassword" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item label="新支付密码" prop="newPassword">
-                                <el-input size="mini"  v-model="modifyPayPwdForm.newPassword" placeholder="请输入答案" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item label="确认支付密码" prop="confirmNewPassword">
-                                <el-input size="mini"  v-model="modifyPayPwdForm.confirmNewPassword" placeholder="请输入答案" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item >
-                                <el-button size="mini"  class="step-btn" @click="modifyPayPwd()" >修改支付密码</el-button>
-                                <el-button size="mini"   @click="retrievePayPwd(true)" >找回支付密码</el-button>
-                            </el-form-item>
-                        </el-form >
-                        <!-- 找回支付密码 -->
-                        <el-form class="step1-form" ref="retrievePayPwd" v-if="isRetrieve" label-width="200px">
-                            <el-form-item label="手机验证码">
-                                <el-input size="mini" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item label="新支付密码">
-                                <el-input size="mini" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item label="确认支付密码">
-                                <el-input size="mini" class="step-input"></el-input>
-                            </el-form-item>
-                            <el-form-item >
-                                <el-button size="mini"  class="step-btn" @click="modifyPayPwd()" >修改支付密码</el-button>
-                                <el-button size="mini"   @click="retrievePayPwd(false)" >取消</el-button>
-                            </el-form-item>
-                        </el-form>
-                        <Warm :warmData="pwdWarm"/>
+                     <div class="user-safety-options-edit">
+                         <!-- 支付密码组件 -->
+                        <PayPasswordVerifi/>
+                        <Warm :warmData="zfPwdWarm"/>
                     </div>
                 </div>
             </div>
@@ -216,98 +159,7 @@
                 <div class=" edit clearfix"  v-if="safeData[5].showEdit">
                     <!-- 设置密保 -->
                     <div class="user-safety-options-edit"  >
-                        <div v-if="!getUserInfo.is_protect">
-                            <el-form 
-                                :model="pwdSafe1From"
-                                size="mini"
-                                :rules="checkRules"
-                                ref="pwdSafe1"
-                                label-width="200px"
-                                v-if="safeSteps == 2  "
-                                class="step1-form">
-                                <el-form-item label="请选择问题" prop="keyOne">
-                                    <el-select   v-model="pwdSafe1From.keyOne" size="mini" placeholder="请选择当前密保问题1">
-                                        <el-option
-                                        v-for="item in protectionData"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :disabled="(item.value == pwdSafe1From.keyOne|| item.value == pwdSafe1From.keyTwo ) ? true : false "
-                                        :value="item.value">
-                                        </el-option>
-                                    </el-select> 
-                                </el-form-item>
-                                <el-form-item label="请输入答案" prop="valueOne">
-                                    <el-input size="mini" placeholder="请输入答案" v-model="pwdSafe1From.valueOne" class="step-input"></el-input>
-                                </el-form-item>
-                                <el-form-item label="请选择问题" prop="keyTwo">
-                                    <el-select   v-model="pwdSafe1From.keyTwo" size="mini" placeholder="请选择当前密保问题1">
-                                        <el-option
-                                        v-for="item in protectionData"
-                                        :key="item.value"
-                                        :label="item.label"
-                                        :disabled="(item.value == pwdSafe1From.keyOne|| item.value == pwdSafe1From.keyTwo ) ? true : false "
-                                        :value="item.value">
-                                        </el-option>
-                                    </el-select> 
-                                </el-form-item>
-                                <el-form-item label="请输入答案" prop="valueTwo">
-                                        <el-input size="mini"  v-model="pwdSafe1From.valueTwo" placeholder="请输入答案" class="step-input"></el-input>
-                                </el-form-item>
-                                <el-form-item >
-                                    <el-button size="mini"   class="step-btn" @click="setSafeStep(1)" >设置</el-button>
-                                </el-form-item>
-                            </el-form >
-                        </div>
-                        <div v-else>
-                            <!-- 通过原密保重置 -->
-                            <el-form 
-                                class="step1-form" 
-                                ref="pwdSafe2" 
-                                label-width="200px"
-                                :model="pwdSafe2" 
-                                size="mini"
-                                :rules="checkRules"
-                                v-if="safeSteps == 2  ">
-                                <el-form-item label="当前密保问题1">
-                                    <el-input size="mini" 
-                                    :value="getUserInfo.userpassword_protection?getUserInfo.userpassword_protection[0]:''" 
-                                    disabled class="step-input">
-                                    </el-input>
-                                </el-form-item>
-                                <el-form-item label="请输入答案" prop="valueOne"  v-show="showAnswer">
-                                    <el-input size="mini" v-model="pwdSafe2.valueOne" class="step-input"></el-input>
-                                </el-form-item>
-                                <el-form-item label="当前密保问题2">
-                                    <el-input size="mini"  
-                                    :value="getUserInfo.userpassword_protection?getUserInfo.userpassword_protection[1]:''" 
-                                    disabled class="step-input"></el-input>
-                                </el-form-item>
-                                <el-form-item label="请输入答案" prop="valueTwo"  v-show="showAnswer">
-                                    <el-input size="mini"  v-model="pwdSafe2.valueTwo"   class="step-input"></el-input>
-                                </el-form-item>
-                                <el-form-item >
-                                    <el-button size="mini"  class="step-btn" @click="safeBySecurity()" >验证当前答案</el-button>
-                                    <el-button size="mini"   @click="setSafeStep(3)" >通过手机重置</el-button>
-                                </el-form-item>
-                            </el-form>
-                            <!-- 通过手机重置密保 -->
-                            <el-form 
-                                class="step1-form" 
-                                ref="pwdSafe3" 
-                                label-width="200px" 
-                                size="mini"
-                                v-if="safeSteps == 3"
-                                >
-                                <el-form-item label="短信验证码">
-                                    <el-input size="mini" placeholder="请输入短信验证码"  class="step-input"></el-input>
-                                    <el-button size="mini" class="step-btn" >获取短信验证码</el-button>
-                                </el-form-item>
-                                <el-form-item >
-                                    <el-button size="mini"  class="step-btn" @click="safeByPhone()" >点击验证</el-button>
-                                    <el-button size="mini"    @click="setSafeStep(2)" >通过原密保重置</el-button>
-                                </el-form-item>
-                            </el-form>
-                        </div>
+                        <EncryptedVerifi/>
                      </div>
                 </div>
             </div>
@@ -316,79 +168,35 @@
 </template>
 
 <script>
+import { checkRules } from '@/config/rules.js'
+import md5 from 'js-md5';
+import { mapGetters, mapActions } from "vuex";
 import Title from '@/components/member/Title'
 import Warm from '@/components/member/Warm'
-import { mapGetters, mapActions } from "vuex";
 import PhoneVerifi from '@/components/member/PhoneVerifi'
-import {protectionData} from '@/config/index.js'
-import {checkRules} from '@/config/rules.js'
-import md5 from 'js-md5';
+import PayPasswordVerifi from '@/components/member/PayPasswordVerifi'
+import EncryptedVerifi from '@/components/member/EncryptedVerifi'
+
+
 export default {
-    components:{ Title ,PhoneVerifi,Warm },
+    components:{ Title ,PhoneVerifi, PayPasswordVerifi, EncryptedVerifi, Warm },
     inject: ['reload'],
     data() {
         return {
             infoTitle: {
                 title:'安全设置',
             },
-            active: 0,
-            isRetrieve: false,
-            safeSteps: 2,
-            protectionData: protectionData,
-            checkRules: checkRules,
-            showItem: null,
-            showAnswer: false,// 是否显示答案输入框
-            safeData:[
-            ],
-            //手机提示
-            phoneWarm: [
-                '请填写真实有效的手机号，手机号将作为验证用户身份的重要手段。',
-                '出彩速配会对用户的所有资料进行严格保密。',
-                '手机认证过程遇到问题，请联系客服，400-8357-678。'
-            ],
-            //真实姓名提示
-            trueNameWarm: [
-                '未满18周岁，实名认证无法通过。',
-                ' 出彩速配会对用户的所有资料进行严格保密。',
-                '实名认证过程遇到问题，请联系客服，400-8357-678'
-            ],
-            //密码提示
-            pwdWarm: [
-                ' 请牢记您设置的新密码，登录密码可通过密码找回功能找回。',
-                '  邮箱验证过程遇到问题，请联系客服，400-8357-678'
-            ],
-            pwdSafe1From :{
-                keyOne:'',
-                valueOne:'',
-                keyTwo:'',
-                valueTwo:''
-            },
+            checkRules: checkRules,       
             //设置登录密码
             loginPwd:{
                 opwd:'',
                 npwd:'',
                 cpwd:''
             },
-            //设置支付密码
-            setPayPwdForm:{
-                oldPwd:'',
-                payPwd:'',
-                againPayPwd:''
-            },
-            //修改支付密码
-            modifyPayPwdForm:{
-                oldPassword:'',
-                newPassword:'',
-                confirmNewPassword:''
-            },
             //实名认证
             verifiedForm:{
                 name:'',
                 number:''
-            },
-            pwdSafe2:{
-                valueOne:'',
-                valueTwo:''
             },
             safeData:[
                 {showEdit: false},
@@ -398,11 +206,10 @@ export default {
                 {showEdit: false},
                 {showEdit: false}
             ]
-
         }
     },
     methods:{
-        ...mapActions(['initProtection','realNameAuth', 'setPayPassWord','verifyProtection','setLoginPassWord']),
+        ...mapActions(['initProtection','realNameAuth','setLoginPassWord']),
         show(i) {
             for (let m = 0 ; m <this.safeData.length; m++  ) {
                 if(i== -1) {
@@ -423,11 +230,14 @@ export default {
                         real_name: this.verifiedForm.name,
                         identity_number: this.verifiedForm.number
                     }
-                    this.realNameAuth(params)
-                    this.show(-1)
-                } else {
-                    console.log('error submit!!')
-                }
+                    this.realNameAuth(params).then(res=>{
+                        if(res.code == 200){
+                            this.$message.success(res.message)
+                            this.$store.commit('REAL_NAME', {is_real_name: true, real_name: params.real_name, identity_number: params.identity_number})
+                            this.reload()
+                        }
+                    })
+                } 
             });
         },
         //修改登录密码
@@ -441,94 +251,16 @@ export default {
                     }
                     this.setLoginPassWord(params).then((res) => {
                         if(res.code == 200) {
+                            this.$message.success(res.message)
                             this.reload()
-                            // this.show(-1)
                         }
+                        // else {
+                        //     this.$message.error(`${res.message}`);
+                        // }
                     })
-                } else {
                 }
             });
-        },
-        //设置支付密码
-        setPayPwd() {
-            this.$refs['setPayPwd'].validate((valid) => {
-                if (valid) {
-                    const params = {
-                        oldPassword: '',
-                        newPassword: this.setPayPwdForm.payPwd,
-                        confirmNewPassword: this.setPayPwdForm.againPayPwd
-                    }
-                    this.setPayPassWord(params)
-                    this.show(-1,false)
-                } else {
-                }
-            });
-        },
-        //找回密码
-        retrievePayPwd(a) {
-            this.isRetrieve =  a
-        },
-        
-        //修改支付密码
-        modifyPayPwd() {
-            this.$refs['modifyPayPwd'].validate((valid) => {
-                if (valid) {
-                    const params = {
-                        oldPassword: this.modifyPayPwdForm.oldPassword,
-                        newPassword: this.modifyPayPwdForm.newPassword,
-                        confirmNewPassword: this.modifyPayPwdForm.confirmNewPassword
-                    }
-                    this.setPayPassWord(params)
-                    this.show(-1)
-                } else {
-                }
-            });
-        },
-        //修改密码保护
-        modifyPwdSafe() {
-
-        },
-        //密码保护s
-        setSafeStep(a) {
-            if(a > 1)this.safeSteps = a
-            else if(a ==1){
-                console.log(this.pwdSafe1From);
-            this.$refs['pwdSafe1'].validate((valid) => {
-                if (valid) {
-                    let params ={}
-                    params.data = {
-                        protection:`{"${this.pwdSafe1From.keyOne}":"${this.pwdSafe1From.valueOne}","${this.pwdSafe1From.keyTwo}":"${this.pwdSafe1From.valueTwo}"}`
-                    }
-                    params.protection = [this.pwdSafe1From.keyOne,this.pwdSafe1From.keyTwo]
-                    this.initProtection(params)
-                    this.show(-1)
-                } else {
-                    console.log('error submit!!')
-                }
-            });
-            }
-        },
-        //验证当前密保
-        safeBySecurity() {
-            this.showAnswer = true
-            this.$refs['pwdSafe2'].validate((valid) => {
-                if (valid) {
-                    const  params = {
-                        protection:`{"${this.protectionOne}":"${this.pwdSafe2.valueOne}","${this.protectionTwo}":"${this.pwdSafe2.valueTwo}"}`
-                    }
-                    console.log(params);
-                    this.verifyProtection(params)
-                } else {
-                    console.log(2)
-                }
-            });
-        },
-        //验证当前手机
-        safeByPhone() {
-
-        },
-        
-        
+        },         
         // 服务协议
         toAbout(title, active) {
             this.$router.push('/user/about')
@@ -536,7 +268,37 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['getUserInfo']),
+        ...mapGetters(['getUserInfo', 'getSettingBase']),
+        //手机提示
+        phoneWarm() {
+            return [
+                '请填写真实有效的手机号，手机号将作为验证用户身份的重要手段。',
+                '出彩速配会对用户的所有资料进行严格保密。',
+                `手机认证过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+            ]
+        },
+        //真实姓名提示
+        trueNameWarm(){
+            return [
+                '未满18周岁，实名认证无法通过。',
+                '出彩速配会对用户的所有资料进行严格保密。',
+                `实名认证过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+            ]
+        },
+        //密码提示
+        pwdWarm() {
+            return [
+                '请牢记您设置的新密码，登录密码可通过密码找回功能找回。',
+                `邮箱验证过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+            ]
+        },
+        //支付密码提示
+        zfPwdWarm() {
+            return [
+                '请牢记您设置的支付密码，支付密码将用于投资，提现等重要操作。',
+                ` 使用过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+            ]
+        }
     },
     watch:{
         '$route.query.showId':{
@@ -544,7 +306,7 @@ export default {
                 if(a) return this.show(a)
             },
             deep:true
-        },
+        }
     },
 }
 </script>
@@ -660,5 +422,12 @@ export default {
         color: #333;
         height: 40px;
         font-weight: 700;
+    }
+</style>
+<style lang="scss">
+    .safe-setting{
+        .el-input.is-disabled .el-input__inner{
+            color: #666;
+        }
     }
 </style>

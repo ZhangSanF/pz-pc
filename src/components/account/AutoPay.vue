@@ -165,15 +165,16 @@ export default {
               break;
 
           }
-        } else {
-          this.$alert(
-            `提交失败！请刷新页面重试或者联系客服处理！[${res.message}]`,
-            `提交失败`,
-            {
-              type: "error"
-            }
-          );
-        }
+        } 
+        // else {
+        //   this.$alert(
+        //     `提交失败！请刷新页面重试或者联系客服处理！[${res.message}]`,
+        //     `提交失败`,
+        //     {
+        //       type: "error"
+        //     }
+        //   );
+        // }
       });
     }
   },

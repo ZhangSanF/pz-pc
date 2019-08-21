@@ -9,15 +9,15 @@
                     </div>
                 </div>
             <div class="reg-form">
-                <el-form ref="loginForm" :model="loginForm"  :rules="rules" autocomplete="off">
+                <el-form ref="loginForm" :model="loginForm" :rules="checkRules">
                     <el-form-item  prop="username"  class="reg-item" >
-                        <el-input  placeholder="请输入用户名" v-model="loginForm.username"></el-input>
+                        <el-input  placeholder="请输入用户名" v-model.trim="loginForm.username"></el-input>
                     </el-form-item>                   
                     <el-form-item  prop="password"  class="reg-item">
-                        <el-input class="password-font" type="text" placeholder="请输入密码" v-model="loginForm.password" ></el-input>
+                        <el-input class="password-font" type="text" placeholder="请输入密码" v-model.trim="loginForm.password" ></el-input>
                     </el-form-item>
-                    <el-form-item prop="verifi" class="reg-item" >
-                        <el-input class="verifi-input"  placeholder="请输入验证码" v-model="loginForm.verifi">
+                    <el-form-item prop="captcha" class="reg-item" >
+                        <el-input class="verifi-input"  placeholder="请输入验证码" v-model.trim="loginForm.captcha">
                              <el-button slot="append" @click="changeVerifi" >
                                   <img :src="verifySrc" alt="">
                              </el-button>
@@ -34,7 +34,6 @@
                     </el-form-item>
                 </el-form>
             </div>
-
         </div>
         </div>
     </div>
@@ -42,44 +41,20 @@
 <script>
 import { mapActions } from "vuex";
 import md5 from 'js-md5';
+import { checkRules } from '@/config/rules.js'
 
 export default {
         name: 'login',
         data(){
             return{
+                canSave: true,
+                checkRules: checkRules,
                 verifySrc: '',
                 loginForm: {
                     username: '',
-                    verifi: '',
-                    password:'',
-                },
-                canSave: true,
-                rules: {
-                    verifi: [
-                            { required: true, 
-                                pattern: /^\w{4}$/i,
-                                message: '验证码4位数',
-                                max: 4,
-                                min: 4,
-                                trigger: 'blur' },
-                    ],
-                    username: [
-                        { required: true,  
-                            pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9_]+$/,
-                            message: '用户名由6-16字母和数字和下划线组合且必须以字母开头',
-                            max: 16,
-                            min: 6,
-                            trigger: 'blur' },
-                    ],
-                    password: [
-                        { required: true, 
-                            pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, 
-                            message: '密码6-20位字母和数字组合',
-                            max: 20,
-                            min: 6,
-                            trigger: 'blur' },
-                    ],
-                }
+                    captcha: '',
+                    password:''
+                }               
             }
         },
         created() {
@@ -113,8 +88,9 @@ export default {
                                 this.canSave = true
                             }else {
                                 this.canSave = true
-                                this.$message.error(res.message);
+                                // this.$message.error(res.message);
                                 this.loginForm = {}
+                                this.getVerifyFun()
                             }
                         })
                     }

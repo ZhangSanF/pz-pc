@@ -65,6 +65,7 @@ Vue.config.productionTip = false
 Vue.prototype.$message = Message;
 Vue.prototype.$alert = MessageBox.alert;
 Vue.prototype.$confirm = MessageBox.confirm;
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
@@ -79,6 +80,6 @@ new Vue({
     store.dispatch('setting')
   },
   mounted() {
-
+    
   }
 })

@@ -173,15 +173,6 @@
                         <el-form-item label="身份证所处地" >
                             <area-cascader type="text" :level="1" v-model="selectedCity" :data="pcaa"></area-cascader>
                         </el-form-item>                    
-                        <!-- <el-form-item label="省份" >
-                            <el-input type="text" maxlength="30" show-word-limit v-model="editForm.province" placeholder="请输入省份"></el-input>
-                        </el-form-item> -->
-                        <!-- <el-form-item label="城市" >
-                            <el-input type="text" maxlength="30" show-word-limit v-model="editForm.city" placeholder="请输入城市"></el-input>
-                        </el-form-item> -->
-                        <!-- <el-form-item label="地区" >
-                            <el-input type="text" maxlength="30" show-word-limit v-model="editForm.area" placeholder="请输入地区"></el-input>
-                        </el-form-item> -->
                         <el-form-item label="通讯地址" >
                             <el-input type="text" maxlength="100" show-word-limit v-model="editForm.address" placeholder="请输入通讯地址"></el-input>
                         </el-form-item>
@@ -301,11 +292,6 @@ export default {
                 }
             },
             isShowUpImg: false,
-            //温馨提示数组
-            warmData: [
-                '请您根据自身真实情况填写，出彩速配会对用户的所有资料进行严格保密。',
-                '使用过程遇到问题，请联系客服，400-8357-678。'
-            ]
         }
     },
     methods:{
@@ -350,11 +336,13 @@ export default {
             }
             this.getModifybasicdata(obj).then(res=>{
                 if( res.code == 200){
+                    this.$message.success(res.message)
                     Object.assign(this.$store.state.userInfo, obj)
                     this.reload()
-                } else {
-                    this.$message.error(res.message);
-                }    
+                } 
+                // else {
+                //     this.$message.error(res.message);
+                // }    
             })
         },
         // 设置上传图片的显示
@@ -389,10 +377,14 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['getUserInfo'])
-    },
-    created() {
-
+        ...mapGetters(['getUserInfo', 'getSettingBase']),
+        //温馨提示数组
+        warmData(){
+            return [
+                '请您根据自身真实情况填写，出彩速配会对用户的所有资料进行严格保密。',
+                `使用过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+            ]
+        } 
     },
     watch: {
         'selectedCity': {

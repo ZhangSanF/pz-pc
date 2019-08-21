@@ -44,20 +44,20 @@ export default {
         ...mapGetters(['getSettingVip']),
         vipData() {
             return {
-                warning_line: `${this.getSettingVip.vip_warning_line}`,//警告线
-                close_line: `${this.getSettingVip.vip_close_line}`,//平仓线
-                stepOne : `${this.getSettingVip.vip_min_money} - ${this.getSettingVip.vip_max_money}`,//选择获得资金
-                max:`${this.getSettingVip.vip_max_money}`,//限制最大金额
-                min:`${this.getSettingVip.vip_min_money}`,//限制最小金额
-                divisor: `${this.getSettingVip.vip_divisor_num}`,//限制整数倍
+                warning_line: `${this.getSettingVip.warning_line}`,//警告线
+                close_line: `${this.getSettingVip.close_line}`,//平仓线
+                stepOne : `${this.getSettingVip.money_range.min} - ${this.getSettingVip.money_range.max}`,//选择获得资金
+                max:`${this.getSettingVip.money_range.max}`,//限制最大金额
+                min:`${this.getSettingVip.money_range.min}`,//限制最小金额
+                divisor: `${this.getSettingVip.money_divisor}`,//限制整数倍
                 period:{//交易日
-                    min: `${this.getSettingVip.vip_range.min}`,
-                    max: `${this.getSettingVip.vip_range.max}`
+                    min: `${this.getSettingVip.time_range.min}`,
+                    max: `${this.getSettingVip.time_range.max}`
                 },
                 stepTwo: '选择杠杆，资金放大10倍',
-                remarkOne: `不小于${this.getSettingVip.vip_min_money}，不大于${this.getSettingVip.vip_max_money}，且为${this.getSettingVip.vip_divisor_num}的整数倍`,
+                remarkOne: `不小于${this.getSettingVip.money_range.min}，不大于${this.getSettingVip.money_range.max}，且为${this.getSettingVip.money_divisor}的整数倍`,
                 remark: ' 按月收取利息费',
-                placeholder:`最少${this.getSettingVip.vip_min_money}元，最多${this.getSettingVip.vip_max_money}元`,
+                placeholder:`最少${this.getSettingVip.money_range.min}元，最多${this.getSettingVip.money_range.max}元`,
                 interestNum :' 按月收取利息费',
             }
         },

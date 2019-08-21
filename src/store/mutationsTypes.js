@@ -21,6 +21,9 @@ export const HELP_CENTER = 'HELP_CENTER'
 // 合作伙伴
 export const COOPERATION = 'COOPERATION'
 
+// 底部行业认证
+export const INDUSTRY_CERTIFICATION = 'INDUSTRY_CERTIFICATION'
+
 // 充值
 export const PAY_DATA = 'PAY_DATA'
 
@@ -64,3 +67,9 @@ export const ARTICLE_QUERY = 'ARTICLE_QUERY'
 
 // 配资单列表
 export const ORDER_LIST = 'ORDER_LIST'
+
+// 修改手机号
+export const SET_MOBILE = 'SET_MOBILE'
+
+// 手机号码
+export const USER_PHONE = 'USER_PHONE'
