@@ -1,5 +1,5 @@
 <template>
-    <div class="program">
+    <div class="program" v-if="termData != undefined">
         <h3 class="stock-lable">
             <span> 选择配资方案</span>
             <img style="vertical-align: middle "  src="../../assets/image/peiziimgxjt.jpg">
@@ -7,40 +7,44 @@
         <div class="program-left">
             <div class="program-left-1">
                 第一步：
-                <span>选择获得资金（{{termDatas.stepOne}}）</span>
+                <span>输入投资本金（{{termData.stepOne}}）</span>
             </div>
             <div>
-                <el-input class="firststep-input" :placeholder="termDatas.placeholder" v-model.trim="principal" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
+                <el-input class="firststep-input" :placeholder="termData.placeholder" v-model.trim="principal" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
                 <em class="firststep-money">元</em>
             </div> 
             <div  class="first-remark">
                 <span>备注：</span> 
-                <span>{{termDatas.remarkOne}}</span>
+                <span>{{termData.remarkOne}}</span>
             </div>
             <div class="program-left-2">
                 <span>第二步：</span>
-                <span >选择获得资金（{{termDatas.stepTwo}}）</span>
+                <!-- <span >选择获得资金（{{termData.stepTwo}}）</span> -->
+                <span>选择获得资金</span>
             </div>
             <el-row :gutter="30" class="sel">
                 <el-col :span="8" 
                         class="sel-content"
-                        :class="index === active?'sel-active':''" 
-                        v-for="(item, index) in pzSel" 
+                        :class="index === active ? 'sel-active' : ''" 
+                        v-for="(item, index) in programData" 
                         :key="index">
-                    <div @click="pzActive(index,item)">
-                        <i></i><strong class="sel-strong">{{item.num}}</strong>倍
+                    <div @click="pzActive(index, item)">
+                        <i></i><strong class="sel-strong">{{item.multiple}}</strong>倍
                         <div v-if="pzType === 'free'" class="sel-interest">
                             <span>免息</span>
                         </div>
                         <div v-else class="sel-interest">
-                            <span>
+                            <span v-if="pzType === 'day'">
+                                日利率
+                            </span>
+                            <span v-else>
                                 月利率
                             </span>
                             <span>
-                                {{item.interestRate}}%
+                                {{item.rate}}%
                             </span>
                         </div>
-                        <p><span>{{item.total}}</span>元</p>
+                        <p><span>{{pzMoney(item.multiple)}}</span>元</p>
                     </div>
                 </el-col>
             </el-row>
@@ -54,9 +58,8 @@
             </div>
 
             <div>
-                <span class="term" > 期限：</span>
-                <span v-if="pzType === 'free'" class="term">&nbsp; {{ pzType === 'free' ? periodData + '个交易日' : interest }} </span>
-                <el-select v-else style="width:120px"  v-model="term" size="mini"  placeholder="选择期限">
+                <span class="term"> 期限：</span>
+                <el-select v-if="periodData.length > 1" style="width:120px" v-model="term" size="mini"  placeholder="选择期限">
                     <el-option
                         v-for="item in periodData"
                         :key="item.value"
@@ -64,15 +67,20 @@
                         :label="item.lable"
                         >
                     </el-option>
-                </el-select>              
-                <span class="interestfee">&nbsp; {{pzType === 'vip' ? ' 利息费' :'账户管理费'}} ：</span>
-                <span class="interestfee-num interestfee" >{{ pzType === 'free' ? termDatas.interestNum : mFee }}</span>
+                </el-select> 
+                <span class="term" v-else>&nbsp;
+                    <span v-if="pzType === 'day' || pzType === 'free'">{{periodData[0]}}个交易日</span>
+                    <span v-else>{{periodData[0]}}个自然月</span>
+                </span>                             
+                <span class="interestfee">&nbsp; {{pzType === 'vip' ? ' 利息费' :'账户管理费'}} ：</span>          
+                <span class="interestfee-num interestfee" v-if="pzType === 'free'">{{termData.interestNum}}</span>
+                <span class="interestfee-num interestfee" v-else>{{mFee | number}}</span>
                 <span class="term" v-if="pzType === 'day'" >元 / 交易日</span>
                 <span class="term" v-if="pzType === 'month' || pzType === 'vip' " >元 / 自然月</span>
             </div>
-            <div class="remarks">
+            <div class="remarks" v-if="pzType !== 'free'">
                 <span>备注：</span> 
-                {{ pzType === 'free' ? `第${periodData}个交易日14:00终止配资并结算` : termDatas.remark }}
+                {{termData.remark}}
             </div>
             <!-- 按天配资 -->
             <div class="lable" >
@@ -97,28 +105,28 @@
                     <tr>
                         <th width="100">配资须知</th>
                         <td>
-                          {{pzType === 'free' ? `盈利${termDatas.divided}%全归您` : '盈利全归您'}}   
+                          {{pzType === 'free' ? `盈利${termData.divided}%全归您` : '盈利全归您'}}   
                         </td>
                     </tr>
                     <tr>
                         <th>总配资资金</th>
                         <td>
-                            <em style="color: #fe5911;">{{ principal*1 + activeData.total*1 }}元</em> 
-                            <small style="color:#555">{{principal || 0}}(本金)+{{activeData.total}}(配资资金)</small>
+                            <em style="color: #fe5911;">{{ principal * 1 + multiple * principal}}元</em> 
+                            <small style="color:#555">{{principal || 0}}(本金) + {{multiple * principal}}(配资资金)</small>
                         </td>
                     </tr>
                     <tr>
                         <th>亏损警戒线</th>
                         <td>
-                            <em style="color: #fe5911;">{{activeData.total * 1 + (principal * (termDatas.warning_line/100)) }}元</em>
-                            <small style="color:#555">(警戒线 = 配资资金 + 本金 × {{termDatas.warning_line}}%)</small>
+                            <em style="color: #fe5911;">{{multiple * principal + principal * ((100 - getSettingStock.risk_warning_line*1)/100) }}元</em>
+                            <small style="color:#555">(警戒线 = 配资资金 + 本金 × {{100 - getSettingStock.risk_warning_line}}%)</small>
                         </td>
                     </tr>
                     <tr>
                         <th>亏损平仓线</th>
                         <td>
-                            <em style="color: #fe5911;">{{activeData.total * 1 + (principal * (termDatas.close_line/100)) }}元</em>
-                            <small style="color:#555">(平仓线 = 配资资金 + 本金 × {{termDatas.close_line}}%)</small>
+                            <em style="color: #fe5911;">{{multiple * principal + principal * ((100 - getSettingStock.risk_closeout_line*1)/100) }}元</em>
+                            <small style="color:#555">(平仓线 = 配资资金 + 本金 × {{100 - getSettingStock.risk_closeout_line}}%)</small>
                         </td>
                     </tr>
                 </tbody>
@@ -129,7 +137,7 @@
                 <span>备注:您需支付的金额为：保证金</span>
                 <span>{{principal || 0}}</span>
                 <span v-if="pzType === 'free'">+ 0元（管理费）= {{principal || 0}} 元</span>
-                <span v-else>+ {{sumManagement}}元（管理费）= {{Number(principal) + Number(sumManagement)}} 元</span>
+                <span v-else>+ {{sumManagement | number}}元（管理费）= {{sumMoney | number}} 元</span>
             </p>
             <p class="under-middle" style="">
                 <span> 有任何不清楚，请咨询客服QQ：</span>
@@ -149,79 +157,53 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-    name: 'stockProgram',
-    props: ["programData",'stockType','termData'],
-    watch:{
-        principal:{
-            handler(a,b) {
-                var re=/[^\d，,]]*/g;
-                this.principal = String(a).replace(re,"");
-                this.getNum()
-            },
-            deep: true
+    filters: {
+        number(value) {
+            var toFixedNum = Number(value).toFixed(2);
+            return toFixedNum;
         }
     },
+    name: 'stockProgram',
+    props: ["programData",'stockType','termData'],
     data(){
         return{
-            interest:0.00,
-            serviceQQ:'xxx',
-            pzSel :[],
-            termDatas: {},
             active: 0,
             pzType: '',
             orderType: null,
-            activeData: {},
-            interestfee: 0,
-            mFee:0,
-            gFee:0,
-            pFee:0,
-            aFee:0,
-            pmFee:0,
-            totalAmount:0,
-            principal:'',
-            term:'',
-            days:''
+            principal: 100,//input金额
+            term: '',//交易周期
+            mFee: 0,//账户管理费
+            multiple: 0,//杠杆倍数
+            rate: 0,//利率
         }
     },
     mounted(){
-        this.pzSel = this.programData
-        this.termDatas = this.termData
-        this.pzType = this.stockType.lable
-        this.orderType = this.stockType.value
-        this.activeData = this.programData[0]
+        setTimeout(()=> {
+            this.rate = this.programData[0].rate
+            this.mFee = (this.programData[0].multiple * this.principal) * (this.programData[0].rate / 100)
+            this.multiple = this.programData[0].multiple
+            this.pzType = this.stockType.lable
+            this.orderType = this.stockType.value
+        },20)
     },
     methods: {
         pzActive (i,item) {
             this.active = i 
-            this.activeData = item
-            if(this.principal - 0 >0) {
-                this.getNum()
-            }
+            this.multiple = item.multiple
+            this.rate = item.rate
+            // 账户管理费 (/交易日&&//自然月)(配资总资金 * 利率)
+            this.mFee = this.principal * this.multiple * (item.rate/100)
         },
         moneyKeyUp(e) { //金额强制转浮点型 排除0 .
+            this.principal=this.principal.replace(/[^\d]/g,'')
             if(e && (e.keyCode === 190 || e.keyCode === 48)){return;}
-            // this.getNum()
-        },
-        getNum() {
-            // 判断金额大小
-            if(this.principal-0 > this.termDatas.max -0) {
-                this.principal = this.termDatas.max
-                return this.$message.error('金额不能大于最大金额');
-            }
-            const d = this.activeData //选择的杠杆
-            const b = d.interestRate ? d.interestRate : 0//利率
-            const n =  d.num ? d.num : 0 //倍数
-            const t =  d.num ? d.num : 0 //期限
-            this.interestfee  = (this.principal*t).toFixed(2)
-            this.mFee = (this.principal *b * n /100) .toFixed(2)
-            this.pmFee = (this.principal *b * n * t/100) .toFixed(2)
-            // 杠杆金额
-            this.pzSel.map(i=> {
-                return i.total = this.principal * i.num
-            })
         },
         moneyBlur(e) {
             this.principal = parseFloat(parseFloat(this.principal).toFixed(2)) || '';
+        },
+        // 配资资金(本金 * 杠杆倍数)
+        pzMoney(multiple) {
+            return this.principal * multiple
         },
         confrimPay() {
             // 判断登录状态
@@ -229,28 +211,38 @@ export default {
                 this.$router.push({path: '/user/login', query: {redirect: this.$route.path}})
                 return
             }
-            // 判断金额
-            if( this.principal-0 < this.termDatas.min || (this.principal-0) % (this.termDatas.divisor-0) !==0) {
-                return this.$message.error(`本金不小于${this.termDatas.min}元,且为${this.termDatas.divisor}的倍数`);
+            // 判断是否实名认证
+            if(!this.getUserInfo.is_real_name) {
+                this.$alert('您还未完成身份验证，请先进行实名认证')
+                this.$router.push('/member/safeSetting')
+                return
             }
-            if( this.term == '' &&  this.pzType !== 'free' ) return this.$message.error('请选择你的配资周期');
+            // 判断金额
+            if( (this.principal*1) < (this.termData.min*1) || 
+                (this.principal*1) > (this.termData.max*1) || 
+                (this.principal*1) % (this.termData.divisor*1) !==0) {
+                return this.$message.error(`本金不小于${this.termData.min}元,不大于${this.termData.max},且为${this.termData.divisor}的倍数`);
+            }
+            // 判断是否可以选择期限（配资周期）
+            if(this.periodData.length > 1 && this.term == '') return this.$message.error('请选择你的配资周期');
             //提交给后台的数据
             let obj = {
                 orderMoney: this.principal || '0',//金额
                 orderType: this.orderType,//配资单类型1免息2按天3按月4VIP
-                multiple:  this.activeData.num || '0',//杠杆倍数
-                period: this.pzType == 'free' ? this.periodData : this.term//期限，周期
+                multiple:  this.multiple ,//杠杆倍数
+                period: this.periodData.length > 1 ? this.term : this.periodData[0]//期限，周期
             }
-            //确认配资页面显示的数据
+
+            // 确认配资页面显示的数据
             let pzData = {
                 principal: this.principal || 0, //保证金
-                period: this.pzType == 'free' ? this.periodData : this.term ,//期限，周期  
+                period: this.periodData.length > 1 ? this.term : this.periodData[0],//期限，周期 
                 sumMFee: this.sumManagement, //总利息 
-                mFee: this.pzType == 'free' ? 0 : this.mFee , //利息(每天的利息)                
-                pzMoney: this.activeData.total || '0', //配资金额                                           
-                funds:  (this.activeData.total*1 + this.principal *1) , //配资资金
-                lineOf: this.activeData.total*1 + (this.principal * (this.termDatas.warning_line/100)), //预警线 
-                opeLine: this.activeData.total*1 + (this.principal * (this.termDatas.close_line/100)), //平仓线
+                mFee: this.pzType == 'free' ? 0 : this.mFee , //利息(每天的利息)    
+                pzMoney: this.principal * this.multiple, //配资金额   
+                funds:  this.principal*1 + this.principal * this.multiple , //配资资金
+                lineOf: this.multiple * this.principal + this.principal * ((100 - this.getSettingStock.risk_warning_line*1)/100),//预警线
+                opeLine: this.multiple * this.principal + this.principal * ((100 - this.getSettingStock.risk_closeout_line*1)/100),//平仓线
                 pzType: this.pzType
             }
             this.$parent.showEnter = true
@@ -262,21 +254,20 @@ export default {
         },
     },
     computed: {
-        ...mapGetters(['getIsLogin']),
+        ...mapGetters(['getIsLogin', 'getSettingBase', 'getSettingStock', 'getUserInfo']),
         // 计算交易周期
         periodData() {
             let day = '个交易日'
             let monthV = '个自然月'
             let arr = []
-            if(this.termDatas.period) {
-                let min = this.termDatas.period.min
-                let max = this.termDatas.period.max
+            if(this.termData.period) {
+                let min = this.termData.period.min
+                let max = this.termData.period.max
                 if(min == max) {
-                    // arr.push(min)
-                    return min
+                    return [min]
                 }else {
                     for(let i = min; i <= max; i++) {
-                        if(this.pzType == 'day') {
+                        if(this.pzType == 'day' || this.pzType == 'free') {
                             arr.push({
                                 value: Number(i),
                                 lable: i + day
@@ -292,9 +283,13 @@ export default {
                 }
             }
         },
+        // 总金额
+        sumMoney() {
+            return this.sumManagement*1 + this.principal*1
+        },    
         // 计算 交易日 * 交易日每天的管理费（总管理费）
         sumManagement() {
-            return ((this.mFee*1000) * (this.term*1000))/1000000
+            return this.mFee * this.term
         },
         // 时间判断显示是否为当日生效(true)&下个交易日生效(false)
         showTake() {
@@ -304,8 +299,31 @@ export default {
             }else {
                 return true
             }
+        },
+        // 客服qq
+        serviceQQ() {
+            return this.getSettingBase.service_qq.split('|')[0]
         }
-    }
+    },
+    watch:{
+        principal:{
+            handler(a,b) {
+                if(a <= 0) {
+                    this.principal = ''
+                    this.mFee = 0
+                    return false                 
+                }
+                if(a.length > this.termData.max.length) {
+                    this.principal = this.termData.max
+                }              
+                // var re=/[^\d，,]]*/g;
+                // this.principal = String(a).replace(re,"");
+                // this.mFee = isNaN(this.principal) ? 0 : this.principal * this.multiple * (this.rate /100)
+                this.mFee = this.principal * this.multiple * (this.rate /100)
+            },
+            deep: true
+        }
+    },
 }
 </script>
 <style lang="scss" scoped>
@@ -350,11 +368,11 @@ export default {
     }
     .program-content {
         width:505px;
-        height: 550px;
+        // height: 550px;
         padding-left:32px;
         border:1px solid #c2c2c2;
         display:block;
-        min-height: 496px;
+        min-height: 550px;
     }
     .program-left {
          @extend .program-content;

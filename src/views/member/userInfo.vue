@@ -32,7 +32,7 @@
                                         <el-tooltip effect="light" placement="left-start">
                                             <span slot="content" v-if="getUserInfo.is_real_name">
                                                 您已认证个人实名信息，如需修改请联系客服人员，
-                                                <a class="a-style" href="#">在线客服</a>
+                                                <a class="a-style" :href="serviceQQ" target="_blank">在线客服</a>
                                             </span>
                                             <span slot="content" v-else>
                                                 您未认证个人实名信息，
@@ -52,7 +52,7 @@
                                         <el-tooltip effect="light" placement="left-start">
                                             <span slot="content" v-if="getUserInfo.is_real_name">
                                                 您已绑定身份证，如需修改请联系客服人员，
-                                                <a class="a-style" href="#">在线客服</a>
+                                                <a class="a-style" :href="serviceQQ" target="_blank">在线客服</a>
                                             </span>
                                             <span slot="content" v-else>
                                                 您未绑定身份证，实名认证即可成功绑定身份证，
@@ -232,7 +232,7 @@
                 <div class="uploading-portrait-btn">
                     <p class="font">
                         您可以上传JPG、GIF或PNG文件<br>
-                        上传图片最大2M
+                        上传图片最大500kb
                     </p>
                     <span @click="upPortrait">保存</span>
                     <span style="color: #666;background: #efefef;" @click="closeUpImg">取消</span>
@@ -307,6 +307,7 @@ export default {
                 obj[key] =  ''
             });
             this.editForm = obj
+            this.edit = false
         },
         goSafeSetting(id) {
             this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
@@ -320,7 +321,7 @@ export default {
         // 保存个人信息
         saveInfo() {
             let obj = {
-                gender: this.editForm.gender || this.getUserInfo.gender,//性别
+                gender: this.editForm.gender,//性别
                 education: this.editForm.education || this.getUserInfo.education,//本人学历                
                 province: this.editForm.province || this.getUserInfo.province,//省份
                 city: this.editForm.city || this.getUserInfo.city,//城市
@@ -339,10 +340,7 @@ export default {
                     this.$message.success(res.message)
                     Object.assign(this.$store.state.userInfo, obj)
                     this.reload()
-                } 
-                // else {
-                //     this.$message.error(res.message);
-                // }    
+                }   
             })
         },
         // 设置上传图片的显示
@@ -384,7 +382,14 @@ export default {
                 '请您根据自身真实情况填写，出彩速配会对用户的所有资料进行严格保密。',
                 `使用过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
             ]
-        } 
+        },
+        //客服QQ
+        serviceQQ() {
+            if(this.getSettingBase.service_qq != undefined) {
+                let qq = this.getSettingBase.service_qq.split('|')[0]
+                return `https://wpa.qq.com/msgrd?v=3&uin=${qq}&site=qq&menu=yes`
+            }           
+        }
     },
     watch: {
         'selectedCity': {

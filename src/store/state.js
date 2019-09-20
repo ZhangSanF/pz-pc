@@ -1,7 +1,9 @@
 
 const state = {
     isLogin: JSON.parse(sessionStorage.getItem("store")) == null ? '' : JSON.parse(sessionStorage.getItem("store")).isLogin,//是否登录
+    depositList:[],//首页今日充值
     userInfo: {},//个人信息
+    initMobile: '',// 是否初始化手机号码
     pcIndexCarousel: [],//首页轮播图
     stockInfo: [],//股市行情
     encyclopedias: [],//配资百科
@@ -12,6 +14,7 @@ const state = {
     industryCertification: [],//底部行业认证
     payData:{},//充值
     settingBase:{},//系统配置
+    settingStock:{},//系统配置
     settingOrder:{},//系统配置
     settingFree:{},//系统配置
     settingDays:{},//系统配置
@@ -19,6 +22,10 @@ const state = {
     settingVip:{},//系统配置
     xsrwData:[],//新手任务
     bankList: {},//获取银行卡列表
+    bangzhuQuery: {//帮助中心参数
+        id: '',
+        title: ''
+    },
     aboutQuery: {//关于我们参数
         id: '',
         title: '',
@@ -31,7 +38,10 @@ const state = {
         showList: ''
     },
     orderList:[],//配资单列表
-    userPhone: ''//手机号码
+    userFind: {},//手机号码&用户名&id&密保
+    loansrate: {},//利率/倍数
+    periodNumber: '',//剩余期数(扩大配资，时使用)
+    interestMoney: '',//延期利息(终止操盘，时使用)
 };
 
 export default state;

@@ -10,13 +10,14 @@
                     <span v-else><router-link to="/member" tag="a">我的账户</router-link>  |</span>
                     <span v-if="!getIsLogin"><router-link to="/user/register" tag="a">免费注册</router-link>  |</span>
                     <span v-else><a href="javascript:void(0);" @click="exitLogin">退出</a>  |</span>
-                    <span><router-link to="/user/bangzhu" tag="a">帮助中心</router-link>  |</span>
+                    <!-- <span><router-link to="/user/bangzhu" tag="a">帮助中心</router-link>  |</span> -->
+                    <span><a href="javascript:void(0);" @click="toBangzhu('新手入门')">帮助中心</a>  |</span>
                     <span><a href="javascript:void(0);" @click="toAbout('公司简介', '0')">关于我们</a></span>
                 </div>
             </div>
             <div class="header">
                 <div class="d_wrapM wrapper">
-                    <img @click="toHome" class="header-logo" :src="getSettingBase.site_logo" alt="">
+                    <img @click="toHome" class="header-logo" :src="getSettingBase.site_logo" alt="">                    
                     <ul>
                         <li class="navigation-item">
                             <router-link to="/home" tag="a">网站首页</router-link>
@@ -65,8 +66,13 @@ export default {
         },
         // 关于我们
         toAbout(title, active) {
-            this.$router.push('/user/about')
             this.$store.commit('ABOUT_QUERY', {id: '', title: title, active: active})
+            this.$router.push('/user/about')
+        },
+        // 帮助中心
+        toBangzhu(title) {
+            this.$store.commit('BANGZHU_QUERY', {id: '', title: title})
+            this.$router.push('/user/bangzhu')
         }
     },
     mounted() {
@@ -106,7 +112,7 @@ export default {
             .d_wrapM{
                 display: flex;justify-content: space-between;height: 100%;align-items: center;
                 .header-logo{
-                    cursor: pointer;
+                    cursor: pointer;width: 386px;height: 64px;
                 }
                 ul{
                     .navigation-item{

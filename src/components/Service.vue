@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div class="service" :style="{top: domTop + 'px'}">
-            <a href="#">
+        <div class="service" :style="{top: domTop + 'px'}" v-if="isShowService">
+            <a href="javascript:void(0);" @click="serviceLine">
                 <img src="../assets/image/SurferServer.gif" alt="">
             </a>
-            <a href="#" class="close" @click="closeService">
+            <a href="javascript:void(0);" class="close" @click="closeService">
                 <img src="../assets/image/close.png" alt="">
             </a>
         </div>      
@@ -12,15 +12,27 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from "vuex";
+
 export default {
     data() {
         return {
+            isShowService: true,
             domTop: 150
         }
     },
     methods:{
+        //客服在线
+        serviceLine() {
+            if(this.getSettingBase.service_code != undefined) {
+                let c = document.createElement('script');
+                c.src = this.getSettingBase.service_code;
+                let s = document.getElementsByTagName('script')[0];
+                s.parentNode.insertBefore(c, s);
+            } 
+        },
         closeService() {
-            alert('3')
+            this.isShowService = false
         }
     },
     mounted() {
@@ -29,6 +41,9 @@ export default {
             var osTop = document.documentElement.scrollTop || document.body.srcollTop || 0;
             _this.domTop = osTop + 150
         }
+    },
+    computed: {
+        ...mapGetters(['getSettingBase'])
     }
 }
 </script>

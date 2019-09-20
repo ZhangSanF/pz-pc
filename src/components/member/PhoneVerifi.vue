@@ -17,10 +17,11 @@
             </div>
         </div>
         <div  class="form-style-1 clearfix"  v-show="nowStep == 1">
-            <!-- 通过原手机号码重置:model="phoneStep" -->
+            <!-- 通过原手机号码重置 -->
             <el-form v-if="!isEncrypted" class="step1-form" label-width="200px" >
                 <el-form-item label="原手机号码">
-                    <el-input size="mini" class="step-input" v-model.trim="phoneStep.mobile"></el-input>
+                    <!-- <el-input size="mini" class="step-input" v-model.trim="phoneStep.mobile"></el-input> -->
+                    <span class="bank_city" >{{getUserInfo.mobile}}</span>
                     <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取短信验证码</el-button>
                     <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
                     <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">验证码{{smsCodeNumber}}秒有效</el-button>
@@ -82,27 +83,29 @@
 
 <script>
 import { mapActions, mapGetters } from "vuex";
+import { rePhone, smsCodeNumber } from '@/config/rules.js'
 
 export default {
     inject: ['reload'],
     data() {
         return{
-            nowStep:1,
+            nowStep: 1,
             isShowSmsCode: 'one',
-            smsCodeNumber: 10,
+            smsCodeNumber: smsCodeNumber,
             isEncrypted: false,
+            index: 1,
             pwdSafe2:{
                 valueOne:'',
                 valueTwo:''
             },
             phoneStep: {
+                member_id: '',
                 mobile: '',
                 mobile_verify_code: ''
             },
             newSetPhone: {
                 type: '',//1手机号，2密保
-                oldMobile: '',//原手机号
-                newMobile: '',//新手机号
+                mobile: '',//新手机号
                 oldCode: '',//原手机的验证码
                 newCode: ''//新手机的验证码
             }
@@ -117,12 +120,11 @@ export default {
         // 获取短信验证码
         getVerify() {
             let _this = this
-            let re = /^[1]([3-9])[0-9]{9}$/;
-            if (re.test(_this.phoneStep.mobile)) {
+            if(_this.index == 1) {
                 _this.isShowSmsCode = 'two'
                 let obj = {
                     template: 'modify_mobile',
-                    mobile: _this.phoneStep.mobile
+                    member_id: _this.getUserInfo.id
                 }
                 _this.sendSmsCode(obj).then((res) => {
                     if(res.code == 200) {
@@ -135,17 +137,46 @@ export default {
                                     _run();
                                 } else {
                                     _this.isShowSmsCode = 'four'
-                                    _this.smsCodeNumber = 10
+                                    _this.smsCodeNumber = smsCodeNumber
                                 }
                             }, 1000);
                         };
                         _run();
                     }else {
                         _this.isShowSmsCode = 'one'
-                        // this.$message.error(`${res.message}`);
                     }
                 })
-            }
+            }else {
+                if(rePhone.test(_this.phoneStep.mobile)) {
+                    _this.isShowSmsCode = 'two'
+                    let obj = {
+                        template: 'modify_mobile',
+                        mobile: _this.phoneStep.mobile
+                    }
+                    _this.sendSmsCode(obj).then((res) => {
+                        if(res.code == 200) {
+                            _this.$message.success(res.message)
+                            _this.isShowSmsCode = 'three'
+                            let _run = () => {
+                                setTimeout(() => {
+                                    _this.smsCodeNumber--
+                                    if (_this.smsCodeNumber > 0) {
+                                        _run();
+                                    } else {
+                                        _this.isShowSmsCode = 'four'
+                                        _this.smsCodeNumber = smsCodeNumber
+                                    }
+                                }, 1000);
+                            };
+                            _run();
+                        }else {
+                            _this.isShowSmsCode = 'one'
+                        }
+                    })
+                }else {
+                    this.$message.error(`请输入正确的手机号`);
+                }                  
+            }   
         },
         nextStep(i) {
             // 密保验证
@@ -167,33 +198,28 @@ export default {
                         this.newSetPhone.password_protection = JSON.stringify(obj)
                         this.nowStep = i + 1
                     }
-                    // else {
-                    //     this.$message.error(`${res.message}`);
-                    // }
                 })   
             }else {//原手机号码验证
-                if(this.phoneStep.mobile == '' || this.phoneStep.mobile_verify_code == '') {
+                if(this.phoneStep.mobile_verify_code == '') {
                     return this.$message.error(`请填写完整信息`);
                 }
                 if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
+                    this.phoneStep.member_id = this.getUserInfo.id
                     this.verifySmsCode(this.phoneStep).then(res => {
                         if(res.code == 200) {
-                            // 第一步后存 原手机号和验证码
+                            this.index = 2
+                            // 第一步后存
                             this.newSetPhone.type = 1
-                            this.newSetPhone.oldMobile = this.phoneStep.mobile
                             this.newSetPhone.oldCode = this.phoneStep.mobile_verify_code
                             // 把原有数据置空
-                            this.phoneStep.mobile = ''
+                            this.phoneStep.member_id = ''
                             this.phoneStep.mobile_verify_code = ''
                             this.isShowSmsCode = 'one'
                             this.nowStep = i + 1
                         }
-                        // else {
-                        //     this.$message.error(`${res.message}`);
-                        // }
                     })
                 }else {
-                    return this.$message.error(`请获取短信验证码`);
+                    this.$message.error(`请获取短信验证码`);
                 }
             }
         },
@@ -205,7 +231,7 @@ export default {
                 this.verifySmsCode(this.phoneStep).then(res => {
                     if(res.code == 200) {
                         // 第二步后存 新手机号和验证码
-                        this.newSetPhone.newMobile = this.phoneStep.mobile
+                        this.newSetPhone.mobile = this.phoneStep.mobile
                         this.newSetPhone.newCode = this.phoneStep.mobile_verify_code
                         // 把原有数据置空
                         this.phoneStep.mobile = ''
@@ -214,17 +240,11 @@ export default {
                             if(res.code == 200) {
                                 this.isShowSmsCode = 'one'
                                 this.nowStep = i + 1
-                                let phone = this.newSetPhone.newMobile.slice(0,3) + '****' + this.newSetPhone.newMobile.slice(-4)
+                                let phone = this.newSetPhone.mobile.slice(0,3) + '****' + this.newSetPhone.mobile.slice(-4)
                                 this.$store.commit('SET_MOBILE', phone)
                                 this.newSetPhone = {}
-                                // this.reload()
                             }
-                            // else {
-                            //     this.$message.error(`${res.message}`);
-                            // }
                         })
-                    }else {
-                        // this.$message.error(`${res.message}`);
                     }
                 })
             }else {
@@ -239,6 +259,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    .bank_city{
+        margin-right: 20px;
+    }
     .form-style-1 {
         padding: 15px 0 30px;
     }

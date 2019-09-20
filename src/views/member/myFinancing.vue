@@ -76,27 +76,31 @@
                 </div>
             </div>
         </div>
-        <div class="user-box-con-2">
-            <PzList :curpzList="orderObj.list"/>
-        </div>
-        <div class="pagination_content">
-            共&nbsp;{{orderObj.total}}&nbsp;条
-            {{sumPage}}&nbsp;页
-            当前第&nbsp;{{page}}&nbsp;页&nbsp;&nbsp; 
-            <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
-            <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
-            <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
-            <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
-            转到&nbsp;&nbsp;<el-input
-                type="text"
-                size="mini"
-                v-model="pageInput"
-                class="page"
-                >
-            </el-input>
-            &nbsp;页&nbsp;&nbsp;
-            <span @click="goPage('jump')">确定</span>
-        </div>
+        <!-- 无数据显示 -->
+        <div v-if="orderObj.total <= 0" class="no-content">无配资记录</div>
+        <div v-else>
+            <div class="user-box-con-2">
+                <PzList :curpzList="orderObj.list" :curServerTime="orderObj.server_time"/>
+            </div>
+            <div class="pagination_content">
+                共&nbsp;{{orderObj.total}}&nbsp;条
+                {{sumPage}}&nbsp;页
+                当前第&nbsp;{{page}}&nbsp;页&nbsp;&nbsp; 
+                <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
+                <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
+                <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
+                <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
+                转到&nbsp;&nbsp;<el-input
+                    type="text"
+                    size="mini"
+                    v-model="pageInput"
+                    class="page"
+                    >
+                </el-input>
+                &nbsp;页&nbsp;&nbsp;
+                <span @click="goPage('jump')">确定</span>
+            </div>
+        </div>      
     </div>
 </template>
 
@@ -260,6 +264,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.no-content{
+    text-align: center;
+    padding-bottom: 30px;
+}
 .page {
     width:48px; 
     display: inline-block; 

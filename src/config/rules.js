@@ -1,22 +1,24 @@
+/**
+ * 登录密码和支付密码规则一致
+ */
 export const checkRules ={
     // 登录注册用户名
     username: [
         {   
             required: true,  
-            pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9_]+$/,
-            message: '用户名由6-16字母和数字和下划线组合且必须以字母开头',
+            // pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9_]+$/,
+            pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9]+$/,
+            message: '用户名须由字母开头，共6到16位，可包含数字',
             max: 16,
             min: 6,
             trigger: 'blur' 
         }
     ],
-
     // 登录注册密码
     password: [
         {   
             required: true, 
             pattern: /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$).{6,20}$/,
-            // pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/, 
             message: '密码必须由6-20位字母和数字符号之间的两种组合',
             max: 20,
             min: 6,
@@ -151,3 +153,16 @@ export const checkRules ={
         }
     ]
 }
+
+//支付密码
+export const payPassword = /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$).{6,20}$/
+
+//手机号码
+export const rePhone = /^[1]([3-9])[0-9]{9}$/
+
+// 密码框 去掉中文双字节字符
+export const reChinese = /[^\x00-\xff]/
+
+// 短信验证码时间 120
+export const smsCodeNumber = 120
+    

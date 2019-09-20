@@ -29,6 +29,7 @@ export default {
         sessionStorage.setItem("store",JSON.stringify(this.$store.state))
     })
 
+    this.loansrate()
     this.getAdvertisement({})
     this.getAboutUsListFun('announcement')
     this.getAboutUsListFun('stock_market')
@@ -37,7 +38,7 @@ export default {
     this.getAboutUsListFun('help_center')
   },
   methods: {
-    ...mapActions(['getAdvertisement', 'getAboutUsList']),
+    ...mapActions(['getAdvertisement', 'getAboutUsList', 'loansrate']),
     // 刷新
     reload() {
       this.isRouterAlive = false

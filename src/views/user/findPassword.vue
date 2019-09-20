@@ -72,12 +72,19 @@ export default {
                         // 判断用户是否存在
                         this.verifyUserName(this.loginForm).then((res) => {
                             if(res.code == 200) {
-                                this.canSave = true                               
-                                this.$store.commit('USER_PHONE', res.data.info)
-                                this.$router.push('/user/authentication')
+                                this.canSave = true
+                                this.$store.commit(
+                                    'USER_FIND', 
+                                    {
+                                        phone: res.data.mobile, 
+                                        userName: this.loginForm.username, 
+                                        userId:  res.data.id, 
+                                        password_protection: res.data.password_protection
+                                    }
+                                )
+                                this.$router.push('/user/buttonPwd')
                             }else {
                                 this.canSave = true
-                                // this.$message.error(res.message);
                                 this.loginForm = {}
                                 this.getVerifyFun()
                             }

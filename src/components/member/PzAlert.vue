@@ -12,7 +12,7 @@
                     2. 按月配资以30天为一个月计算，不满一个月的部分，按照占 30天的百分比计算。
                 </div>
                 <div class="jump_problem" v-if="postData.modifyType == 2">
-                    续期要先把之前欠的利息先还上（信用至上），再根据当前平台设置的利率重新算，收取费用的公式和申请配资一样 
+                    续期根据当前平台设置的利率重新算，收取费用的公式和申请配资一样
                 </div>
                 <div class="box_prompt" v-if="postData.modifyType == 3">
                     配资用户的可用资金大于总操盘资金，且只能提取盈利部分，提取盈利最少为100元，<br>
@@ -36,6 +36,9 @@
                         <option :value="item.value" v-for="(item, index) in periodData" :key="index">{{item.lable}}</option>
                     </select>
                 </div>
+                <div class="end-style" v-if="postData.modifyType == 2 && getInterestMoney.interest_money*1 > 0">
+                    您已到期 {{getInterestMoney.period}} {{computedData.order_type == 1 || computedData.order_type == 2 ? '个交易日' : '个月'}}
+                </div>
                 <div class="box_word" v-if="postData.modifyType == 3">
                     提取金额：<input type="text" class="input_jump" v-model="extract">&nbsp;元
                 </div>
@@ -47,6 +50,10 @@
                     1. 按天按月配资，不返回系统已经扣除的管理费及其他费用。<br>
                     2. 请确保您的交易账户已经卖出，否则我们有权把您持有进行强制处理（不保证平仓价）。<br>
                     3. 免息配资方案我们不会扣除任何费用。
+                </div>
+                <div class="end-style" v-if="postData.modifyType == 5 && getInterestMoney.interest_money*1 > 0">
+                    您已到期 {{getInterestMoney.period}} {{computedData.order_type == 1 || computedData.order_type == 2 ? '个交易日' : '个月'}}，
+                    需支付利息&nbsp;&nbsp;{{getInterestMoney.interest_money | number}}&nbsp;&nbsp;元。
                 </div>
                 <div class="box_menu">
                     <a href="javascript:void(0);" class="menu_jump_blue" v-if="postData.modifyType == 1" @click="pushAction(postData)">确认扩大</a>
@@ -69,8 +76,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import { returnRate } from '@/config'
+import { mapGetters, mapActions } from "vuex"
 
 export default {
     /**
@@ -87,7 +93,6 @@ export default {
             extension: '',//申请延期
             extract: '',//提取收益
             addMoney: '',//追加保证金
-            renewalTimeMax: ''//续期时间最大值
         }
     },
     filters: {
@@ -109,20 +114,73 @@ export default {
         },
         // 扩大配资
         pushAction(data) {
+            // console.log('type',this.computedData.order_type)
+            // console.log('pushMoney', this.pushMoney)
+            // console.log('min', this.minMoney)
+            // console.log('max', this.maxMoney)
             if(this.pushMoney == '') return this.$message.error(`请输入金额`);
-            if(this.pushMoney < 100 || this.pushMoney > 1000000) return this.$message.error(`金额不小于100且不大于1000000`);
+            if(this.pushMoney*1 < this.minMoney*1 || this.pushMoney*1 > this.maxMoney*1) {
+                return this.$message.error(`金额不小于${this.minMoney}且不大于${this.maxMoney}`);
+            }
             this.getModifyorderr(Object.assign({expandMoney: this.pushMoney}, data)).then((res) => {
                 if(res.code == 200) {
                     this.closeAlert()
                     this.$message.success(res.message)
-                }else {
+                }
+            })
+        },
+        // 申请延期
+        postponeAction(data) {        
+            if(this.extension == '') return this.$message.error(`请输入续期时间`);
+            this.getModifyorderr(Object.assign({extension: this.extension}, data)).then((res) => {
+                if(res.code == 200) {
                     this.closeAlert()
-                    // this.$alert(
-                    //     `${res.message}`,
-                    //     {
-                    //         type: 'error'
-                    //     }
-                    // )
+                    this.$message.success(res.message)
+                }
+            })
+        },
+        // 提取收益
+        extractAction(data) {
+            //提取收益必须在当天的9点之前和15点之后
+            let timer = new Date().getHours()
+            console.log(timer)
+            if(timer < 15 && timer > 9) return this.$message.error(`请在9点之前和15点之后提取收益`);
+            if(this.extract == '') return this.$message.error(`请输入金额`);
+            if(this.extract*1 < 100) return this.$message.error(`金额不小于100`);
+            this.getModifyorderr(Object.assign({extractMoney: this.extract}, data)).then((res) => {
+                if(res.code == 200) {
+                    this.closeAlert()
+                    this.$message.success(res.message)
+                }
+            })
+        },
+        // 追加保证金
+        addAction(data) {
+            // console.log('type',this.computedData.order_type)
+            // console.log('addmoney', this.addMoney)
+            // console.log('min', this.minMoney)
+            // console.log('max', this.maxMoney)
+            if(this.addMoney == '') return this.$message.error(`请输入金额`);           
+            if(this.addMoney*1 < this.minMoney*1 || this.addMoney*1 > this.maxMoney*1) {
+                return this.$message.error(`金额不小于${this.minMoney}且不大于${this.maxMoney}`);
+            }
+            this.getModifyorderr(Object.assign({appendMoney: this.addMoney}, data)).then((res) => {
+                if(res.code == 200) {
+                    this.closeAlert()
+                    this.$message.success(res.message)
+                }
+            })
+        },
+        // 终止操盘
+        endAction(data) {
+            //终止操盘必须在当天的9点之前和15点之后          
+            let timer = new Date().getHours()
+            console.log(timer)
+            if(timer < 15 && timer > 9) return this.$message.error(`请在9点之前和15点之后终止操盘`);
+            this.getModifyorderr(Object.assign({end: 'end'}, data)).then((res) => {
+                if(res.code == 200) {
+                    this.closeAlert()
+                    this.$message.success(res.message)
                 }
             })
         },
@@ -146,122 +204,78 @@ export default {
                 }
             }
             return arr
-        },
-        // 申请延期
-        postponeAction(data) {        
-            if(this.extension == '') return this.$message.error(`请输入续期时间`);
-            if((this.extension-0) + (this.computedData.period-0) > this.renewalTimeMax) return this.$message.error(`续期时间不能超过最大值`);
-            this.getModifyorderr(Object.assign({extension: this.extension}, data)).then((res) => {
-                if(res.code == 200) {
-                    this.closeAlert()
-                    this.$message.success(res.message)
-                }else {
-                    this.closeAlert()
-                    // this.$alert(
-                    //     `${res.message}`,
-                    //     {
-                    //         type: 'error'
-                    //     }
-                    // )
-                }
-            })
-        },
-        // 提取收益
-        extractAction(data) {
-            //提取收益必须在当天的9点之前和15点之后
-            let timer = new Date().getHours()
-            console.log(timer)
-            if(timer < 15 && timer > 9) return this.$message.error(`请在9点之前和15点之后提取收益`);
-            if(this.extract == '') return this.$message.error(`请输入金额`);
-            if(this.extract < 100) return this.$message.error(`金额不小于100`);
-            this.getModifyorderr(Object.assign({extractMoney: this.extract}, data)).then((res) => {
-                if(res.code == 200) {
-                    this.closeAlert()
-                    this.$message.success(res.message)
-                }else {
-                    this.closeAlert()
-                    // this.$alert(
-                    //     `${res.message}`,
-                    //     {
-                    //         type: 'error'
-                    //     }
-                    // )
-                }
-            })
-        },
-        // 追加保证金
-        addAction(data) {
-            if(this.addMoney == '') return this.$message.error(`请输入金额`);
-            this.getModifyorderr(Object.assign({appendMoney: this.addMoney}, data)).then((res) => {
-                if(res.code == 200) {
-                    this.closeAlert()
-                    this.$message.success(res.message)
-                }else {
-                    this.closeAlert()
-                    // this.$alert(
-                    //     `${res.message}`,
-                    //     {
-                    //         type: 'error'
-                    //     }
-                    // )
-                }
-            })
-        },
-        // 终止操盘
-        endAction(data) {
-            //终止操盘必须在当天的9点之前和15点之后          
-            let timer = new Date().getHours()
-            console.log(timer)
-            if(timer < 15 && timer > 9) return this.$message.error(`请在9点之前和15点之后终止操盘`);
-            this.getModifyorderr(Object.assign({end: 'end'}, data)).then((res) => {
-                if(res.code == 200) {
-                    this.closeAlert()
-                    this.$message.success(res.message)
-                }else {
-                    this.closeAlert()
-                    // this.$alert(
-                    //     `${res.message}`,
-                    //     {
-                    //         type: 'error'
-                    //     }
-                    // )
-                }
-            })
-        },
+        }
     },
     mounted() {
 
     },
     computed: {
-        ...mapGetters(['getUserInfo', 'getSettingFree', 'getSettingDays', 'getSettingMonths', 'getSettingVip']),
+        ...mapGetters([
+            'getUserInfo', 
+            'getSettingFree', 
+            'getSettingDays', 
+            'getSettingMonths', 
+            'getSettingVip', 
+            'getLoansrate',
+            'getPeriodNumber',
+            'getInterestMoney'
+        ]),
         // 计算扩大配资管理费(本金*杠杆倍数*利率*周期)
         comPushMoney() {
             if(isNaN(this.pushMoney) || this.pushMoney == '') return 0
-            //利率
-            let rate = returnRate(this.computedData.order_type, this.computedData.multiple)
-            return (this.pushMoney * this.computedData.multiple * (rate*1000) * this.computedData.period)/1000
+            let rate = 0
+            let arr = []
+            switch(this.computedData.order_type) {
+                case 1 : arr = this.getLoansrate.free; break;
+                case 2 : arr = this.getLoansrate.day; break;
+                case 3 : arr = this.getLoansrate.month; break;
+                case 4 : arr = this.getLoansrate.vip; break;
+            }
+            for(let item of arr) {
+                if(item.multiple == this.computedData.multiple) {
+                    // 利率
+                    rate = item.rate / 100
+                }
+            }
+            return this.pushMoney * this.computedData.multiple * rate * this.getPeriodNumber
         },
         // 计算续期时间
         periodData() {
             if(this.computedData.order_type == 2) {
-                this.renewalTimeMax = this.getSettingDays.time_range.max
                 return this.timeFun(this.getSettingDays.time_range.min, this.getSettingDays.time_range.max, 2)
             }else if(this.computedData.order_type == 3) {
-                this.renewalTimeMax = this.getSettingMonths.months_range.max
-                return this.timeFun(this.getSettingMonths.months_range.min, this.getSettingMonths.months_range.max, 3)
+                return this.timeFun(this.getSettingMonths.time_range.min, this.getSettingMonths.time_range.max, 3)
             }else if(this.computedData.order_type == 4) {
-                this.renewalTimeMax = this.getSettingVip.vip_range.max
-                return this.timeFun(this.getSettingVip.vip_range.min, this.getSettingVip.vip_range.max, 4)
+                return this.timeFun(this.getSettingVip.time_range.min, this.getSettingVip.time_range.max, 4)
             }
         },
+        minMoney() {
+            switch(this.computedData.order_type) {
+                case 1 : return this.getSettingFree.money_range.min; break;
+                case 2 : return this.getSettingDays.money_range.min; break;
+                case 3 : return this.getSettingMonths.money_range.min; break;
+                case 4 : return this.getSettingVip.money_range.min; break;
+            }
+        },
+        maxMoney() {
+            switch(this.computedData.order_type) {
+                case 1 : return this.getSettingFree.money_range.max; break;
+                case 2 : return this.getSettingDays.money_range.max; break;
+                case 3 : return this.getSettingMonths.money_range.max; break;
+                case 4 : return this.getSettingVip.money_range.max; break;
+            }
+        }
     },
     watch: {
-
+        
     }
 }
 </script>
 
 <style lang="scss" scoped>
+.end-style{
+    text-align: center;color: red;
+}
 .title{
     padding: 0 80px 0 10px;height: 35px;line-height: 35px;border-bottom: 1px solid #D5D5D5;font-size: 14px;color: #333;
     overflow: hidden;text-overflow: ellipsis;white-space: nowrap;background-color: #EAEAEA;
@@ -287,7 +301,7 @@ export default {
             }
         }
         .box_word_duan{
-            margin: 37px 0;text-align: center;
+            margin: 25px 0;text-align: center;
             span{
                 font-size: 15px;
             }

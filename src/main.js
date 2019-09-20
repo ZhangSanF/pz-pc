@@ -6,6 +6,8 @@ import router from './router'
 import store from './store'
 import 'vue-area-linkage/dist/index.css'; // v2 or higher
 import VueAreaLinkage from 'vue-area-linkage';
+import Print from 'vue-print-nb'
+import 'babel-polyfill'
 import { 
   Button,
   Row,
@@ -60,6 +62,7 @@ Vue.use(CollapseItem);
 Vue.use(Progress);
 
 Vue.use(VueAreaLinkage);
+Vue.use(Print);  
 
 Vue.config.productionTip = false
 Vue.prototype.$message = Message;

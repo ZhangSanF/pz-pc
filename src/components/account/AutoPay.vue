@@ -219,11 +219,12 @@ export default {
   }
 
   >>> {
-    .el-radio {
-      width: 490px;
+    .el-radio {//852
+      width: 395px;
       height: 110px;
       padding: 14px 20px;
       margin-bottom: 20px;
+      margin-right: 20px;
       border: 1px dotted #a2a2a2;
 
       &:first-of-type {

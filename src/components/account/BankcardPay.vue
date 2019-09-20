@@ -8,7 +8,7 @@
         <el-radio v-for="(item, index) of data" :key="index" v-model="bank" :label="index" :border="true" @change="radioChange(index)">
           {{item.bank_name}}
         </el-radio>
-        <p class="rebateText" v-if="parseFloat(bankInfo.rebate) > 0">当前支付方式赠送充值金额的<span class="rebateMoney">{{parseFloat(bankInfo.rebate)}}%</span></p>
+        <!-- <p class="rebateText" v-if="parseFloat(bankInfo.rebate) > 0">当前支付方式赠送充值金额的<span class="rebateMoney">{{parseFloat(bankInfo.rebate)}}%</span></p> -->
       </div>
 
       <h3 class="money-title" v-text="type == 'bankcard' ? '2. 请转账到以下账户:' : '2. 请用支付宝APP扫描二维码转账:'"></h3>
@@ -31,7 +31,7 @@
 
         <p class="input-item">
           <span class="input-item-title">开户行：</span>
-          <span class="card-info-detail">{{bankInfo.place_of_account}}</span>
+          <span class="card-info-detail">{{bankInfo.bank_adress}}</span>
         </p>
 
         <p class="redFont" v-if="bankInfo.int_limit_type != 0" v-text="bankInfo.int_limit_type == 1 ? '该支付仅支持充值100整数倍的金额，请充值如100,500等整数金额' : '该支付不支持充值100整数倍的金额，请充值如101,502等金额'"></p>
@@ -62,17 +62,17 @@
 
         <p class="input-item">
           <span class="input-item-title">账户名：</span>
-          <el-input placeholder="请输入内容" v-model="name" clearable></el-input>
+          <el-input placeholder="请输入账户名" v-model="name" clearable></el-input>
         </p>
 
         <p class="input-item" v-if="type == 'bankcard'" >
           <span class="input-item-title">账号：</span>
-          <el-input placeholder="请输入内容" v-model="account" clearable></el-input>
+          <el-input placeholder="请输入账号" v-model="account" clearable></el-input>
         </p>
 
         <p class="input-item">
           <span class="input-item-title">转账金额：</span>
-          <el-input placeholder="请输入内容" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
+          <el-input placeholder="请输入转账金额" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
         </p>
         
 
@@ -188,9 +188,6 @@
             this.date= '';
             this.$alert('您的存款信息已提交，请稍后客服处理！', '提交成功', {type: 'success'});
           }
-          // else{
-          //   this.$alert(`${res.message}`, '提交失败', {type: 'error'});
-          // }
         })
         .catch(err=>{
           this.$alert(`${err}`, '提交失败', {type: 'error'})
@@ -200,6 +197,7 @@
     computed: {
       bankInfo() {
         if(this.data){
+          // console.log(this.data[this.bankIndex])
           return this.data[this.bankIndex];
         }
       }

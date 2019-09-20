@@ -4,6 +4,12 @@ export const IS_LOGIN = 'IS_LOGIN'
 //存储个人信息
 export const SAVE_USER_INFO = 'SAVE_USER_INFO'
 
+// 是否初始化手机号码
+export const INIT_MOBILE = 'INIT_MOBILE'
+
+//首页今日充值
+export const DEPOSIT_LIST = 'DEPOSIT_LIST'
+
 // 首页轮播图
 export const PC_INDEX_CAROUSEL = 'PC_INDEX_CAROUSEL'
 
@@ -29,6 +35,7 @@ export const PAY_DATA = 'PAY_DATA'
 
 // 系统配置
 export const SETTING_BASE = 'SETTING_BASE'
+export const SETTING_STOCK = 'SETTING_STOCK'
 export const SETTING_ORDER = 'SETTING_ORDER'
 export const SETTING_FREE = 'SETTING_FREE'
 export const SETTING_DAYS = 'SETTING_DAYS'
@@ -59,6 +66,9 @@ export const BANK_LIST = 'BANK_LIST'
 // 添加银行卡
 export const ADD_BANK = 'ADD_BANK'
 
+// 帮助中心参数
+export const BANGZHU_QUERY = 'BANGZHU_QUERY'
+
 // 关于我们参数
 export const ABOUT_QUERY = 'ABOUT_QUERY'
 
@@ -71,5 +81,14 @@ export const ORDER_LIST = 'ORDER_LIST'
 // 修改手机号
 export const SET_MOBILE = 'SET_MOBILE'
 
-// 手机号码
-export const USER_PHONE = 'USER_PHONE'
+// 手机号码&用户名&id&密保
+export const USER_FIND = 'USER_FIND'
+
+// 利率/倍数
+export const LOANSRATE_DATA = 'LOANSRATE_DATA'
+
+// 剩余期数(扩大配资，时使用)
+export const PERIOD_NUMBER = 'PERIOD_NUMBER'
+
+// 延期利息(终止操盘，时使用)
+export const INTEREST_MONEY = 'INTEREST_MONEY'

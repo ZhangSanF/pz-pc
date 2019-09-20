@@ -256,3 +256,45 @@ export function retrievePasswordApi(){
         url: '/server/index/account/retrievepassword'
     }
 }
+
+// 首页今日充值
+export function todayDepositApi(){
+    return {
+        url: '/server/index/index/todaydeposit'
+    }
+}
+
+// 合同
+export function contractApi(){
+    return {
+        url: '/server/index/member/contract'
+    }
+}
+
+// 利率/倍数
+export function loansrateApi(){
+    return {
+        url: '/server/index/index/loansrate'
+    }
+}
+
+// 剩余期数(扩大配资，时使用)
+export function remainingPeriodApi(){
+    return {
+        url: '/server/index/order/remainingperiod'
+    }
+}
+
+// 延期利息(终止操盘，时使用)
+export function interestMoneybyendApi(){
+    return {
+        url: '/server/index/order/interestmoneybyend'
+    }
+}
+
+// 初始化手机号码
+export function initMobileApi(){
+    return {
+        url: '/server/index/member/initmobile'
+    }
+}

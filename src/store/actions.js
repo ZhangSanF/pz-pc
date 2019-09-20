@@ -36,6 +36,7 @@ export const logout = ({commit, state}) =>{
     return api.logout().then(res=>{
         if(res.code == 200){
             router.push('/')
+            commit(types.SAVE_USER_INFO, {})
             commit(types.IS_LOGIN, false)         
         }
     })
@@ -56,9 +57,19 @@ export const getAdvertisement = ({commit, state},params) =>{
 export const setting = ({commit, state}) =>{
     return api.getSetting().then(res=>{
         if( res.code == 200){
+            // 网站标题
             document.title = res.data.system.base.site_name;
+            // 网站favicon
             document.querySelector('#favicon').setAttribute('href',res.data.system.base.site_favicon);
+            // 网站关键词
+            var metaList = document.getElementsByTagName("meta");
+            for (var i = 0; i < metaList.length; i++) {
+              if (metaList[i].getAttribute("name") == "keywords") {
+                metaList[i].content = res.data.system.base.site_keywords;
+              }
+            }
             commit(types.SETTING_BASE, res.data.system.base) // base
+            commit(types.SETTING_STOCK, res.data.stock)//stock
             commit(types.SETTING_ORDER, res.data.credit.base) // order
             commit(types.SETTING_FREE, res.data.credit.free) // free
             commit(types.SETTING_DAYS, res.data.credit.day) // days
@@ -80,8 +91,14 @@ export const getAboutUsList = ({commit, state},params) =>{
                 commit(types.ENCY_CLOPEDIAS, res.data)
             }else if(params.category_identification == 'about_us') { // 关于我们
                 commit(types.ABOUT_US, res.data)
+                if(state.aboutQuery.title == '') {
+                    commit(types.ABOUT_QUERY, {id: res.data.rows[0].id, title: res.data.rows[0].title, active: '0'})
+                }
             }else { // 帮助中心
                 commit(types.HELP_CENTER, res.data)
+                if(state.bangzhuQuery.title == '') {
+                    commit(types.BANGZHU_QUERY, {id: res.data.rows[0].id, title: res.data.rows[0].title})
+                }
             }
         }
     })
@@ -189,6 +206,7 @@ export const bankList = ({commit, state}) =>{
 export const addOrder = ({commit, state},params) =>{
     return api.addOrder(params).then(res=>{
         if(res.code == 200){
+            Message.success(res.message)
             router.push('/member/myAccount')
         }
     })
@@ -199,6 +217,12 @@ export const getMemberinfo = ({commit, state}) =>{
     return api.getMemberinfo().then(res=>{
         if(res.code == 200){
             commit(types.SAVE_USER_INFO, res.data)
+            // 是否初始化手机号码
+            if(res.data.mobile == '' || res.data.mobile == undefined) {
+                commit(types.INIT_MOBILE, true)
+            }else {
+                commit(types.INIT_MOBILE, false)
+            }
         }
     })
 }
@@ -255,4 +279,50 @@ export const retrievepayPassWord = ({commit, state},params) =>{
 // 找回登陆密码
 export const retrievePassword = ({commit, state},params) =>{
     return api.retrievePassword(params)
+}
+
+//首页今日充值
+export const todayDeposit = ({commit, state}) =>{
+    return api.todayDeposit().then(res=>{
+        if(res.code == 200){
+            commit(types.DEPOSIT_LIST, res.data)
+        }
+    })
+}
+
+// 合同
+export const contract = ({commit, state},params) =>{
+    return api.contract(params)
+}
+
+//利率/倍数
+export const loansrate = ({commit, state}) =>{
+    return api.loansrate().then(res=>{
+        if(res.code == 200){
+            commit(types.LOANSRATE_DATA, res.data)
+        }
+    })
+}
+
+// 剩余期数(扩大配资，时使用)
+export const remainingPeriod = ({commit, state},params) =>{
+    return api.remainingPeriod(params).then(res =>{
+        if(res.code == 200) {
+            commit(types.PERIOD_NUMBER, res.data.info)
+        }
+    })
+}
+
+// 延期利息(终止操盘，时使用)
+export const interestMoneybyend = ({commit, state},params) =>{
+    return api.interestMoneybyend(params).then(res =>{
+        if(res.code == 200) {
+            commit(types.INTEREST_MONEY, res.data)
+        }
+    })
+}
+
+// 初始化手机号码
+export const initMobile = ({commit, state},params) =>{
+    return api.initMobile(params)
 }

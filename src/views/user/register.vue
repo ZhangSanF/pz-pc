@@ -16,7 +16,7 @@
                     <el-form-item  prop="password"  class="reg-item">
                         <el-input class="password-font" type="text"  placeholder="请输入密码"  v-model.trim="ruleForm.password" ></el-input>
                     </el-form-item>
-                    <el-form-item   class="reg-item" prop="confirm_password">
+                    <el-form-item  prop="confirm_password" class="reg-item">
                         <el-input class="password-font" type="text"  placeholder="请再次输入密码"  v-model.trim="ruleForm.confirm_password"></el-input>
                     </el-form-item>
                     <el-form-item  prop="mobile" class="reg-item">
@@ -39,9 +39,9 @@
                              </el-button>
                         </el-input>
                     </el-form-item>                   
-                    <el-form-item  class="reg-item">
+                    <!-- <el-form-item  class="reg-item">
                         <el-input  placeholder="请输入推荐人，如果没有，可以不填写" v-model.trim="ruleForm.invitation_code"></el-input>
-                    </el-form-item>
+                    </el-form-item> -->
                     <el-form-item  class="reg-item">
                        <el-checkbox  v-model="isAgree" >同意</el-checkbox> 
                        <a href="javascript:void(0);" @click="toAbout('注册协议', '4')">《注册服务协议》</a>
@@ -60,7 +60,7 @@
 <script>
 import { mapActions } from "vuex"
 import { getUrlKey } from '@/js/utils'
-import { checkRules } from '@/config/rules.js'
+import { checkRules, rePhone, reChinese, smsCodeNumber } from '@/config/rules.js'
 import md5 from 'js-md5'
 
 export default {
@@ -80,7 +80,7 @@ export default {
                 isAgree: true,
                 verifySrc: '',              
                 isShowSmsCode: 'one',
-                smsCodeNumber: 10,
+                smsCodeNumber: smsCodeNumber,
                 ruleForm: {
                     username: '',
                     captcha: '',
@@ -106,6 +106,12 @@ export default {
                 this.$refs['ruleForm'].validate((valid) => {
                     if (valid) {                      
                         if(!this.isAgree) return this.$message.error(`请勾选注册服务协议`);
+                        if(this.ruleForm.username == this.ruleForm.password || this.ruleForm.username == this.ruleForm.confirm_password) {
+                            return this.$message.error(`密码不能和用户名相同`);
+                        }
+                        if(this.ruleForm.password != this.ruleForm.confirm_password) {
+                            return this.$message.error(`两次录入密码不一致`);
+                        }
                         if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
                             let reg = this.ruleForm
                             let actionData = {
@@ -113,7 +119,7 @@ export default {
                                 captcha: reg.captcha,//图片验证码
                                 mobile: reg.mobile,
                                 mobile_verify_code: reg.mobile_verify_code,//短信验证码
-                                invitation_code: reg.invitation_code,//邀请码
+                                // invitation_code: reg.invitation_code,//邀请码
                                 agent_code: reg.agent_code,//代理码(地址栏)
                                 password: md5(reg.password),
                                 confirm_password: md5(reg.confirm_password),
@@ -146,8 +152,7 @@ export default {
             //获取手机验证码
             getCode() {
                 let _this = this
-                let re = /^[1]([3-9])[0-9]{9}$/;
-                if (re.test(_this.ruleForm.mobile)) {
+                if (rePhone.test(_this.ruleForm.mobile)) {
                     _this.isShowSmsCode = 'two'
                     let obj = {
                         template: 'register',
@@ -164,17 +169,34 @@ export default {
                                         _run();
                                     } else {
                                         _this.isShowSmsCode = 'four'
-                                        _this.smsCodeNumber = 10
+                                        _this.smsCodeNumber = smsCodeNumber
                                     }
                                 }, 1000);
                             };
                             _run();
                         }else {
                             _this.isShowSmsCode = 'one'
-                            // this.$message.error(`${res.message}`);
                         }
                     })
+                }else {
+                    this.$message.error(`请输入正确的手机号`);
                 }
+            }
+        },
+        watch: {
+            // 去掉中文双字节字符
+            'ruleForm.password': {
+                handler(newVal, old) {
+                    this.ruleForm.password = newVal.replace(reChinese,'');
+                },
+                deep: true
+            },
+            // 去掉中文双字节字符
+            'ruleForm.confirm_password': {
+                handler(newVal, old) {
+                    this.ruleForm.confirm_password = newVal.replace(reChinese,'');
+                },
+                deep: true
             }
         }
     }

@@ -5,9 +5,10 @@
             <strong>我的银行卡</strong>
             <el-row v-if="!isAdd" class="bank_content">
                 <div v-if="getUserInfo.bank_card_number && getUserInfo.bank_name" class="bank">
-                    <p class="user-drawings-bank-num">{{getUserInfo.bank_card_number}}</p>
+                    <p class="user-drawings-bank-num">{{getUserInfo.bank_name}}</p>
                     <div class="content">
-                        <span class="img">{{getUserInfo.bank_name}}</span>
+                        <span class="font">{{getUserInfo.bank_card_number}}</span>
+                        <img class="img" src="../../assets/image/pay.png" alt="">
                     </div>
                 </div>
                 <div v-else class="add_bank" @click="addBank(false)">
@@ -87,23 +88,24 @@ export default {
 <style lang="scss" scoped>
     .user-drawings-bank-num{
         border-radius: 5px 5px 0 0;
-        text-align: center;
+        margin: 0 15px;
         height: 32px;
         line-height: 32px;
         border-bottom: 1px solid #e0e0e0;
-        background: #f5f5f5;
         box-sizing: border-box;
     }
     .content{
+        box-sizing: border-box;
         width: 100%;
         height: 91px;
-        background: #fff;
-        position: relative;
+        padding-left: 15px;
+        padding-top: 30px;
+        position: relative;        
         .img{
+            width: 40px;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%,-50%)
+            bottom: 5px;
+            right: 15px;
         }
     }
     .user-box-2{
@@ -112,7 +114,7 @@ export default {
         background: #fff;
     }
     .bank_content {
-        padding: 30px 0;
+        padding: 20px 0;
     }
     .user-box-con-1 {
         width: 964px;
@@ -145,10 +147,7 @@ export default {
         height: 127px;
         margin: 20px 15px 0 0;
         border-radius: 5px;
-        position: relative;
         cursor: pointer;
-        text-align: center;
-        border: 1px solid #fe6e00;;
         background: #f5f5f5;
         box-sizing: border-box;
     }

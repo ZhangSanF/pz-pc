@@ -5,12 +5,13 @@
                 <div class="operate_state">
                     <span>股票配资：{{item.order_number}}</span>
                     <!-- 状态(1待审核、2审核通过、3审核失败，4操盘结束) -->
-                    <span v-show="item.status == 1" class="state_all state_wait"></span>
-                    <span v-show="item.status == 2" class="state_all"></span>
-                    <span v-show="item.status == 3" class="state_all state_no"></span>
-                    <span v-show="item.status == 4" class="state_all state_end"></span>
+                    <span v-if="item.status == 1" class="state_all state_wait"></span>
+                    <span v-else-if="item.status == 2 && outTime(item.end_time) == false" class="state_all"></span>
+                    <span v-else-if="item.status == 2 && outTime(item.end_time) == true" class="state_all end"></span>
+                    <span v-else-if="item.status == 3" class="state_all state_no"></span>
+                    <span v-else-if="item.status == 4" class="state_all state_end"></span>
                 </div>
-                <a href="#" class="examine">查看网签合同</a>
+                <router-link v-if="item.status != 1 && item.status != 3" :to="'/member/contract/'+item.id" tar="a" class="examine" target="_blank">查看网签合同</router-link>
             </div>
             <table class="table_user" cellpadding="0" cellspacing="0" width="100%">
                 <tbody>
@@ -24,20 +25,23 @@
                         <th>操盘时间</th>
                     </tr>
                     <tr>
-                        <td width="12%">{{item.trader_money | number}}元</td>
-                        <td width="13%">{{item.trader_money - item.member_money | number}}元</td>
+                        <td width="12%">{{traderMoney(item.member_money, item.credit_money) | number}}元</td>
+                        <td width="13%">{{item.credit_money | number}}元</td>
                         <td width="13%">{{item.member_money | number}}元</td>
                         <td width="13%">{{item.interest_money | number}}元</td>
-                        <td width="12%">{{warningLine(item.trader_money, item.member_money, item.order_type) | number}}元</td>
-                        <td width="12%">{{closeLine(item.trader_money, item.member_money, item.order_type) | number}}元</td>
+                        <td width="12%" v-if="item.status == 1 || item.status == 3">--</td>
+                        <td width="12%" v-else>{{item.warning_amount | number}}</td>
+                        <td width="12%" v-if="item.status == 1 || item.status == 3">--</td>
+                        <td width="12%" v-else>{{item.closeout_amount | number}}</td>
                         <td width="25%">{{item.start_time.split(' ')[0]}} ~ {{item.end_time.split(' ')[0]}}</td>
                     </tr>
                 </tbody>
             </table>
             <div class="stock-data">
                 <div class="table_info">
-                    收益：<span class="font_red14">{{item.sy}}</span>&nbsp;&nbsp;&nbsp;&nbsp;
-                    收益率：<span class="font_red14">{{item.syl}}</span>&nbsp;&nbsp;&nbsp;&nbsp;
+                    可提金额：
+                    <span class="font_red14" v-if="item.status == 1 || item.status == 3">{{item.withdrawable_profit}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <span class="font_red14" v-else>{{item.withdrawable_profit | number}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     操盘周期：<span class="font_red14">
                         {{item.period}}
                         <span v-if="item.order_type == 1 || item.order_type == 2">天</span>
@@ -45,13 +49,22 @@
                     </span>
                 </div>
                 <div class="put_up">
-                    <h2>账户：{{item.username}}</h2>
-                    <h2>密码：{{item.password}}</h2>
+                    <h2>
+                        账户：
+                        <span v-if="item.status == 1 || item.status == 3">--</span>
+                        <span v-else>{{item.username}}</span>
+                        &nbsp;&nbsp;
+                    </h2>
+                    <h2>
+                        密码：
+                        <span v-if="item.status == 1 || item.status == 3">--</span>
+                        <span v-else>{{item.password}}</span>                       
+                    </h2>
                 </div>
             </div>
             <div class="user_oper" v-if="item.status == 2">
                 <ul>
-                    <li v-if="item.order_type != 1">
+                    <li v-if="item.order_type != 1 && outTime(item.end_time) != true">
                         <a 
                         class="menu_white" 
                         href="javascript:void(0);" 
@@ -67,7 +80,7 @@
                         申请延期
                         </a>
                     </li>
-                    <li>
+                    <li v-if="outTime(item.end_time) != true && item.order_type != 1">
                         <a 
                         class="menu_white" 
                         href="javascript:void(0);" 
@@ -75,7 +88,7 @@
                         提取收益
                         </a>
                     </li>
-                    <li>
+                    <li v-if="outTime(item.end_time) != true">
                         <a 
                         class="menu_white" 
                         href="javascript:void(0);" 
@@ -87,7 +100,7 @@
                         <a 
                         class="menu_white" 
                         href="javascript:void(0);" 
-                        @click="showAlert(5, item.id, item.order_type, item.multiple, item.period)">
+                        @click="showAlert(5, item.id, item.order_type, item.multiple, item.period, item.end_time)">
                         终止操盘
                         </a>
                     </li>
@@ -108,7 +121,7 @@ import PzAlert from './PzAlert'
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-    props:['curpzList'],
+    props:['curpzList', 'curServerTime'],
     components: { PzAlert },
     data() {
         return {
@@ -133,6 +146,7 @@ export default {
         }
     },    
     methods: {
+        ...mapActions(['remainingPeriod', 'interestMoneybyend']),
         // 拖拽
         // move(e) {
         //     let odiv = this.$refs.mytip;
@@ -154,7 +168,7 @@ export default {
         listenCloseAlert(data) {
             this.isShowPzAlert = data
         },
-        showAlert(type, id, order_type, multiple, period) {
+        showAlert(type, id, order_type, multiple, period, end_time) {
             this.isShowPzAlert = true
             // 发送请求参数
             this.postData.modifyType = type
@@ -163,32 +177,39 @@ export default {
             this.computedData.order_type = order_type
             this.computedData.multiple = multiple
             this.computedData.period = period
-        },
-        // 警戒线(警戒线 = 配资资金 + 本金 * 警告线)
-        warningLine(trader_money, member_money, order_type) {
-            // trader_money 操盘资金 
-            // member_money 本金 
-            // trader_money - member_money 配资资金
-            // 根据 order_type 拿到警告线 1免息2按天3按月4VIP
-            switch (order_type) {
-                case 1 : return (trader_money - member_money) + (member_money*this.getSettingFree.warning_line)/100; break;
-                case 2 : return (trader_money - member_money) + (member_money*this.getSettingDays.warning_line)/100; break;
-                case 3 : return (trader_money - member_money) + (member_money*this.getSettingMonths.months_warning_line)/100; break;
-                case 4 : return (trader_money - member_money) + (member_money*this.getSettingVip.vip_warning_line)/100; break;
+            // 扩大配资管理费(参数)
+            if(type == 1) {
+                this.remainingPeriod({orderId: id})
+            }
+            // 终止操盘(延期利息)&申请延期
+            if(type == 5 || type == 2) {
+                this.interestMoneybyend({orderId: id})
+                this.computedData.end_time = end_time
             }
         },
-        // 平仓线(平仓线 = 配资资金 + 本金 * 平仓线)
-        closeLine(trader_money, member_money, order_type) {
-            switch (order_type) {
-                case 1 : return (trader_money - member_money) + (member_money*this.getSettingFree.close_line)/100; break;
-                case 2 : return (trader_money - member_money) + (member_money*this.getSettingDays.close_line)/100; break;
-                case 3 : return (trader_money - member_money) + (member_money*this.getSettingMonths.months_close_line)/100; break;
-                case 4 : return (trader_money - member_money) + (member_money*this.getSettingVip.vip_close_line)/100; break;
+        // 操盘资金 = 本金(member_money) + 配资资金(credit_money)
+        traderMoney(member_money, credit_money) {
+            return member_money * 1 + credit_money * 1
+        },
+        // 计算当前 item 是否过期
+        outTime(end_time) {
+            // 当前 item 的时间
+            let date = new Date(end_time)
+            let dateTime = date.getTime()
+            // 当前服务器时间
+            let serverDate = new Date(this.curServerTime)
+            let serverDateTime = serverDate.getTime()
+            // 如果 item 的操盘时间小于 当前服务器时间 就说明当前单 已到期
+            if(dateTime < serverDateTime) {
+                return true
+            }else {
+                return false
             }
         }
-    },
-    computed: {
-        ...mapGetters(['getSettingFree', 'getSettingDays', 'getSettingMonths', 'getSettingVip'])
+        // 收益率 = 收益 / 操盘资金 * 100
+        // userConfiguration(loss_profit, member_money, credit_money) {
+        //     return loss_profit / (member_money * 1 + credit_money * 1) * 100;
+        // }
     }
 }
 </script>
@@ -208,6 +229,7 @@ export default {
         .state_wait {background-position:0 -42px;}/*待审核*/
         .state_end {background-position:0 -64px;}/*已结束*/
         .state_no {background-position:0 -106px;}/*审核未通过*/
+        .end{background-position:0 -127px;}
     }
     .examine{
         color: #fe7b20;

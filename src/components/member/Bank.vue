@@ -7,7 +7,7 @@
             <el-form-item label="银行" >
                 <el-select class="bank_input" v-model="bankForm.bank_name"  placeholder="请选择">
                     <el-option
-                        v-for="(item, index) in getBankList"
+                        v-for="(item, index) in getBankList.banklist"
                         :key="index"
                         :value="item">
                     </el-option>
@@ -17,14 +17,14 @@
                 <el-input  v-model.trim="bankForm.bank_card_number" class="bank_input"  placeholder="请输入卡号"></el-input>
             </el-form-item>
             <el-form-item label="开户城市" >
-                <area-select type="text" v-model="selectedCity" :data="pca" :placeholders="['请选择省','请选择市']"></area-select>
+                <area-select type="text" v-model="selectedCity" :data="pcaa" :placeholders="['请选择省','请选择市']"></area-select>
             </el-form-item>          
             <el-form-item label="开户行" >
                 <el-input  v-model="bankForm.bank_branch_name" class="bank_input"  placeholder="请输入开户行"></el-input>
             </el-form-item>
             <el-form-item label="手机号码" >
-                <el-input  v-model.trim="bankPhone" class="bank_input"  placeholder="请输入手机号码"></el-input>
-                <!-- <span class="bank_city fl" >{{getUserInfo.mobile}}</span> -->
+                <!-- <el-input  v-model.trim="bankPhone" class="bank_input"  placeholder="请输入手机号码"></el-input> -->
+                <span class="bank_city fl" >{{getUserInfo.mobile}}</span>
             </el-form-item>
             <el-form-item label="短信验证码" >
                  <el-input  v-model.trim="bankForm.mobile_verify_code" class="bank_input"  placeholder="请输入短信验证码"></el-input>
@@ -48,7 +48,8 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import { pca } from 'area-data'; // v5 or higher
+import { rePhone, smsCodeNumber } from '@/config/rules.js'
+import { pcaa } from 'area-data'; // v5 or higher
 
 export default {
     inject: ['reload'],
@@ -61,7 +62,7 @@ export default {
     data() {
         return {
             selectedCity: [],
-            pca: pca,
+            pcaa: pcaa,
             bankForm: {
                 bank_name: '', //开户银行
                 bank_card_number: '',//卡号
@@ -70,21 +71,24 @@ export default {
                 bank_branch_name: '',//支行名称
                 mobile_verify_code: ''//短信验证码
             },
-            bankPhone: '',
             isShowSmsCode: 'one',
-            smsCodeNumber: 10
+            smsCodeNumber: smsCodeNumber
         }
     },
+    created() {
+        this.bankList()//银行卡列表
+    },
     methods:{
-        ...mapActions(['bindBankCard', 'sendSmsCode']),
+        ...mapActions(['bindBankCard', 'sendSmsCode', 'bankList']),
         resetForm() {
-            const obj = this.bankForm? this.bankForm: {}
-            Object.keys(obj).forEach(function(key){
-                if(key =='name' || key =='bankPhone') return false
-                obj[key] =  ''
-            });
-            this.bankForm = obj
-            this.bankPhone = ''
+            // const obj = this.bankForm? this.bankForm: {}
+            // Object.keys(obj).forEach(function(key){
+            //     if(key =='name' || key =='bankPhone') return false
+            //     obj[key] =  ''
+            // });
+            // this.bankForm = obj
+            // this.bankPhone = ''
+            this.reload()
         },
         add(obj) {
             if(
@@ -120,27 +124,26 @@ export default {
             //     this.$message({type: "error", message: "验证码不能为空"})
             //     return false
             // }
-
-            this.bindBankCard(obj).then((res) => {
-                if(res.code == 200) {
-                    this.$message.success(res.message)
-                    this.$store.commit('ADD_BANK', {bank_card_number: res.data.bank_card_number, bank_name: res.data.bank_name})
-                    this.reload()
-                }
-                // else {
-                //     this.$message.error(`${res.message}`);
-                // }
-            })
+            if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
+                this.bindBankCard(obj).then((res) => {
+                    if(res.code == 200) {
+                        this.$message.success(res.message)
+                        this.$store.commit('ADD_BANK', {bank_card_number: res.data.bank_card_number, bank_name: res.data.bank_name})
+                        this.reload()
+                    }
+                })
+            }else {
+                this.$message.error(`请点击发送手机验证码`);
+            }         
         },
         // 获取短信验证码
         getVerify() {
             let _this = this
-            let re = /^[1]([3-9])[0-9]{9}$/;
-            if (re.test(_this.bankPhone)) {
+            // if (rePhone.test(_this.bankPhone)) {
                 _this.isShowSmsCode = 'two'
                 let obj = {
                     template: 'bank_card',
-                    mobile: _this.bankPhone
+                    member_id: _this.getUserInfo.id
                 }
                 _this.sendSmsCode(obj).then((res) => {
                     if(res.code == 200) {
@@ -153,17 +156,18 @@ export default {
                                     _run();
                                 } else {
                                     _this.isShowSmsCode = 'four'
-                                    _this.smsCodeNumber = 10
+                                    _this.smsCodeNumber = smsCodeNumber
                                 }
                             }, 1000);
                         };
                         _run();
                     }else {
                         _this.isShowSmsCode = 'one'
-                        // this.$message.error(`${res.message}`);
                     }
                 })
-            }
+            // }else {
+            //     this.$message.error(`请输入正确的手机号`);
+            // }
         },
     },
     computed: {

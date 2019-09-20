@@ -47,11 +47,19 @@ const routes =  [
         },
         {
             path: '/user/findPassword',
-            component: () => import ('@/views/user/findPassword'),//找回密码
+            component: () => import ('@/views/user/findPassword'),//验证身份
         },
         {
-            path: '/user/authentication',
-            component: () => import ('@/views/user/authentication'),//验证身份
+            path: '/user/buttonPwd',
+            component: () => import ('@/views/user/buttonPwd'),//选择找回密码方式
+        },
+        {
+            path: '/user/phonePwd',
+            component: () => import ('@/views/user/phonePwd'),//手机号找回密码
+        },
+        {
+            path: '/user/savePwd',
+            component: () => import ('@/views/user/savePwd'),//密保找回密码
         },
         {
             path: '/user/about',
@@ -65,102 +73,95 @@ const routes =  [
             path: '/user/bangzhu',
             component: () => import ('@/views/user/bangzhu'),//帮助中心
         },
-        {
-            path: '/user/tuiguang',
-            component: () => import ('@/views/user/tuiguang'),//推广赚钱
-        },
+        // {
+        //     path: '/user/tuiguang',
+        //     component: () => import ('@/views/user/tuiguang'),//推广赚钱
+        // },
         {
             path: '/member',
             component: () => import ('@/views/member'),//个人中心
             redirect: '/member/myAccount',
             meta: {
-                auth: true,
-                keep: true
+                showInitMobile: true
             },
             children: [
             {
                 path: 'myAccount',
                 component: () => import ('@/views/member/myAccount'),//我的账户
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'tradingRecord',
                 component: () => import ('@/views/member/tradingRecord'),//交易记录
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'withdrawalRecord',
                 component: () => import ('@/views/member/withdrawalRecord'),//提现记录
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'recharge',
                 component: () => import ('@/views/member/recharge'),//充值
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'withdrawDeposit',
                 component: () => import ('@/views/member/withdrawDeposit'),//提现
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'myFinancing',
                 component: () => import ('@/views/member/myFinancing'),//我的配资
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'instation',
                 component: () => import ('@/views/member/instation'),//站内信息
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'userInfo',
                 component: () => import ('@/views/member/userInfo'),//个人信息
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'bankInfo',
                 component: () => import ('@/views/member/bankInfo'),//银行卡信息
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             },
             {
                 path: 'safeSetting',
                 component: () => import ('@/views/member/safeSetting'),//安全设置
                 meta: {
-                    auth: true,
-                    keep: true
+                    showInitMobile: true
                 }
             }
             ]
         }
         ]
+    },
+    {
+        path: '/member/contract/:id',
+        component: () => import ('@/views/member/contract'),//合同
     },
     {
         path: '*',

@@ -175,8 +175,9 @@ axios.interceptors.response.use(
             Message.error(error.message)
             break;
           case 401:
-            error.message = "未授权，请重新登录";
-            // Message.error(error.message)
+              error.message = error.response.data.message;
+            // error.message = "未授权，请重新登录";
+            Message.error(error.message)
             store.commit('IS_LOGIN', false)
             // router.push('/user/login')
             break;

@@ -24,15 +24,15 @@
         <div class="pay-input">
 
           <p class="input-item">
-            <span class="input-item-title">账户姓名：</span><el-input placeholder="请输入内容" v-model="name" clearable></el-input>
+            <span class="input-item-title">账户姓名：</span><el-input placeholder="请输入账户名" v-model="name" clearable></el-input>
           </p>
 
           <p class="input-item">
-            <span class="input-item-title">账号：</span><el-input placeholder="请输入内容" v-model="account" clearable></el-input>
+            <span class="input-item-title">账号：</span><el-input placeholder="请输入账号" v-model="account" clearable></el-input>
           </p>
 
           <p class="input-item">
-            <span class="input-item-title">转账金额：</span><el-input placeholder="请输入内容" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
+            <span class="input-item-title">转账金额：</span><el-input placeholder="请输入转账金额" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
           </p>
 
           <p class="input-item">

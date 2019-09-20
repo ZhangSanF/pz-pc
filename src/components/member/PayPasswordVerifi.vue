@@ -39,7 +39,8 @@
     <!-- 找回支付密码 -->
     <el-form class="step1-form" v-if="isRetrieve" label-width="200px">
         <el-form-item label="手机号码">
-            <el-input v-model.trim="findPayPwd.mobile" placeholder="请输入手机号码"  class="step-input" size="mini"></el-input>
+            <span class="bank_city fl" >{{getUserInfo.mobile}}</span>
+            <!-- <el-input v-model.trim="findPayPwd.mobile" placeholder="请输入手机号码"  class="step-input" size="mini"></el-input> -->
         </el-form-item>
         <el-form-item label="手机验证码">
             <el-input v-model.trim="findPayPwd.mobile_verify_code" placeholder="请输入手机验证码" size="mini" class="step-input" ></el-input>
@@ -61,16 +62,16 @@
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import md5 from 'js-md5';
+import { payPassword, rePhone, reChinese, smsCodeNumber } from '@/config/rules.js'
 
 export default {
     inject: ['reload'],
     data() {
         return {
             isRetrieve: false,
-            pattern: /^(?![\d]+$)(?![a-zA-Z]+$)(?![^\da-zA-Z]+$).{6,20}$/,//支付密码
-            rePhone: /^[1]([3-9])[0-9]{9}$/,//手机号码
             isShowSmsCode: 'one',
-            smsCodeNumber: 10, 
+            smsCodeNumber: smsCodeNumber, 
             //设置支付密码
             setPayPwdForm:{
                 oldPwd:'',
@@ -85,7 +86,7 @@ export default {
             },
             // 找回支付密码
             findPayPwd: {
-                mobile: '',
+                // mobile: '',
                 pay_password: '',
                 mobile_verify_code: ''
             },
@@ -100,11 +101,11 @@ export default {
         //设置支付密码
         setPayPwd() {
             if(this.setPayPwdForm.payPwd == '' || this.setPayPwdForm.againPayPwd == '') {return this.$message.error(`请填写完整信息`);}
-            if(this.pattern.test(this.setPayPwdForm.payPwd) && this.pattern.test(this.setPayPwdForm.againPayPwd)) {
+            if(payPassword.test(this.setPayPwdForm.payPwd) && payPassword.test(this.setPayPwdForm.againPayPwd)) {
                 const params = {
                     oldPassword: '',
-                    newPassword: this.setPayPwdForm.payPwd,
-                    confirmNewPassword: this.setPayPwdForm.againPayPwd
+                    newPassword: md5(this.setPayPwdForm.payPwd),
+                    confirmNewPassword: md5(this.setPayPwdForm.againPayPwd)
                 }
                 this.setPayPassWord(params).then(res=>{
                     if(res.code == 200){
@@ -112,9 +113,6 @@ export default {
                         this.$store.commit('PAY_PASS', {is_pay_password: true})
                         this.reload()
                     }
-                    // else {
-                    //     this.$message.error(`${res.message}`);
-                    // }
                 })
             }else {
                 this.$message.error(`支付密码必须由6-20位字母和数字符号之间的两种组合`)
@@ -126,13 +124,13 @@ export default {
                 return this.$message.error(`请填写完整信息`);
             }
             if(
-                this.pattern.test(this.modifyPayPwdForm.oldPassword) && 
-                this.pattern.test(this.modifyPayPwdForm.newPassword) && 
-                this.pattern.test(this.modifyPayPwdForm.confirmNewPassword)) {
+                payPassword.test(this.modifyPayPwdForm.oldPassword) && 
+                payPassword.test(this.modifyPayPwdForm.newPassword) && 
+                payPassword.test(this.modifyPayPwdForm.confirmNewPassword)) {
                     const params = {
-                        oldPassword: this.modifyPayPwdForm.oldPassword,
-                        newPassword: this.modifyPayPwdForm.newPassword,
-                        confirmNewPassword: this.modifyPayPwdForm.confirmNewPassword
+                        oldPassword: md5(this.modifyPayPwdForm.oldPassword),
+                        newPassword: md5(this.modifyPayPwdForm.newPassword),
+                        confirmNewPassword: md5(this.modifyPayPwdForm.confirmNewPassword)
                     }
                     this.setPayPassWord(params).then(res=>{
                         if(res.code == 200){
@@ -140,9 +138,6 @@ export default {
                             this.$store.commit('PAY_PASS', {is_pay_password: true})
                             this.reload()
                         }
-                        // else {
-                        //     this.$message.error(`${res.message}`);
-                        // }
                     })
             }else {
                 this.$message.error(`支付密码必须由6-20位字母和数字符号之间的两种组合`)
@@ -150,14 +145,13 @@ export default {
         },
         // 找回支付密码
         fondPayPwdAction() {
-            if(this.findPayPwd.pay_password == '' || this.findPayPwd.mobile == '' || this.findPayPwd.mobile_verify_code == '') {
+            if(this.findPayPwd.pay_password == '' || this.findPayPwd.mobile_verify_code == '') {
                 return this.$message.error(`请填写完整信息`);
             }
-            if(this.pattern.test(this.findPayPwd.pay_password) && this.rePhone.test(this.findPayPwd.mobile)) {
+            if(payPassword.test(this.findPayPwd.pay_password)) {
                 if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
                     const params = {
-                        pay_password: this.findPayPwd.pay_password,
-                        mobile: this.findPayPwd.mobile,
+                        pay_password: md5(this.findPayPwd.pay_password),
                         mobile_verify_code: this.findPayPwd.mobile_verify_code
                     }
                     this.retrievepayPassWord(params).then(res=>{
@@ -165,12 +159,9 @@ export default {
                             this.$message.success(res.message)
                             this.reload()
                         }
-                        // else {
-                        //     this.$message.error(`${res.message}`);
-                        // }
                     })
                 }else {
-                    this.$message.error(`请点击发送手机验证码`);
+                    this.$message.error(`请获取短信验证码`);
                 }
             }else {
                 this.$message.error(`支付密码必须由6-20位字母和数字符号之间的两种组合`)
@@ -181,9 +172,9 @@ export default {
             let _this = this
             let obj = {
                 template: 'retrieve_pay_password',
-                mobile: this.findPayPwd.mobile
+                member_id: this.getUserInfo.id
             }
-            if (_this.rePhone.test(obj.mobile)) {
+            // if (rePhone.test(obj.mobile)) {
                 _this.isShowSmsCode = 'two'               
                 _this.sendSmsCode(obj).then((res) => {
                     if(res.code == 200) {
@@ -196,21 +187,66 @@ export default {
                                     _run();
                                 } else {
                                     _this.isShowSmsCode = 'four'
-                                    _this.smsCodeNumber = 10
+                                    _this.smsCodeNumber = smsCodeNumber
                                 }
                             }, 1000);
                         };
                         _run();
                     }else {
                         _this.isShowSmsCode = 'one'
-                        // this.$message.error(`${res.message}`);
                     }
                 })
-            }
+            // }else {
+            //     this.$message.error(`请输入正确的手机号`);
+            // }
         }, 
     },
     computed: {
         ...mapGetters(['getUserInfo']),
+    },
+    watch: {
+        // 去掉中文双字节字符
+        'setPayPwdForm.payPwd': {
+            handler(newVal, old) {
+                this.setPayPwdForm.payPwd = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'setPayPwdForm.againPayPwd': {
+            handler(newVal, old) {
+                this.setPayPwdForm.againPayPwd = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'modifyPayPwdForm.oldPassword': {
+            handler(newVal, old) {
+                this.modifyPayPwdForm.oldPassword = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'modifyPayPwdForm.newPassword': {
+            handler(newVal, old) {
+                this.modifyPayPwdForm.newPassword = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'modifyPayPwdForm.confirmNewPassword': {
+            handler(newVal, old) {
+                this.modifyPayPwdForm.confirmNewPassword = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'findPayPwd.pay_password': {
+            handler(newVal, old) {
+                this.findPayPwd.pay_password = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
     }
 }
 </script>

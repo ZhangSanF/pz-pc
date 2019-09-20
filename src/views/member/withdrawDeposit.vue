@@ -5,9 +5,10 @@
             <dl class="user-drawings-bank clearfix" v-show="!showBank">
                 <!-- <dt>请选择银行卡</dt> -->
                 <dd v-if="getUserInfo.bank_card_number && getUserInfo.bank_name" class="user-drawings-add-bank_p">
-                    <p class="user-drawings-bank-num">{{getUserInfo.bank_card_number}}</p>
+                    <p class="user-drawings-bank-num">{{getUserInfo.bank_name}}</p>
                     <div class="content">
-                        <span class="img">{{getUserInfo.bank_name}}</span>
+                        <span class="font">{{getUserInfo.bank_card_number}}</span>
+                        <img class="img" src="../../assets/image/pay.png" alt="">
                     </div>
                 </dd>
                 <dd v-else class="user-drawings-add-bank" @click="showAddBank">
@@ -31,22 +32,6 @@
                         <input v-if="getUserInfo.is_pay_password" type="text" class="input-text-style" v-model.trim="password">
                         <span v-else><span class="setPass" @click="goSafeSetting(4)">设置支付密码</span>后才可以提现哦~</span>
                     </li>
-                    <!-- <li class="form-style-item">
-                        <label class="form-style-label">验证码</label>
-                        <span>
-                            <input type="text" class="input-text-style" placeholder="请输入验证码" style="width:100px" maxlength="4" v-model.trim="smsCode">
-                            <span class="other">
-                                <img @click="changeVerifi" :src="verifySrc" alt="点击获取验证码" title="点击获取验证码">
-                            </span>
-                        </span>                       
-                    </li> -->
-                    <li class="form-style-item">
-                        <label class="form-style-label"></label>
-                        <span class="form-style-value">
-                            <input type="checkbox" id="important" v-model="checkboxSelect">
-                            <label for="important">我已阅读并确认下方重要提示信息</label>
-                        </span>
-                    </li>
                 </ul>
             </div>
             <div class="form-style-submit">
@@ -60,6 +45,8 @@
 import Title from '@/components/member/Title'
 import Bank from '@/components/member/Bank'
 import { mapGetters, mapActions } from "vuex";
+import md5 from 'js-md5';
+import { reChinese } from '@/config/rules.js'
 
 export default {
     inject: ['reload'],
@@ -72,12 +59,9 @@ export default {
                     title:'查看提现记录',
                 }
             },
-            // verifySrc: '',
             showBank: false,         
             money: '',
             password: '',
-            // smsCode: '',//短信验证码
-            checkboxSelect: true,
             prompt:[
                 '比如您的开户行名称为"工商银行北京宣武门支行"，只需输入关键词"宣武"即可。如果推荐列表中没有符合关键词的信息，',
                 '请您务必在列表中选择开户城市的银行分行，如：工商银行北京市分行营业部。',
@@ -91,7 +75,6 @@ export default {
             this.$alert('您还未完成身份验证，请先进行实名认证')
             this.$router.push('/member/safeSetting')
         }
-        // this.getVerifyFun()
     },
     methods:{
         toDoMore() {
@@ -118,36 +101,35 @@ export default {
             this.money = parseFloat(parseFloat(this.money).toFixed(2)) || "";
         },
         payAction() {
-            if(!this.money || !this.password || !this.checkboxSelect) {
-                this.$alert('请填写完整的信息!');
-                return ;
+            if(this.getUserInfo.is_pay_password == false) { return this.$alert('设置支付密码后才可以提现哦!'); }
+            if(!this.getUserInfo.bank_card_number && !this.getUserInfo.bank_name) {
+                return this.$alert('添加银行卡后才可以提现哦!');
             }
+            if(!this.money || !this.password) { return this.$alert('请填写完整的信息!'); }
+            if(this.money < this.getBankList.min) {return this.$alert(`提款金额不小于${this.getBankList.min}!`);}
             this.depositwithdrawplatform({
                 method: 'memberWithdrawal',
                 order_amount: this.money,
-                password: this.password
+                password: md5(this.password)
             }).then((res) => {
                 if(res.code == 200) {
                     this.$message.success(res.message)
                     this.reload()
-                }else {
-                    // this.$message.error(res.message);
-                    // this.getVerifyFun()
                 }
             })
-        },
-        // getVerifyFun() {
-        //     this.getVerify().then((res) => {
-        //         let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
-        //         this.verifySrc = imgUrl
-        //     })
-        // },
-        // changeVerifi() {
-        //     this.getVerifyFun()
-        // }
+        }
     },
     computed:{
-        ...mapGetters(['getUserInfo'])
+        ...mapGetters(['getUserInfo', 'getBankList'])
+    },
+    watch: {
+        // 去掉中文双字节字符
+        'password': {
+            handler(newVal, old) {
+                this.password = newVal.replace(reChinese,'');
+            },
+            deep: true
+        }
     }
 }
 </script>
@@ -155,10 +137,10 @@ export default {
 <style lang="scss" scoped>
 .setPass{
     cursor: pointer;
-    color: #333;
+    color: #e25353;
 }
 .setPass:hover{
-    color: #e25353;
+    color: red;
 }
 .withdrawDeposit{
     background: #fff;border: 1px solid #e0e0e0;border-radius: 3px;
@@ -173,26 +155,34 @@ export default {
                 border: 1px dashed #e0e0e0;background: #f5f5f5;
             }
             .user-drawings-add-bank_p{
-                border: 1px solid #fe6e00;;background: #f5f5f5;
+                margin-bottom: 10px;
+                width: 228px;
+                height: 127px;
+                margin: 20px 15px 0 0;
+                border-radius: 5px;
+                cursor: pointer;
+                background: #f5f5f5;
+                box-sizing: border-box;
                 .user-drawings-bank-num{
                     border-radius: 5px 5px 0 0;
-                    text-align: center;
+                    margin: 0 15px;
                     height: 32px;
                     line-height: 32px;
                     border-bottom: 1px solid #e0e0e0;
-                    background: #f5f5f5;
                     box-sizing: border-box;
                 }
                 .content{
+                    box-sizing: border-box;
                     width: 100%;
-                    height: 93px;
-                    background: #fff;
-                    position: relative;
+                    height: 91px;
+                    padding-left: 15px;
+                    padding-top: 30px;
+                    position: relative; 
                     .img{
+                        width: 40px;
                         position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%,-50%)
+                        bottom: 5px;
+                        right: 15px;
                     }
                 }
             }

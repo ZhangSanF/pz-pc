@@ -38,27 +38,64 @@ export default {
             curTitle: ''
         }
     },
-    created() {       
-        this.curTitle = this.getHelpCenter.rows[0].title
-        this.getReadArticles({id: '', title: this.getHelpCenter.rows[0].title}).then((res) => {
-            if(res.code == 200) {
-                this.dataItem = res.data.content
-            }
-        })       
+    created() {  
+        if(this.getBangzhuQuery.title != '') {
+            this.curTitle = this.getBangzhuQuery.title
+            this.getReadArticles({id: this.getBangzhuQuery.id, title: this.curTitle}).then((res) => {
+                if(res.code == 200) {
+                    this.dataItem = res.data.content
+                }
+            })
+        }     
+        // if(Object.keys(this.getHelpCenter).length !== 0) {
+        //     this.curTitle = this.getHelpCenter.rows[0].title
+        //     this.getReadArticles({id: '', title: this.curTitle}).then((res) => {
+        //         if(res.code == 200) {
+        //             this.dataItem = res.data.content
+        //         }
+        //     })
+        // }       
     },
     methods: {
         ...mapActions(['getReadArticles']),
         handleClick(title, id) {
             this.curTitle = title
-            this.getReadArticles({id: id, title: title}).then((res) => {
-                if(res.code == 200) {
-                    this.dataItem = res.data.content
-                }
-            }) 
+            this.$store.commit('BANGZHU_QUERY', {id: id, title: title})
+            // this.curTitle = title
+            // this.getReadArticles({id: id, title: title}).then((res) => {
+            //     if(res.code == 200) {
+            //         this.dataItem = res.data.content
+            //     }
+            // }) 
         }
     },
     computed: {
-        ...mapGetters(['getHelpCenter'])
+        ...mapGetters(['getHelpCenter', 'getBangzhuQuery'])
+    },
+    watch: {
+        // 'getHelpCenter': {
+        //     handler() {
+        //         this.curTitle = this.getHelpCenter.rows[0].title
+        //         this.getReadArticles({id: '', title: this.curTitle}).then((res) => {
+        //             if(res.code == 200) {
+        //                 this.dataItem = res.data.content
+        //             }
+        //         })                             
+        //     },
+        //     deep: true
+        // }
+
+        'getBangzhuQuery':{
+            handler() {
+                this.curTitle = this.getBangzhuQuery.title
+                this.getReadArticles({id: this.getBangzhuQuery.id, title: this.curTitle}).then((res) => {
+                    if(res.code == 200) {
+                        this.dataItem = res.data.content
+                    }
+                }) 
+            },
+            deep: true
+        }
     }
 }
 </script>

@@ -7,11 +7,15 @@
                 <ul>
                     <li>
                         <span class="f-qq">客服QQ：</span>
-                        <img src="../assets/image/button_11.gif" alt="">
+                        <a :href="serviceQQ" target="_blank">
+                            <img src="../assets/image/button_11.gif" alt="">
+                        </a>
                     </li>
                     <li>
                         <span class="f-qq">财务QQ：</span>
-                        <img src="../assets/image/button_11.gif" alt="">
+                        <a :href="financeQQ" target="_blank">
+                            <img src="../assets/image/button_11.gif" alt="">
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -50,6 +54,11 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
+    data() {
+        return {
+
+        }
+    },
     methods: {
         toAbout(title, active) {
             this.$router.push('/user/about')
@@ -57,8 +66,22 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['getSettingBase'])
-    } 
+        ...mapGetters(['getSettingBase']),
+        //客服QQ
+        serviceQQ() {
+            if(this.getSettingBase.service_qq != undefined) {
+                let qq = this.getSettingBase.service_qq.split('|')[0]
+                return `https://wpa.qq.com/msgrd?v=3&uin=${qq}&site=qq&menu=yes`
+            }           
+        },
+        // //财务QQ
+        financeQQ() {
+            if(this.getSettingBase.service_qq != undefined) {
+                let qq = this.getSettingBase.service_qq.split('|')[1]
+                return `https://wpa.qq.com/msgrd?v=3&uin=${qq}&site=qq&menu=yes`
+            }
+        }
+    }
 }
 </script>
 

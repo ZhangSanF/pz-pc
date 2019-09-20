@@ -147,15 +147,50 @@
                 <router-view/>
             </div>
         </div>
+        <div class="init-mobile" v-if="getInitMobile">
+            <div class="mobile-alert">
+                <div class="title">验证手机号</div>
+                <dir class="info">您还未对手机验证，请先进行验证！</dir>
+                <div class="setwin" @click="closeAlert">
+                    <a href="javascript:void(0);"></a>
+                </div>
+                <el-form ref="ruleForm" :model="ruleForm"  :rules="checkRules">
+                    <el-form-item  prop="mobile" class="reg-item">
+                        <el-input  type="phone"  placeholder="请输入11位中国大陆手机号"  v-model.trim="ruleForm.mobile"></el-input>
+                    </el-form-item>   
+                    <el-form-item prop="mobile_verify_code" class="reg-item" >
+                        <el-input  class="verifi-input" placeholder="请输入手机验证码"  v-model.trim="ruleForm.mobile_verify_code">
+                            <template slot-scope="">
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'one'">点击发送验证码</el-button>
+                                <el-button slot="append" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
+                                <el-button slot="append" class="second" v-if="isShowSmsCode == 'three'">{{smsCodeNumber}}秒</el-button>
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                            </template>
+                        </el-input>
+                    </el-form-item>
+                    <el-form-item  class="reg-item">
+                        <el-button class="reg-btn" @click="initMobileAction">提交</el-button>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>       
     </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
+import { checkRules, rePhone, smsCodeNumber } from '@/config/rules'
 
 export default {
     data() {
         return{
+            checkRules: checkRules,
+            isShowSmsCode: 'one',
+            smsCodeNumber: smsCodeNumber,
+            ruleForm: {
+                mobile: '',
+                mobile_verify_codeL: ''
+            },
             zcgl: false,
             pzgl: false,
             xxgl: false,
@@ -170,10 +205,9 @@ export default {
         }
         this.activeRouter = this.$route.path
         this.isNavActive()
-        this.bankList()//银行卡列表
     },
     methods: {
-        ...mapActions(['bankList']),
+        ...mapActions(['sendSmsCode', 'initMobile']),
         // 判断 nav 是否展开
         isNavActive() {
             if(this.activeRouter == '/member/tradingRecord' || 
@@ -192,10 +226,65 @@ export default {
         },
         goSafeSetting(id) {
             this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
+        },
+        closeAlert() {
+            this.$store.commit('INIT_MOBILE', false)
+        },
+        // 初始化手机
+        initMobileAction() {
+            this.$refs['ruleForm'].validate((valid) => {
+                if (valid) {                      
+                    if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
+                        this.initMobile(this.ruleForm).then(res=>{ 
+                            if( res.code == 200) {
+                                this.$message.success(res.message)
+                                this.$store.commit('INIT_MOBILE', false)
+                                let phone = this.ruleForm.mobile.slice(0,3) + '****' + this.ruleForm.mobile.slice(-4)
+                                this.$store.commit('SET_MOBILE',  phone)
+                            }
+                        })
+                    }else {
+                        this.$message.error(`请点击发送手机验证码`);
+                    }
+                }
+            });
+        },
+        //获取手机验证码
+        getCode() {
+            let _this = this
+            if (rePhone.test(_this.ruleForm.mobile)) {
+                _this.isShowSmsCode = 'two'
+                let obj = {
+                    template: 'register',
+                    mobile: _this.ruleForm.mobile
+                }
+                _this.sendSmsCode(obj).then((res) => {
+                    if(res.code == 200) {
+                        _this.$message.success(res.message)
+                        _this.isShowSmsCode = 'three'
+                        let _run = () => {
+                            setTimeout(() => {
+                                _this.smsCodeNumber--
+                                if (_this.smsCodeNumber > 0) {
+                                    _run();
+                                } else {
+                                    _this.isShowSmsCode = 'four'
+                                    _this.smsCodeNumber = smsCodeNumber
+                                }
+                            }, 1000);
+                        };
+                        _run();
+                    }else {
+                        _this.isShowSmsCode = 'one'
+                    }
+                })
+            }else {
+                this.$message.error(`请输入正确的手机号`);
+            }
         }
     },
     computed:{
-        ...mapGetters(['getUserInfo', 'getIsLogin']),
+        ...mapGetters(['getUserInfo', 'getIsLogin', 'getInitMobile']),
         safeNum() {
             return Number(this.getUserInfo.is_real_name) + Number(this.getUserInfo.is_pay_password) + 1
         },
@@ -207,12 +296,35 @@ export default {
         $route(to, from) {
             this.activeRouter = to.path
             this.isNavActive()
-        }
+        },
     }
 }
 </script>
 
 <style lang="scss" scoped>
+.init-mobile{
+    position: fixed;top: 0;left: 0;width: 100%;height: 100%;z-index: 2000;background: rgba(0,0,0,.3);
+    .mobile-alert{
+        position: absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);z-index: 2001;width: 400px;height: 280px;background: #fff;
+        .title{
+            padding: 0 80px 0 10px;height: 35px;line-height: 35px;border-bottom: 1px solid #D5D5D5;font-size: 14px;color: #333;
+            overflow: hidden;text-overflow: ellipsis;white-space: nowrap;background-color: #EAEAEA;
+        }
+        .info{
+            text-align: center;
+        } 
+    }
+}
+.setwin{
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 0;
+    line-height: initial;
+    a{
+        background: url(../../assets/image/icon.png) no-repeat -5px -55px; width: 14px;display: inline-block;height: 14px;
+    }
+}
 .member{
     padding-top: 33px;
     .user-main{
@@ -344,5 +456,13 @@ export default {
 .user-info-status-progress{
     .el-progress__text{display:none;}
     .el-progress-bar{padding-right: 0;}
+}
+.init-mobile{
+    .reg-item{
+        margin: 20px 40px;
+    }
+    .reg-btn{
+        width: 320px;
+    }
 }
 </style>

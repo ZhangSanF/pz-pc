@@ -4,7 +4,7 @@
       <div class="carousel">       
         <swiper :options="swiperOption" v-if="getPcIndexCarousel.length > 1">
           <swiper-slide v-for="(item, index) in getPcIndexCarousel" :key="index">
-            <img style="cursor: pointer;" :src="item.img" @click="goImgUrl(item.url)" alt="">
+            <img style="cursor: pointer;width:100%;height:400px;min-width:1200px;" :src="item.img" @click="goImgUrl(item.url)" alt="">
           </swiper-slide>
           <div class="swiper-pagination" slot="pagination"></div>
         </swiper>
@@ -13,9 +13,9 @@
             <div class="popbox">
               <div class="popbox-bg"></div>
               <div class="popbox-main">
-                <div class="head">
+                <div class="head" v-if="getSettingFree.time_range">
                   <div class="slogan">您炒股，我出钱</div>
-                  <h1>目前免息配资20天</h1>
+                  <h1>目前免息配资{{getSettingFree.time_range.max}}天</h1>
                 </div>
                 <div class="bottom">
                   <div class="register" v-if="!getIsLogin">
@@ -302,8 +302,8 @@
             </p>
             <div class="jlsjd">
               <ul :style=" isTransition ? {transform: 'translateY('+ (top)+'px)', transition: '1.5s'}: {transform: 'translateY('+ (0)+'px)'}" >
-                <li v-for="(item, index) in todayPrepaid" :key="index"  class="item prepaid-item">
-                  <span>{{item.phone}}充值</span>
+                <li v-for="(item, index) in getDepositList" :key="index"  class="item prepaid-item">
+                  <span>{{item.mobile}}充值</span>
                   <span>{{item.money}}元</span>
                 </li>
               </ul>              
@@ -329,8 +329,7 @@
           </div>
         </div>
       </div>
-    </div>
-    
+    </div>  
 </template>
 
 <script>
@@ -373,13 +372,6 @@ export default {
       profitMoney:2000,//累积利润赚取
       monthMoney:2000,//按月配资余额
       dayMoney:1000,//按天配资余额
-      //今日充值
-      todayPrepaid:[
-        {phone: '1', money: 58888},{phone: '2', money: 46666},{phone: '3', money: 58888},
-        {phone: '4', money: 58888},{phone: '5', money: 27666},{phone: '6', money: 58888},
-        {phone: '7', money: 58888},
-        {phone: '8', money: 58888}
-      ],
       top: -45,
       isTransition: false,
       isExponent: 'topExponent',
@@ -402,6 +394,7 @@ export default {
     }
   },
   created() {
+    this.todayDeposit()
     this.setting()
     //初始为上证指数
     this.zhishu1 = hq_str_s_sh000001.split(',')
@@ -411,7 +404,7 @@ export default {
     this.goDown = sinaindustry_down
   },
   methods:{
-    ...mapActions(['setting']),
+    ...mapActions(['setting', 'todayDeposit']),
     //新闻今日充值
     showPrepaid() {     
       let _this = this     
@@ -420,10 +413,10 @@ export default {
           if(_this.isTransition == false) {
             _this.isTransition = true
           }else {
-            let fastTemp = _this.todayPrepaid[0]         
-            _this.todayPrepaid.push(fastTemp)
+            let fastTemp = _this.getDepositList[0]         
+            _this.getDepositList.push(fastTemp)
             _this.isTransition = false
-            _this.todayPrepaid.shift()
+            _this.getDepositList.shift()
           }
           _run()
         },1500)
@@ -493,7 +486,9 @@ export default {
     }
   },
   mounted() {
-    this.showPrepaid()     
+    this.$nextTick(() => {
+      this.showPrepaid() 
+    })    
   },
   computed: {
     ...mapGetters([
@@ -508,12 +503,13 @@ export default {
       'getFreeMoney',
       'getSettingDays', 
       'getSettingMonths', 
-      'getSettingVip'
+      'getSettingVip',
+      'getDepositList'
     ]),
     peiziList() {
       if(this.getSettingFree.money_range != undefined) {
         return [
-          {title: '免息计划', content: `我出钱，您炒股<br>盈利${this.getSettingFree.divided}%归您<br>最低${this.getSettingFree.money_range.min}元申请<br>资金放大5倍，最长配资20天`},
+          {title: '免息计划', content: `我出钱，您炒股<br>盈利${this.getSettingFree.divided}%归您<br>最低${this.getSettingFree.money_range.min}元申请<br>资金放大5倍，最长配资${this.getSettingFree.time_range.max}天`},
           {title: '按天计划', content: `低门槛${this.getSettingDays.money_range.min}元起<br>资金放大1-10倍<br>支持单票满仓<br>利息用几天算几天，短线投资更便捷`},
           {title: '按月计划', content: `低门槛${this.getSettingMonths.money_range.min}元起<br>资金放大1-10倍<br>支持单票满仓<br>长线配资更划算，利息最低0.6%`},
           {title: 'VIP计划', content: `${this.getSettingVip.money_range.min}元起申请<br>资金放大10倍以上<br>利息减半，VIP服务<br>交易佣金万一，最高可以配资${this.getSettingVip.money_range.max}`}
@@ -539,7 +535,7 @@ export default {
       }else {
         return false
       }
-    }
+    },
   },
   watch: {
     //累积配资人数
@@ -548,7 +544,7 @@ export default {
         let _this = this
         let _run = () => {     
           setTimeout(() => {
-            if(_this.fundingRenC < newVal) {  
+            if(_this.fundingRenC < newVal && _this.fundingRenC  < 100000) {  
               _this.fundingRenC += 555     
               _run()
             }else {
@@ -566,8 +562,8 @@ export default {
         let _this = this
         let _run = () => {     
         setTimeout(() => {
-          if(_this.fundingMoney < newVal) {  
-            _this.fundingMoney += 555     
+          if(_this.fundingMoney < newVal && _this.fundingMoney < 100000) {  
+            _this.fundingMoney += 888     
               _run()
             }else {
               _this.fundingMoney = newVal
@@ -584,8 +580,8 @@ export default {
         let _this = this
         let _run = () => {     
         setTimeout(() => {
-          if(_this.profitMoney < newVal) {  
-            _this.profitMoney += 555     
+          if(_this.profitMoney < newVal && _this.profitMoney < 100000) {  
+            _this.profitMoney += 888     
               _run()
             }else {
               _this.profitMoney = newVal
@@ -602,8 +598,8 @@ export default {
         let _this = this
         let _run = () => {     
         setTimeout(() => {
-          if(_this.monthMoney < newVal) {  
-            _this.monthMoney += 555     
+          if(_this.monthMoney < newVal  && _this.monthMoney < 100000) {  
+            _this.monthMoney += 888     
               _run()
             }else {
               _this.monthMoney = newVal
@@ -620,8 +616,8 @@ export default {
         let _this = this
         let _run = () => {     
         setTimeout(() => {
-          if(_this.dayMoney < newVal) {  
-            _this.dayMoney += 555     
+          if(_this.dayMoney < newVal && _this.dayMoney < 100000) {  
+            _this.dayMoney += 888     
               _run()
             }else {
               _this.dayMoney = newVal
@@ -638,7 +634,7 @@ export default {
 
 <style lang="scss" scoped>
   .carousel{
-    width: 100%;height: 400px;position: relative;
+    width: 100%;height: 400px;position: relative;overflow: hidden;
     .f-p{width: 1200px;position: absolute;top: 0;left: 50%;transform: translate(-50%, 0);z-index: 3;}
     .float-box{
       position: absolute;z-index: 2;right: 0;top: 60px;width: 326px;height: 235px;padding: 30px 0 0 30px;text-align: center;border-radius: 15px;

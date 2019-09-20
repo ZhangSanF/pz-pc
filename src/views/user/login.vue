@@ -14,7 +14,7 @@
                         <el-input  placeholder="请输入用户名" v-model.trim="loginForm.username"></el-input>
                     </el-form-item>                   
                     <el-form-item  prop="password"  class="reg-item">
-                        <el-input class="password-font" type="text" placeholder="请输入密码" v-model.trim="loginForm.password" ></el-input>
+                        <el-input class="password-font" type="text" placeholder="请输入密码" v-model.trim="loginForm.password"></el-input>
                     </el-form-item>
                     <el-form-item prop="captcha" class="reg-item" >
                         <el-input class="verifi-input"  placeholder="请输入验证码" v-model.trim="loginForm.captcha">
@@ -41,7 +41,7 @@
 <script>
 import { mapActions } from "vuex";
 import md5 from 'js-md5';
-import { checkRules } from '@/config/rules.js'
+import { checkRules, reChinese } from '@/config/rules.js'
 
 export default {
         name: 'login',
@@ -74,6 +74,7 @@ export default {
                         // console.log(md5Password)
                         this.login(Object.assign(data, md5Password)).then((res) => {
                             if(res.code == 200) {
+                                this.$message.success(`登录成功`)
                                 // 获取个人信息
                                 this.getMemberinfo()
                                 this.$store.commit('IS_LOGIN', true)
@@ -88,7 +89,6 @@ export default {
                                 this.canSave = true
                             }else {
                                 this.canSave = true
-                                // this.$message.error(res.message);
                                 this.loginForm = {}
                                 this.getVerifyFun()
                             }
@@ -104,6 +104,15 @@ export default {
             },
             changeVerifi() {
                 this.getVerifyFun()
+            }
+        },
+        watch: {
+            // 去掉中文双字节字符
+            'loginForm.password': {
+                handler(newVal, old) {
+                    this.loginForm.password = newVal.replace(reChinese,'');
+                },
+                deep: true
             }
         }
     }

@@ -160,6 +160,7 @@
                     <!-- 设置密保 -->
                     <div class="user-safety-options-edit"  >
                         <EncryptedVerifi/>
+                        <Warm :warmData="savePwd"/>
                      </div>
                 </div>
             </div>
@@ -168,7 +169,7 @@
 </template>
 
 <script>
-import { checkRules } from '@/config/rules.js'
+import { checkRules, reChinese } from '@/config/rules.js'
 import md5 from 'js-md5';
 import { mapGetters, mapActions } from "vuex";
 import Title from '@/components/member/Title'
@@ -269,7 +270,7 @@ export default {
     },
     computed: {
         ...mapGetters(['getUserInfo', 'getSettingBase']),
-        //手机提示
+        // 手机认证
         phoneWarm() {
             return [
                 '请填写真实有效的手机号，手机号将作为验证用户身份的重要手段。',
@@ -277,7 +278,7 @@ export default {
                 `手机认证过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
             ]
         },
-        //真实姓名提示
+        // 实名认证
         trueNameWarm(){
             return [
                 '未满18周岁，实名认证无法通过。',
@@ -285,18 +286,24 @@ export default {
                 `实名认证过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
             ]
         },
-        //密码提示
+        // 登录密码
         pwdWarm() {
             return [
                 '请牢记您设置的新密码，登录密码可通过密码找回功能找回。',
                 `邮箱验证过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
             ]
         },
-        //支付密码提示
+        //支付密码
         zfPwdWarm() {
             return [
                 '请牢记您设置的支付密码，支付密码将用于投资，提现等重要操作。',
-                ` 使用过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+                `使用过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
+            ]
+        },
+        savePwd() {
+            return [
+                '请牢记您设置的密码保护问题，密码问题将用于找回密码等重要操作。',
+                `使用过程遇到问题，请联系客服，${this.getSettingBase.service_telephone}。`
             ]
         }
     },
@@ -306,6 +313,27 @@ export default {
                 if(a) return this.show(a)
             },
             deep:true
+        },
+        // 去掉中文双字节字符
+        'loginPwd.opwd': {
+            handler(newVal, old) {
+                this.loginPwd.opwd = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'loginPwd.npwd': {
+            handler(newVal, old) {
+                this.loginPwd.npwd = newVal.replace(reChinese,'');
+            },
+            deep: true
+        },
+        // 去掉中文双字节字符
+        'loginPwd.cpwd': {
+            handler(newVal, old) {
+                this.loginPwd.cpwd = newVal.replace(reChinese,'');
+            },
+            deep: true
         }
     },
 }

@@ -63,54 +63,58 @@
                     </a>
                 </dd>
             </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <td width="132">时间</td>
-                        <td width="126">交易类型</td>
-                        <td width="210" style="text-indent:23px;">交易详情</td>
-                        <td width="100" style="text-align:right;padding-right:45px;">金额</td>
-                        <td width="140" style="text-align:right; padding-right:18px;">余额</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in curData.rows" :key="index">
-                        <td class="user-deal-record-time">
-                            {{item.create_time.split(' ')[0]}} <br>
-                            <span>{{item.create_time.split(' ')[1]}}</span>
-                        </td>
-                        <td>{{item.cn_type}}</td>
-                        <td>
-                            <el-tooltip effect="light" placement="bottom">
-                                <span slot="content">交易序号：{{item.id}}<br>交易类型：{{item.cn_type}}<br>交易对方：@{{item.admin}}@</span>
-                                <span class="icon-xiala"></span>
-                            </el-tooltip>
-                            <span :title="item.remark" class="info-data">{{item.remark}}</span>
-                        </td>
-                        <td class="user-deal-record-money"><span class="change-money" title="变动金额">{{item.change_money}}</span> | <span class="gift-change-money" title="管理费">{{item.gift_change_money}}</span> </td>
-                        <td style="text-align:right; padding-right:18px;">{{item.available_money}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination_content">
-            共&nbsp;{{curData.total}}&nbsp;条
-            {{sumPage}}&nbsp;页
-            当前第&nbsp;{{page}}&nbsp;页&nbsp;&nbsp; 
-            <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
-            <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
-            <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
-            <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
-            转到&nbsp;&nbsp;<el-input
-                type="text"
-                size="mini"
-                v-model="pageInput"
-                class="page"
-                >
-            </el-input>
-            &nbsp;页&nbsp;&nbsp;
-            <span @click="goPage('jump')">确定</span>
-        </div>
+            <!-- 无数据显示 -->
+            <div v-if="curData.total <= 0" class="no-content">无交易记录</div>
+            <div v-else>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td width="132">时间</td>
+                            <td width="126">交易类型</td>
+                            <td width="210" style="text-indent:23px;">交易详情</td>
+                            <td width="100" style="text-align:right;padding-right:45px;">变动金额</td>
+                            <td width="140" style="text-align:right; padding-right:18px;">余额</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in curData.rows" :key="index">
+                            <td class="user-deal-record-time">
+                                {{item.create_time.split(' ')[0]}} <br>
+                                <span>{{item.create_time.split(' ')[1]}}</span>
+                            </td>
+                            <td>{{item.cn_type}}</td>
+                            <td>
+                                <el-tooltip effect="light" placement="bottom">
+                                    <span slot="content">交易序号：{{item.id}}<br>交易类型：{{item.cn_type}}<br>交易对方：@{{item.admin}}@</span>
+                                    <span class="icon-xiala"></span>
+                                </el-tooltip>
+                                <span :title="item.remark" class="info-data">{{item.remark}}</span>
+                            </td>
+                            <td class="user-deal-record-money"><span class="change-money" title="变动金额">{{item.change_money}}</span> | <span class="gift-change-money" title="管理费">{{item.gift_change_money}}</span> </td>
+                            <td style="text-align:right; padding-right:18px;">{{item.available_money}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination_content">
+                    共&nbsp;{{curData.total}}&nbsp;条
+                    {{sumPage}}&nbsp;页
+                    当前第&nbsp;{{page}}&nbsp;页&nbsp;&nbsp; 
+                    <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
+                    <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
+                    <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
+                    <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
+                    转到&nbsp;&nbsp;<el-input
+                        type="text"
+                        size="mini"
+                        v-model="pageInput"
+                        class="page"
+                        >
+                    </el-input>
+                    &nbsp;页&nbsp;&nbsp;
+                    <span @click="goPage('jump')">确定</span>
+                </div>
+            </div>         
+        </div>       
     </div>
 </template>
 
@@ -231,8 +235,8 @@ export default {
         'modelTime':{
             handler(val, b) {
                 if(val != null) {
-                    this.start_time = formatDate(val[0].getTime())
-                    this.end_time = formatDate(val[1].getTime())
+                    this.start_time = formatDate(val[0].getTime(), 'YY-MM-DD hh:mm:ss')
+                    this.end_time = formatDate(val[1].getTime(), 'YY-MM-DD 23:59:59')
                 }else {
                     this.start_time = ''
                     this.end_time = ''
@@ -246,6 +250,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.no-content{
+    text-align: center;
+    // padding-bottom: 30px;
+}
 .change-money{
     display: inline-block;width: 70px;text-align: center;
 }
@@ -260,7 +268,8 @@ export default {
     text-align: center;
     width: 964px;
     margin: 0 auto;
-    padding-bottom: 10px;
+    padding-top: 15px;
+    // padding-bottom: 10px;
 }
 .pagination_content span{
     cursor: pointer;

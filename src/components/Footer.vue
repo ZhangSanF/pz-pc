@@ -54,9 +54,9 @@
                         <p>
                           <router-link to="/user/bangzhu" tag="a">帮助中心</router-link>
                         </p>
-                        <p>
+                        <!-- <p>
                           <router-link to="/user/tuiguang" tag="a">推广赚钱</router-link>
-                        </p>
+                        </p> -->
                     </div>
                 </div>
                 <div class="qr-code-module">
@@ -82,8 +82,8 @@
                         </span>
                     </h2>
                     <p class="dianhua">{{getSettingBase.service_telephone}}</p>
-                    <p style=" margin-top: 10px; ">交 易 日：08:30 - 18:30</p>
-                    <p style=" padding-left: 58px; line-height: 15px;">节 假 日：12:00 - 17:00</p>
+                    <p style=" margin-top: 10px; ">交 易 日：{{getSettingBase.working_time_trading}}</p>
+                    <p style=" padding-left: 58px; line-height: 15px;">节 假 日：{{getSettingBase.working_time_holiday}}</p>
                 </div>
             </div>
         </div>

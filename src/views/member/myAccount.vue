@@ -2,7 +2,7 @@
     <div class="my-account">
         <div class="user-box user-account-info">
             <div class="user-box-con clearfix">
-                <dl class="user-account-balance">
+                <dl class="user-account-balance" style="border-right:none;">
                     <dt>
                         <span class="fs-m" style="text-indent:41px;">可用余额</span>
                         <el-tooltip effect="light" placement="bottom">
@@ -12,6 +12,18 @@
                     </dt>
                     <dd>
                         <span class="fmt_money">{{getUserInfo.available_money | number}}</span>
+                    </dd>
+                </dl>
+                <dl class="user-account-balance">
+                    <dt>
+                        <span class="fs-m" style="text-indent:41px;">冻结金额</span>
+                        <el-tooltip effect="light" placement="bottom">
+                            <span slot="content">被冻结金额</span>
+                            <span class="pro_tips-1"></span>
+                        </el-tooltip>
+                    </dt>
+                    <dd>
+                        <span class="fmt_money">{{getUserInfo.frozen_money | number}}</span>
                     </dd>
                 </dl>
                 <dl class="user-account-balance">
@@ -28,11 +40,11 @@
                 </dl>
                 <dl class="user-current-month-earnings">
                     <dd style="margin-top: 40px;">
-                        <router-link class="btn-style-5" to="/member/recharge" tag="a" style="margin-left:22px">充值</router-link>
+                        <router-link class="btn-style-5" to="/member/recharge" tag="a" style="margin-left:33px">充值</router-link>
                         <router-link class="btn-style-5" to="/member/withdrawDeposit" tag="a">提现</router-link>
                     </dd>
                 </dl>
-                <dl>
+                <dl style="border-right:none;">
                     <dt>
                         <span class="fs-m" style="color:#f00">签到送好礼</span>
                         <el-tooltip effect="light" placement="bottom">
@@ -40,10 +52,10 @@
                             <span class="pro_tips-1"></span>
                         </el-tooltip>
                     </dt>
-                    <a v-if="!getUserInfo.is_sign_in" href="javascript:void(0);" class="btn-style-5" style="margin: 20px 60px;" @click="sign">签到</a>
-                    <a v-else href="javascript:void(0);" class="btn-style-5" style="margin: 20px 60px;color:#666;background:#f5f5f5;">已签到</a>
+                    <a v-if="!getUserInfo.is_sign_in" href="javascript:void(0);" class="btn-style-5" style="margin: 20px 70px;" @click="sign">签到</a>
+                    <a v-else href="javascript:void(0);" class="btn-style-5" style="margin: 20px 70px;color:#666;background:#f5f5f5;">已签到</a>
                 </dl>
-                <dl style="border-right:none;">
+                <!-- <dl style="border-right:none;">
                     <dt>
                         <span class="fs-m">是否开启自动续期</span>
                         <el-tooltip effect="light" placement="bottom">
@@ -63,15 +75,14 @@
                             <a href="#" class="btn-style-5" style="margin:18px;margin-left: 58px;">开启</a>
                         </span>
                     </dd>
-                </dl>
+                </dl> -->
             </div>
         </div>
         <div class="user-box-2">
             <Title :infoTitle="infoTitle"/>
-            <div class="user-box-con-2">
-                <PzList v-if="orderList.length > 0" :curpzList="orderList"/>
+            <div class="user-box-con-2" v-if="orderList">
                 <!-- 无数据显示 -->
-                <div v-else>
+                <div v-if="orderList.length == 0">
                     <div class="pz_addtian">
                         <div class="pz_imgline clearfix">
                             <img src="../../assets/image/mline.png" alt="">
@@ -91,6 +102,7 @@
                         </router-link>
                     </div>
                 </div>
+                <PzList v-else :curpzList="orderList" :curServerTime="serverTime"/>               
             </div>
         </div>
     </div>
@@ -150,6 +162,9 @@ export default {
         ...mapGetters(['getUserInfo', 'getOrderList']),
         orderList() {
             return this.getOrderList.list
+        },
+        serverTime() {
+            return this.getOrderList.server_time
         }
     },
 }
@@ -223,7 +238,7 @@ export default {
     .user-box-con{
         padding: 10px 0;border-radius: 3px; background-color: #fff;
         dl {
-            float: left;border-right: 1px solid #e9e9e9;width: 210px;height: 100px;
+            float: left;border-right: 1px solid #e9e9e9;width: 230px;height: 100px;
             dt{
                 height: 16px;line-height: 16px; margin-top: 27px;color: #666;text-align: center;
                 span{
@@ -249,10 +264,13 @@ export default {
             }
         }
         .user-account-balance{
-           width: 165px; 
+           width:180px; 
            dd{
                span{
-                   margin-right: 10px;width: 150px;
+                   text-align: center;
+                   width: 180px; 
+                //    margin-right: 10px;
+                //    width: 150px;
                }
            }
             

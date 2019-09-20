@@ -46,49 +46,53 @@
                     </a>
                 </dd>
             </div>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <td width="132">申请时间</td>
-                        <td width="156" style="text-indent:65px;">订单号</td>
-                        <td width="100" style="text-align:center;">提现账号</td>
-                        <td width="120" style="text-align:center;">提现金额</td>
-                        <td width="100" style="text-align:right; padding-right:18px;">手续费</td>
-                        <td width="100" style="text-align:right; padding-right:18px;">状态</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="(item, index) in curData.rows" :key="index">
-                        <td class="user-deal-record-time">
-                            {{item.createtime.split(' ')[0]}} <br>
-                            <span>{{item.createtime.split(' ')[1]}}</span>
-                        </td>
-                        <td>{{item.order_id}}</td>
-                        <td style="text-align:center;">{{item.username}}</td>
-                        <td style="text-align:center;">{{item.trueamount}}</td>
-                        <td style="text-align:right; padding-right:18px;">{{item.userfee}}</td>
-                        <td style="text-align:right; padding-right:18px;">{{item.cn_protatus}}</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="pagination_content">
-            共&nbsp;{{curData.total}}&nbsp;条
-            {{sumPage}}&nbsp;页
-            当前第&nbsp;{{page}}&nbsp;页&nbsp;&nbsp; 
-            <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
-            <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
-            <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
-            <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
-            转到&nbsp;&nbsp;<el-input
-                type="text"
-                size="mini"
-                v-model="pageInput"
-                class="page"
-                >
-            </el-input>
-            &nbsp;页&nbsp;&nbsp;
-            <span @click="goPage('jump')">确定</span>
+            <!-- 无数据显示 -->
+            <div v-if="curData.total <= 0" class="no-content">无提现记录</div>
+            <div v-else>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <td width="132">申请时间</td>
+                            <td width="156" style="text-indent:65px;">订单号</td>
+                            <td width="100" style="text-align:center;">提现账号</td>
+                            <td width="120" style="text-align:center;">提现金额</td>
+                            <td width="100" style="text-align:right; padding-right:18px;">手续费</td>
+                            <td width="100" style="text-align:right; padding-right:18px;">状态</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(item, index) in curData.rows" :key="index">
+                            <td class="user-deal-record-time">
+                                {{item.createtime.split(' ')[0]}} <br>
+                                <span>{{item.createtime.split(' ')[1]}}</span>
+                            </td>
+                            <td>{{item.order_id}}</td>
+                            <td style="text-align:center;">{{item.username}}</td>
+                            <td style="text-align:center;">{{item.trueamount}}</td>
+                            <td style="text-align:right; padding-right:18px;">{{item.userfee}}</td>
+                            <td style="text-align:right; padding-right:18px;">{{item.cn_status}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="pagination_content">
+                    共&nbsp;{{curData.total}}&nbsp;条
+                    {{sumPage}}&nbsp;页
+                    当前第&nbsp;{{page}}&nbsp;页&nbsp;&nbsp; 
+                    <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
+                    <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
+                    <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
+                    <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
+                    转到&nbsp;&nbsp;<el-input
+                        type="text"
+                        size="mini"
+                        v-model="pageInput"
+                        class="page"
+                        >
+                    </el-input>
+                    &nbsp;页&nbsp;&nbsp;
+                    <span @click="goPage('jump')">确定</span>
+                </div>
+            </div>            
         </div>
     </div>
 </template>
@@ -116,17 +120,16 @@ export default {
             ],
             dealType: [
                 {name: '全部', value: '2'},
-                {name: '已处理', value: '1'},
+                {name: '已通过', value: '1'},
                 {name: '未审核', value: '0'},
-                {name: '处理中', value: '-1'} ,
-                {name: '待处理', value: '-2'} ,
-                {name: '已关闭', value: '-3'} 
+                {name: '已拒绝', value: '-2'},
+                // {name: '失败', value: '-1'}
             ],
             modelTime: '',//model
             start_time: '',// 开始时间
             end_time: '',// 结束时间
             quick_time: '-1',// 快选时间(全部-1，近一周1，一个月2，三个月3)
-            type: '2',// 交易状态(已关闭-3，待处理-2，处理中-1，未审核0，已处理1，全部2)
+            type: '2',// 交易状态(已拒绝-2，失败-1，未审核0，已通过1，全部2)
             page: 1,// 页码
             page_size: 10,// 每页数量
             curData: [],
@@ -210,8 +213,8 @@ export default {
         'modelTime':{
             handler(val, b) {
                 if(val != null) {
-                    this.start_time = formatDate(val[0].getTime())
-                    this.end_time = formatDate(val[1].getTime())
+                    this.start_time = formatDate(val[0].getTime(), 'YY-MM-DD hh:mm:ss')
+                    this.end_time = formatDate(val[1].getTime(), 'YY-MM-DD 23:59:59')
                 }else {
                     this.start_time = ''
                     this.end_time = ''
@@ -225,6 +228,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.no-content{
+    text-align: center;
+    // padding-bottom: 30px;
+}
 .page {
     width:48px; 
     display: inline-block; 
@@ -233,7 +240,7 @@ export default {
     text-align: center;
     width: 964px;
     margin: 0 auto;
-    padding-bottom: 10px;
+    padding-top: 15px;
 }
 .pagination_content span{
     cursor: pointer;

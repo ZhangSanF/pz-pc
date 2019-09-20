@@ -11,6 +11,16 @@ const mutations = {
         state.userInfo = obj
     },
 
+    // 是否初始化手机号码
+    [types.INIT_MOBILE](state, data) {
+        state.initMobile = data
+    },
+
+    // 首页今日充值
+    [types.DEPOSIT_LIST](state, data) {
+        state.depositList = data
+    },
+
     // 首页轮播图
     [types.PC_INDEX_CAROUSEL](state, data) {
         state.pcIndexCarousel = data
@@ -55,6 +65,9 @@ const mutations = {
     // 系统配置
     [types.SETTING_BASE](state, data) {
         state.settingBase = data
+    },
+    [types.SETTING_STOCK](state, data) {
+        state.settingStock = data
     },
     [types.SETTING_ORDER](state, data) {
         state.settingOrder = data
@@ -116,6 +129,11 @@ const mutations = {
         state.userInfo.bank_name = data.bank_name
     },
 
+    //帮助中心参数
+    [types.BANGZHU_QUERY](state, obj) {
+        state.bangzhuQuery = obj
+    },
+
     //关于我们参数
     [types.ABOUT_QUERY](state, obj) {
         state.aboutQuery = obj
@@ -136,9 +154,24 @@ const mutations = {
         state.userInfo.mobile = data
     },
 
-    //手机号
-    [types.USER_PHONE](state, data) {
-        state.userPhone = data
+    //手机号码&用户名&id&密保
+    [types.USER_FIND](state, data) {
+        state.userFind = data
+    },
+
+    //利率/倍数
+    [types.LOANSRATE_DATA](state, data) {
+        state.loansrate = data
+    },
+
+    //剩余期数(扩大配资，时使用)
+    [types.PERIOD_NUMBER](state, data) {
+        state.periodNumber = data
+    },
+
+    //延期利息(终止操盘，时使用)
+    [types.INTEREST_MONEY](state, data) {
+        state.interestMoney = data
     },
 
 };

@@ -12,6 +12,17 @@ const router = new Router({
   }
 })
 
+router.beforeEach((to, from, next) => {
+  if(to.meta.showInitMobile) {
+    setTimeout(() => {
+      if(store.state.userInfo.mobile == '' || store.state.userInfo.mobile == undefined) {
+        store.commit('INIT_MOBILE', true)
+      }
+    },20)
+    next()
+  }
+  next()
+})
 // router.beforeEach((to,from,next)=>{
 //   if(to.meta.auth) { //是否验证
 //     //是否登录

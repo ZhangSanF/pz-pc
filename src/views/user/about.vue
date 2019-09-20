@@ -26,8 +26,10 @@ export default {
         }
     },
     created() {
-        this.active = this.getAboutQuery.active
-        this.readArticles(this.getAboutQuery.id, this.getAboutQuery.title)
+        if(this.getAboutQuery.title != '') {
+            this.readArticles(this.getAboutQuery.id, this.getAboutQuery.title)
+        }
+        this.active = this.getAboutQuery.active       
     },
     methods: {
         ...mapActions(['getReadArticles']),      

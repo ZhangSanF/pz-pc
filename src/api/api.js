@@ -30,10 +30,8 @@ export function logout() {
 
 // 广告
 export function getAdvertisement(params) {
-    let param = Object.assign({}, {
-        category_identification: params.category_identification || '',
-    });
-    return axios.get(urls.advertisementApi(), param);
+    if(!params && params !== Object ) return false
+    return axios.get(urls.advertisementApi(), params);
 }
 
 // 系统配置
@@ -43,10 +41,8 @@ export function getSetting() {
 
 // 文章列表 
 export function getArticles(params) {
-    let param = Object.assign({}, {
-        category_identification: params.category_identification || '',
-    });
-    return axios.get(urls.articlesApi(), param);
+    if(!params && params !== Object ) return false
+    return axios.get(urls.articlesApi(), params);
 }
 
 
@@ -217,4 +213,38 @@ export function retrievepayPassWord(params) {
 export function retrievePassword(params) {
     if(!params && params !== Object ) return false
     return axios.get(urls.retrievePasswordApi(),params);
+}
+
+//首页今日充值
+export function todayDeposit() {
+    return axios.get(urls.todayDepositApi());
+}
+
+// 合同
+export function contract(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.contractApi(),params);
+}
+
+//利率/倍数
+export function loansrate() {
+    return axios.get(urls.loansrateApi());
+}
+
+// 剩余期数(扩大配资，时使用)
+export function remainingPeriod(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.remainingPeriodApi(),params);
+}
+
+// 延期利息(终止操盘，时使用)
+export function interestMoneybyend(params) {
+    if(!params && params !== Object ) return false
+    return axios.get(urls.interestMoneybyendApi(),params);
+}
+
+// 初始化手机号码
+export function initMobile(params) {
+    if(!params && params !== Object ) return false
+    return axios.post(urls.initMobileApi(),params);
 }

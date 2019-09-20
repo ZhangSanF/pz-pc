@@ -12,29 +12,33 @@
                     {{item.lable}}
                 </span>
         </el-row>
-        <el-row class="user-box-con">
-            <Notice :noticeData="noticeData"/>
-        </el-row>
-        <el-row class="user-box-con" >
-            <div class="pagination_content">
-                共&nbsp;{{pageData.total}}&nbsp;条
-                {{sumPage}}&nbsp;页
-                当前第&nbsp;{{pageData.page}}&nbsp;页&nbsp;&nbsp; 
-                <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
-                <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
-                <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
-                <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
-                转到&nbsp;&nbsp;<el-input
-                    type="text"
-                    size="mini"
-                    v-model="pageInput"
-                    class="page"
-                    >
-                </el-input>
-                &nbsp;页&nbsp;&nbsp;
-                <span @click="goPage('jump')">确定</span>
-            </div>
-        </el-row>
+        <!-- 无数据显示 -->
+        <div v-if="pageData.total <= 0" class="no-content">无站内信息</div>
+        <div v-else>
+            <el-row class="user-box-con">
+                <Notice :noticeData="noticeData"/>
+            </el-row>
+            <el-row class="user-box-con" >
+                <div class="pagination_content">
+                    共&nbsp;{{pageData.total}}&nbsp;条
+                    {{sumPage}}&nbsp;页
+                    当前第&nbsp;{{pageData.page}}&nbsp;页&nbsp;&nbsp; 
+                    <span @click="goPage('index')">首页</span>&nbsp;&nbsp; 
+                    <span @click="goPage('prev')">上一页</span>&nbsp;&nbsp; 
+                    <span @click="goPage('next')">下一页</span>&nbsp;&nbsp;
+                    <span @click="goPage('end')">尾页</span>&nbsp;&nbsp;
+                    转到&nbsp;&nbsp;<el-input
+                        type="text"
+                        size="mini"
+                        v-model="pageInput"
+                        class="page"
+                        >
+                    </el-input>
+                    &nbsp;页&nbsp;&nbsp;
+                    <span @click="goPage('jump')">确定</span>
+                </div>
+            </el-row>
+        </div>     
     </div>
 </template>
 
@@ -134,6 +138,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.no-content{
+    text-align: center;
+    padding-bottom: 20px;
+}
 .user-box-2{
     border: 1px solid #e0e0e0;
     border-radius: 3px;

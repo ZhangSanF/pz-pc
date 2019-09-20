@@ -15,9 +15,9 @@
                 <div class="pz-mf2">
                     <h2>配资利息</h2>
                     <p>
-                        <span>{{pzSureData.sumMFee}} </span>元
-                        <b v-if="pzSureData.pzType == 'day'">({{pzSureData.mFee}}元/天)</b>
-                        <b v-if="pzSureData.pzType == 'month' || pzSureData.pzType == 'vip'">({{pzSureData.mFee}}元/月)</b>
+                        <span>{{pzSureData.sumMFee | number}} </span>元
+                        <b v-if="pzSureData.pzType == 'day'">({{pzSureData.mFee | number}}元/天)</b>
+                        <b v-if="pzSureData.pzType == 'month' || pzSureData.pzType == 'vip'">({{pzSureData.mFee | number}}元/月)</b>
                     </p>
                 </div>
                 <div class="pz-circledata2">
@@ -40,7 +40,7 @@
                         <td v-if="pzSureData.pzType != 'free'">平仓线</td>
                     </tr>
                     <tr class="pz-detail-color">
-                        <td> {{pzSureData.sumMFee}}元</td>
+                        <td> {{pzSureData.sumMFee | number}}元</td>
                         <td v-if="pzSureData.pzType == 'free' || pzSureData.pzType == 'day'">{{pzSureData.period || 0}}天</td>
                         <td v-else>{{pzSureData.period || 0}}月</td>
                         <td>{{pzSureData.funds || 0}}元</td>
@@ -50,16 +50,15 @@
                 </tbody></table>
                 <div class="pz-illustrate">
                     <ul>
-                        <li>支付保证金<span>{{pzSureData.principal || 0}}元</span>，利息<span>{{pzSureData.sumMFee}}元</span></li>
+                        <li>支付保证金<span>{{pzSureData.principal || 0}}元</span>，利息<span>{{pzSureData.sumMFee | number}}元</span></li>
                         <li v-show="pzSureData.pzType !== 'free'">本次账户管理费在配资成功后一次性收取。</li>
-                        <li>
+                        <li v-if="showRecharge">
                             <p style="float:left;">您的账户余额<span>{{getUserInfo.available_money | number}}元</span>， 还需
                                 <span>
-                                    {{moneyC}}元
+                                    {{showRecharge | number}}元
                                 </span>
                             </p>
                             <router-link to="/member/recharge" tag="a">立即充值</router-link>
-                            <div class="Clr"></div>
                         </li>
                     </ul>
                 </div>
@@ -93,7 +92,7 @@
                         <li><em>8</em>风险保证金：在您投顾出现亏损后用于支付亏损金，结束时如无亏损全额退还，保证金越低收益越大，同时风险也越大。</li>
                         <li><em>9</em>亏损警戒线：当总投顾资金低于警戒线以下时，只能平仓不能建仓，需要尽快补充风险保证金，以免低于亏损平仓线被平仓；</li>
                         <li><em>10</em>亏损平仓线：当总投顾资金低于平仓线以下时，我们将有权把您的股票进行平仓，为避免平仓发生，请时刻关注风险保证金是否充足；</li>
-                        <li><em>11</em>开始交易时间：一般选择下个交易日，如看中行情急需交易，可直接选择今天交易；</li>
+                        <li><em>11</em>开始交易时间：当日交易12点之前立即生效，12点后下个交易日生效；</li>
                         <li><em>12</em>平仓备注：符合平仓条件且当前交易日平仓失败的，在下一个交易日9:20以集合竞价方式平仓。</li>
                     </ul>
                 </div>
@@ -135,7 +134,7 @@ export default {
         ...mapActions(['addOrder']),
         //确认配资
         applyFinancing() {
-            if(this.isCheckbox == false) return this.$message.error('请填写完整信息！');
+            if(this.isCheckbox == false) return this.$message.error('请勾选我已同意出彩速配配资协议！');
             this.addOrder(this.pzObj)
         },
         toAbout(title, active) {
@@ -145,16 +144,47 @@ export default {
     },
     computed: {
         ...mapGetters(['getUserInfo', 'getSettingBase']),
-        // 计算账户余额
-        moneyC() {
-            // 共需要多少金额
-            let money = this.pzSureData.principal*1 + this.pzSureData.sumMFee*1
-            if(this.getUserInfo.available_money >= money) {
-                return 0
-            }else {
-                return money*1 - this.getUserInfo.available_money*1
+        // 还需充值金额（是否显示 充值提醒）
+        showRecharge() {
+            let show_money = 0;
+            let money = this.getUserInfo.available_money - this.pzSureData.principal;
+            let rate  = this.getUserInfo.gift_money - this.pzSureData.sumMFee;
+            if(rate < 0) {
+                money = money - Math.abs(rate);
             }
+            money >= 0 ? show_money = 0 : show_money = Math.abs(money);
+            return show_money
         }
+        // 计算账户余额还需多少
+        // moneyC() {
+        //     // 共需要多少金额
+        //     let money = this.pzSureData.principal*1 + this.pzSureData.sumMFee*1
+        //     let sumMoney = money*1 - this.getUserInfo.available_money*1 - this.getUserInfo.gift_money*1
+        //     return sumMoney
+        // },
+        //是否显示需要充值
+        // showRecharge() {
+        //     // true为显示需要充值
+        //     // pzSureData.principal 保证金
+        //     // pzSureData.sumMFee 利息
+        //     // getUserInfo.available_money 账户余额
+        //     // getUserInfo.gift_money 账户管理费
+        //     // 账户余额大于保证金且账户利息小于当前利息
+        //     if((this.getUserInfo.available_money*1) > (this.pzSureData.principal*1) && (this.getUserInfo.gift_money*1) < (this.pzSureData.sumMFee*1)) {
+        //         let zMoney = this.getUserInfo.available_money - this.pzSureData.principal // 账户余额扣除保证金后还剩的money
+        //         let lMoney = this.pzSureData.sumMFee - this.getUserInfo.gift_money // 还差多少利息
+        //         if(zMoney > lMoney) {
+        //             return false
+        //         }else {
+        //             return true
+        //         }
+        //     // 账户余额大于保证金且账户利息大于当前利息
+        //     }else if((this.getUserInfo.available_money*1) > (this.pzSureData.principal*1) && (this.getUserInfo.gift_money*1) > (this.pzSureData.sumMFee*1)) {
+        //         return false
+        //     }else {
+        //         return true     
+        //     }
+        // }
     }
 }
 </script>
