@@ -37,7 +37,7 @@ export const logout = ({commit, state}) =>{
         if(res.code == 200){
             router.push('/')
             commit(types.SAVE_USER_INFO, {})
-            commit(types.IS_LOGIN, false)         
+            commit(types.IS_LOGIN, false)        
         }
     })
 }
@@ -69,6 +69,7 @@ export const setting = ({commit, state}) =>{
               }
             }
             commit(types.SETTING_BASE, res.data.system.base) // base
+            commit(types.SETTING_SYS, res.data.system.sys) // sys
             commit(types.SETTING_STOCK, res.data.stock)//stock
             commit(types.SETTING_ORDER, res.data.credit.base) // order
             commit(types.SETTING_FREE, res.data.credit.free) // free
@@ -204,12 +205,7 @@ export const bankList = ({commit, state}) =>{
 
 //配资单申请
 export const addOrder = ({commit, state},params) =>{
-    return api.addOrder(params).then(res=>{
-        if(res.code == 200){
-            Message.success(res.message)
-            router.push('/member/myAccount')
-        }
-    })
+    return api.addOrder(params)
 }
 
 //获取个人信息
@@ -217,11 +213,9 @@ export const getMemberinfo = ({commit, state}) =>{
     return api.getMemberinfo().then(res=>{
         if(res.code == 200){
             commit(types.SAVE_USER_INFO, res.data)
-            // 是否初始化手机号码
+            // 是否显示初始化手机
             if(res.data.mobile == '' || res.data.mobile == undefined) {
-                commit(types.INIT_MOBILE, true)
-            }else {
-                commit(types.INIT_MOBILE, false)
+                commit(types.IS_SHOW_PHONE, true)
             }
         }
     })
@@ -246,9 +240,9 @@ export const transacTionrecord = ({commit, state},params) =>{
     return api.transacTionrecord(params)
 }
 
-//提现记录
-export const withdrawalrecord = ({commit, state},params) =>{
-    return api.withdrawalrecord(params)
+//充值提现记录
+export const paymenTrecord = ({commit, state},params) =>{
+    return api.paymenTrecord(params)
 }
 
 //短信验证码(发送)
@@ -308,7 +302,7 @@ export const loansrate = ({commit, state}) =>{
 export const remainingPeriod = ({commit, state},params) =>{
     return api.remainingPeriod(params).then(res =>{
         if(res.code == 200) {
-            commit(types.PERIOD_NUMBER, res.data.info)
+            commit(types.PERIOD_NUMBER, res.data)
         }
     })
 }

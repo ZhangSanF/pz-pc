@@ -8,7 +8,7 @@
                     <span class="fr">市场有风险，投资需谨慎</span> 
                     </div>
                 </div>
-            <div class="reg-form">
+            <div class="reg-form" ref="inputEle">
                 <el-form ref="loginForm" :model="loginForm" :rules="checkRules">
                     <el-form-item  prop="username"  class="reg-item" >
                         <el-input  placeholder="请输入用户名" v-model.trim="loginForm.username"></el-input>
@@ -16,7 +16,7 @@
                     <el-form-item  prop="password"  class="reg-item">
                         <el-input class="password-font" type="text" placeholder="请输入密码" v-model.trim="loginForm.password"></el-input>
                     </el-form-item>
-                    <el-form-item prop="captcha" class="reg-item" >
+                    <el-form-item prop="captcha" class="reg-item" v-if="getSettingSys.close_login_captcha !== '1'">
                         <el-input class="verifi-input"  placeholder="请输入验证码" v-model.trim="loginForm.captcha">
                              <el-button slot="append" @click="changeVerifi" >
                                   <img :src="verifySrc" alt="">
@@ -39,83 +39,88 @@
     </div>
 </template>
 <script>
-import { mapActions } from "vuex";
+import { mapActions, mapGetters } from "vuex";
 import md5 from 'js-md5';
-import { checkRules, reChinese } from '@/config/rules.js'
+import { checkRules, reChinese } from '@/config/rules'
+import { noOnCopy } from "@/config/miXin"
 
 export default {
-        name: 'login',
-        data(){
-            return{
-                canSave: true,
-                checkRules: checkRules,
-                verifySrc: '',
-                loginForm: {
-                    username: '',
-                    captcha: '',
-                    password:''
-                }               
-            }
-        },
-        created() {
-            this.getVerifyFun()
-        },
-        methods:{
-            ...mapActions(["login", 'getMemberinfo', 'getVerify']),
-            toLogin() {
-                this.$refs['loginForm'].validate((valid) => {
-                    if (valid) {
-                        if(!this.canSave) return false
-                        this.canSave = false
-                        const md5Password = {
-                            password: md5(this.loginForm.password),
-                        }
-                        const data = this.loginForm
-                        // console.log(md5Password)
-                        this.login(Object.assign(data, md5Password)).then((res) => {
-                            if(res.code == 200) {
-                                this.$message.success(`登录成功`)
-                                // 获取个人信息
-                                this.getMemberinfo()
-                                this.$store.commit('IS_LOGIN', true)
-                                let redirect = ''
-                                // 获取拦截路由
-                                if(Object.keys(this.$route.query).length !== 0) {
-                                    redirect = this.$route.query.redirect
-                                }else {
-                                    redirect = '/member'
-                                }
-                                this.$router.push(redirect)
-                                this.canSave = true
-                            }else {
-                                this.canSave = true
-                                this.loginForm = {}
-                                this.getVerifyFun()
-                            }
-                        })
+    name: 'login',
+    mixins:[noOnCopy],
+    data(){
+        return{
+            canSave: true,
+            checkRules: checkRules,
+            verifySrc: '',
+            loginForm: {
+                username: '',
+                captcha: '',
+                password:''
+            }               
+        }
+    },
+    created() {
+        this.getVerifyFun()
+    },
+    methods:{
+        ...mapActions(["login", 'getMemberinfo', 'getVerify']),
+        toLogin() {
+            this.$refs['loginForm'].validate((valid) => {
+                if (valid) {
+                    if(!this.canSave) return false
+                    this.canSave = false
+                    const md5Password = {
+                        password: md5(this.loginForm.password),
                     }
-                });
-            },
-            getVerifyFun() {
-                this.getVerify().then((res) => {
-                    let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
-                    this.verifySrc = imgUrl
-                })
-            },
-            changeVerifi() {
-                this.getVerifyFun()
-            }
+                    const data = this.loginForm
+                    // console.log(md5Password)
+                    this.login(Object.assign(data, md5Password)).then((res) => {
+                        if(res.code == 200) {
+                            this.$message.success(`登录成功`)
+                            // 获取个人信息
+                            this.getMemberinfo()
+                            this.$store.commit('IS_LOGIN', true)
+                            let redirect = ''
+                            // 获取拦截路由
+                            if(Object.keys(this.$route.query).length !== 0) {
+                                redirect = this.$route.query.redirect
+                            }else {
+                                redirect = '/member'
+                            }
+                            this.$router.push(redirect)
+                            this.canSave = true
+                        }else {
+                            this.canSave = true
+                            this.loginForm = {}
+                            this.getVerifyFun()
+                        }
+                    })
+                }
+            });
         },
-        watch: {
-            // 去掉中文双字节字符
-            'loginForm.password': {
-                handler(newVal, old) {
-                    this.loginForm.password = newVal.replace(reChinese,'');
-                },
-                deep: true
-            }
+        getVerifyFun() {
+            this.getVerify().then((res) => {
+                let imgUrl = 'data:image/png;base64,' + btoa(new Uint8Array(res).reduce((data, byte) => data + String.fromCharCode(byte), ''))
+                this.verifySrc = imgUrl
+            })
+        },
+        changeVerifi() {
+            this.getVerifyFun()
+        }
+    },
+    computed: {
+        ...mapGetters(['getSettingSys'])
+    },
+    watch: {
+        // 去掉中文双字节字符
+        'loginForm.password': {
+            handler(newVal, old) {
+                this.loginForm.password = newVal.replace(reChinese,'');
+            },
+            deep: true
         }
     }
+}
 </script>
 <style lang="scss" scoped>   
     .index {

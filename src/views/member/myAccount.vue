@@ -48,7 +48,7 @@
                     <dt>
                         <span class="fs-m" style="color:#f00">签到送好礼</span>
                         <el-tooltip effect="light" placement="bottom">
-                            <span slot="content">坚持签到，每天赠送1元体验金<br>仅用作于抵扣管理费</span>
+                            <span slot="content">坚持签到，每天赠送{{getSettingBase.sign_in_gift_money}}元体验金<br>仅用作于抵扣管理费</span>
                             <span class="pro_tips-1"></span>
                         </el-tooltip>
                     </dt>
@@ -159,7 +159,7 @@ export default {
         }
     },
     computed: {
-        ...mapGetters(['getUserInfo', 'getOrderList']),
+        ...mapGetters(['getUserInfo', 'getOrderList', 'getSettingBase']),
         orderList() {
             return this.getOrderList.list
         },

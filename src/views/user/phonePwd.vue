@@ -8,7 +8,7 @@
                     <span class="fr">市场有风险，投资需谨慎</span> 
                     </div>
                 </div>
-            <div class="reg-form find-password">
+            <div class="reg-form find-password" ref="inputEle">
                 <el-form ref="findPassword" :rules="checkRules" :model="resetPassword">
                     <el-form-item class="reg-item">
                         <span class="text">手机号</span>
@@ -26,10 +26,10 @@
                         <span class="text">验证码</span>
                         <el-input  class="verifi-input"  placeholder="请输入手机验证码"  v-model.trim="resetPassword.mobile_verify_code">
                             <template slot-scope="">
-                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'one'">点击发送验证码</el-button>
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
                                 <el-button slot="append" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
-                                <el-button slot="append" class="second" v-if="isShowSmsCode == 'three'">{{smsCodeNumber}}秒</el-button>
-                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                                <el-button slot="append" class="second" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'four'">重新获取</el-button>
                             </template>
                         </el-input>
                     </el-form-item>
@@ -48,8 +48,10 @@
     import { mapActions, mapGetters } from "vuex"
     import { checkRules, rePhone, reChinese, smsCodeNumber } from '@/config/rules.js'
     import md5 from 'js-md5';
+    import { noOnCopy } from "@/config/miXin"
 
     export default {
+        mixins:[noOnCopy],
         data(){
             return{
                 checkRules: checkRules,

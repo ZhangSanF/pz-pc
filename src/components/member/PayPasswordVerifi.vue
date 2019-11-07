@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="inputEle">
       <!-- 设置支付密码 -->
     <el-form
         class="step1-form" 
@@ -10,7 +10,7 @@
             <el-input size="mini" v-model.trim="setPayPwdForm.payPwd" class="step-input password-font" placeholder="请输入支付密码"></el-input>
         </el-form-item>
         <el-form-item label="再次输入支付密码">
-            <el-input size="mini"  v-model.trim="setPayPwdForm.againPayPwd" class="step-input password-font" placeholder="请再次输入支付密码"></el-input>
+            <el-input size="mini" v-model.trim="setPayPwdForm.againPayPwd" class="step-input password-font" placeholder="请再次输入支付密码"></el-input>
         </el-form-item>
         <el-form-item >
             <el-button size="mini"  class="step-btn" @click="setPayPwd(1)" >设置支付密码</el-button>
@@ -26,10 +26,10 @@
             <el-input size="mini" v-model.trim="modifyPayPwdForm.oldPassword" class="step-input password-font" placeholder="请输入原支付密码"></el-input>
         </el-form-item>
         <el-form-item label="新支付密码">
-            <el-input size="mini"  v-model.trim="modifyPayPwdForm.newPassword" class="step-input password-font" placeholder="请输入新支付密码"></el-input>
+            <el-input size="mini" v-model.trim="modifyPayPwdForm.newPassword" class="step-input password-font" placeholder="请输入新支付密码"></el-input>
         </el-form-item>
         <el-form-item label="确认支付密码">
-            <el-input size="mini"  v-model.trim="modifyPayPwdForm.confirmNewPassword" class="step-input password-font" placeholder="请再次输入新支付密码"></el-input>
+            <el-input size="mini" v-model.trim="modifyPayPwdForm.confirmNewPassword" class="step-input password-font" placeholder="请再次输入新支付密码"></el-input>
         </el-form-item>
         <el-form-item >
             <el-button size="mini"  class="step-btn" @click="modifyPayPwd()" >修改支付密码</el-button>
@@ -40,14 +40,13 @@
     <el-form class="step1-form" v-if="isRetrieve" label-width="200px">
         <el-form-item label="手机号码">
             <span class="bank_city fl" >{{getUserInfo.mobile}}</span>
-            <!-- <el-input v-model.trim="findPayPwd.mobile" placeholder="请输入手机号码"  class="step-input" size="mini"></el-input> -->
         </el-form-item>
         <el-form-item label="手机验证码">
             <el-input v-model.trim="findPayPwd.mobile_verify_code" placeholder="请输入手机验证码" size="mini" class="step-input" ></el-input>
-            <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取短信验证码</el-button>
+            <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
             <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
-            <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">验证码{{smsCodeNumber}}秒有效</el-button>
-            <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+            <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+            <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取</el-button>
         </el-form-item>
         <el-form-item label="新支付密码">
             <el-input v-model.trim="findPayPwd.pay_password" placeholder="请输入新支付密码" size="mini" class="step-input password-font"></el-input>
@@ -61,16 +60,19 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from "vuex";
-import md5 from 'js-md5';
-import { payPassword, rePhone, reChinese, smsCodeNumber } from '@/config/rules.js'
+import { mapGetters, mapActions } from "vuex"
+import md5 from 'js-md5'
+import { payPassword, rePhone, reChinese, smsCodeNumber } from '@/config/rules'
+import { smsCodeMixin, noOnCopy } from "@/config/miXin"
 
 export default {
     inject: ['reload'],
+    mixins:[smsCodeMixin, noOnCopy],
     data() {
         return {
             isRetrieve: false,
             isShowSmsCode: 'one',
+            actionTemplate: 'retrieve_pay_password',
             smsCodeNumber: smsCodeNumber, 
             //设置支付密码
             setPayPwdForm:{
@@ -86,7 +88,6 @@ export default {
             },
             // 找回支付密码
             findPayPwd: {
-                // mobile: '',
                 pay_password: '',
                 mobile_verify_code: ''
             },
@@ -166,40 +167,7 @@ export default {
             }else {
                 this.$message.error(`支付密码必须由6-20位字母和数字符号之间的两种组合`)
             }
-        },
-        // 获取短信验证码
-        getVerify() {
-            let _this = this
-            let obj = {
-                template: 'retrieve_pay_password',
-                member_id: this.getUserInfo.id
-            }
-            // if (rePhone.test(obj.mobile)) {
-                _this.isShowSmsCode = 'two'               
-                _this.sendSmsCode(obj).then((res) => {
-                    if(res.code == 200) {
-                        _this.$message.success(res.message)
-                        _this.isShowSmsCode = 'three'
-                        let _run = () => {
-                            setTimeout(() => {
-                                _this.smsCodeNumber--
-                                if (_this.smsCodeNumber > 0) {
-                                    _run();
-                                } else {
-                                    _this.isShowSmsCode = 'four'
-                                    _this.smsCodeNumber = smsCodeNumber
-                                }
-                            }, 1000);
-                        };
-                        _run();
-                    }else {
-                        _this.isShowSmsCode = 'one'
-                    }
-                })
-            // }else {
-            //     this.$message.error(`请输入正确的手机号`);
-            // }
-        }, 
+        }
     },
     computed: {
         ...mapGetters(['getUserInfo']),

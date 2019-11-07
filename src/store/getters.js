@@ -6,8 +6,8 @@ export const getIsLogin = state => state.isLogin
 // 个人信息
 export const getUserInfo = state =>  state.userInfo?state.userInfo:null
 
-// 是否初始化手机号码
-export const getInitMobile = state =>  state.initMobile
+// 是否显示初始化手机
+export const getIsShowPhone = state => state.isShowPhone
 
 //首页今日充值
 export const getDepositList = state => state.depositList
@@ -37,6 +37,7 @@ export const getPayData = state => state.payData
 
 // 系统配置
 export const getSettingBase = state =>  state.settingBase
+export const getSettingSys = state =>  state.settingSys
 export const getSettingStock = state =>  state.settingStock
 export const getSettingOrder = state =>  state.settingOrder
 export const getSettingFree = state =>  state.settingFree

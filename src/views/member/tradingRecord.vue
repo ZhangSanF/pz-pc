@@ -31,23 +31,6 @@
                             end-placeholder="结束日期">
                             </el-date-picker>
                         </p>
-                        <!-- <dd>
-                           <datepicker
-                                class="datepicker"                    
-                                :input-class="'datepickerInput'"
-                                :format="dateOption.format"
-                                :language="dateOption.language"
-                                v-model="curSelectTime"
-                            ></datepicker>
-                           <span>-</span>
-                           <datepicker
-                                class="datepicker"                    
-                                :input-class="'datepickerInput'"
-                                :format="dateOption.format"
-                                :language="dateOption.language"
-                                v-model="curSelectTime"
-                            ></datepicker>
-                        </dd> -->
                     </div>
                 </div>
             </div>
@@ -120,20 +103,13 @@
 
 <script>
 import Title from '@/components/member/Title'
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex"
 import { formatDate } from '@/js/utils'
-// import Datepicker from "vuejs-datepicker";
-// import { zh } from "vuejs-datepicker/dist/locale";
 
 export default {
     components:{ Title },
     data() {
         return {
-            // curSelectTime: new Date(),
-            // dateOption: {
-            //     language: zh,
-            //     format: "yyyy-MM-dd"
-            // },
             infoTitle: {
                 title:'交易记录',
                 todu:{
@@ -141,7 +117,7 @@ export default {
                 }
             },
             dealDate: [
-                {name: '全部', value: '-1'},
+                // {name: '全部', value: '-1'},
                 {name: '最近七天', value: '1'},
                 {name: '1个月', value: '2'},
                 {name: '3个月', value: '3'}
@@ -153,7 +129,7 @@ export default {
             modelTime: '',//model
             start_time: '',// 开始时间
             end_time: '',// 结束时间
-            quick_time: '-1',// 快选时间(全部-1，近一周1，一个月2，三个月3)
+            quick_time: '1',// 快选时间(全部-1，近一周1，一个月2，三个月3)
             type: '-1',// 交易类型(充值1，全部-1)
             page: 1,// 页码
             page_size: 10,// 每页数量
@@ -182,11 +158,13 @@ export default {
         },
         // 选择交易日期
         changeTime(value) {
+            this.page = 1
             this.quick_time = value
             this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
         },
         // 选择交易类型
         changeType(value) {
+            this.page = 1
             this.type = value
             this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
         },
@@ -217,7 +195,7 @@ export default {
                     }
                     break;
                 case 'jump' : 
-                    if(this.sumPage != 1 && this.pageInput <= this.sumPage) {
+                    if(this.sumPage != 1 && this.pageInput <= this.sumPage && this.pageInput > 0) {
                         this.page = this.pageInput
                         this.transacTionrecordFun(this.start_time, this.end_time, this.quick_time, this.type, this.page, this.page_size)
                     }
@@ -228,13 +206,14 @@ export default {
     computed: {
         // 计算共多少页
         sumPage() {
-            return Math.ceil(this.curData.total/10)
+            return Math.ceil(this.curData.total / 10)
         }
     },
     watch: {
         'modelTime':{
             handler(val, b) {
                 if(val != null) {
+                    this.page = 1
                     this.start_time = formatDate(val[0].getTime(), 'YY-MM-DD hh:mm:ss')
                     this.end_time = formatDate(val[1].getTime(), 'YY-MM-DD 23:59:59')
                 }else {
@@ -255,10 +234,10 @@ export default {
     // padding-bottom: 30px;
 }
 .change-money{
-    display: inline-block;width: 70px;text-align: center;
+    display: inline-block;width: 100px;text-align: center;
 }
 .gift-change-money{
-     display: inline-block;width: 50px;text-align: center;
+     display: inline-block;width: 70px;text-align: center;
 }
 .page {
     width:48px; 

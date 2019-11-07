@@ -2,17 +2,19 @@
   <div class="auto-pay" v-loading="payLoading">
     <div class="pay-con">
       <h3 class="choose-title">请选择支付通道</h3> 
-      <el-radio v-model="type" :label="index" :border="true" v-for="(item, index) of data" :key="index" @change="typeChange">
-        {{item.byname}}
-        <div class="item-detail">
-          <p v-if="item.get_fee">选用此通道每笔需支付<span class="money-style">{{item.get_fee}}%</span>手续费</p>
-          <p v-if="item.max">此通道支付限额下限<span class="money-style">{{item.min}}</span>元，上限<span class="money-style">{{item.max}}</span>元</p>
-          <p class="redFont" v-if="item.int_limit_type != 0" v-text="item.int_limit_type == 1 ? '该支付仅支持充值100整数倍的金额，请充值如100,500等整数金额' : '该支付不支持充值100整数倍的金额，请充值如101,502等金额'"></p>
-          <p class="redFont" v-if="item.float_limit_type == 1">该支付充值金额需有两位小数，请充值如100.66,500.05等小数金额</p>
-          <p class="normalFont normalFontFirst" v-if="item.remark">{{item.remark.length > 35 ? item.remark.substring(0, 35) : item.remark}}</p>
-          <p class="normalFont normalFontSecond" v-if="item.remark && item.remark.length > 35">{{item.remark.substring(35)}}</p>
-        </div>
-      </el-radio>
+      <div class="box">
+        <el-radio v-model="type" :label="index" :border="true" v-for="(item, index) of data" :key="index" @change="typeChange">
+          {{item.byname}}
+          <div class="item-detail">
+            <p v-if="item.get_fee">选用此通道每笔需支付<span class="money-style">{{item.get_fee}}%</span>手续费</p>
+            <p v-if="item.max">此通道支付限额下限<span class="money-style">{{item.min}}</span>元，上限<span class="money-style">{{item.max}}</span>元</p>
+            <p class="redFont" v-if="item.int_limit_type != 0" v-text="item.int_limit_type == 1 ? '该支付仅支持充值100整数倍的金额，请充值如100,500等整数金额' : '该支付不支持充值100整数倍的金额，请充值如101,502等金额'"></p>
+            <p class="redFont" v-if="item.float_limit_type == 1">该支付充值金额需有两位小数，请充值如100.66,500.05等小数金额</p>
+            <p class="normalFont normalFontFirst" v-if="item.remark">{{item.remark.length > 35 ? item.remark.substring(0, 35) : item.remark}}</p>
+            <p class="normalFont normalFontSecond" v-if="item.remark && item.remark.length > 35">{{item.remark.substring(35)}}</p>
+          </div>
+        </el-radio>
+      </div>
 
       <!-- 部分网关、快捷支付需银行列表获取 -->
       <autopay-banklist v-if="bankList" :data="bankList" @bankChange="bankChange"></autopay-banklist>
@@ -50,6 +52,7 @@ import AutopayBanklist from "./AutopayBanklist";
 import { mapGetters, mapActions } from "vuex";
 
 export default {
+  components:{ AutopayBanklist },
   name: "AutoPay",
   props: ["data", "payType"],
   data() {
@@ -81,7 +84,6 @@ export default {
     },
     moneyBlur(e) {
       this.money = parseFloat(parseFloat(this.money).toFixed(2)) || '';
-
     },
     typeChange(e) {
       this.type = e;
@@ -165,16 +167,7 @@ export default {
               break;
 
           }
-        } 
-        // else {
-        //   this.$alert(
-        //     `提交失败！请刷新页面重试或者联系客服处理！[${res.message}]`,
-        //     `提交失败`,
-        //     {
-        //       type: "error"
-        //     }
-        //   );
-        // }
+        }
       });
     }
   },
@@ -197,13 +190,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.redFont {
+  color: #ff4500;
+}
+.box{
+  display: flex;
+  flex-wrap: wrap;
+}
 .pay-con {
-  // width: 1100px;
-  // min-height: 560px;
   padding: 20px 40px;
   border-radius: 4px;
   box-sizing: border-box;
-  background: #eeeeee;
+  background: #eee;
 
   .choose-title {
     font-size: 16px;
@@ -218,11 +216,11 @@ export default {
     font-size: 14px;
   }
 
-  >>> {
+  // >>> {
     .el-radio {//852
       width: 395px;
       height: 110px;
-      padding: 14px 20px;
+      // padding: 14px 20px;
       margin-bottom: 20px;
       margin-right: 20px;
       border: 1px dotted #a2a2a2;
@@ -232,8 +230,8 @@ export default {
       }
 
       .item-detail {
-        height: 80px;
-        padding: 6px 8px;
+        // height: 80px;
+        // padding: 6px 8px;
         box-sizing: border-box;
         font-size: 12px;
         p {
@@ -252,14 +250,13 @@ export default {
           color: #ffa965;
         }
       }
-    }
-
-    .is-checked {
-      border: 1px solid #ff8453;
-      background: #ffffff;
-    }
+    // }
+   
   }
-
+  .is-checked {
+    border: 1px solid #ff8453;
+    background: #fff;
+  }
   .money-title {
     font-size: 16px;
     margin: 10px 0 10px 0;

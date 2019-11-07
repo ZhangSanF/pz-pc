@@ -5,7 +5,7 @@
             <div class="classify-selected">
                 <div class="classify-selected-1-a">
                     <dl class="classify-selected-1">
-                        <dt>提现时间</dt>
+                        <dt>充值时间</dt>
                         <dd>
                             <a 
                             href="javascript:void(0);" 
@@ -35,7 +35,7 @@
                 </div>
             </div>
             <div class="classify-selected-1">
-                <dt>提现状态</dt>
+                <dt>充值状态</dt>
                 <dd style="width: 500px">
                     <a href="javascript:void(0);" 
                     v-for="(item, index) in dealType" 
@@ -47,15 +47,15 @@
                 </dd>
             </div>
             <!-- 无数据显示 -->
-            <div v-if="curData.total <= 0" class="no-content">无提现记录</div>
+            <div v-if="curData.total <= 0" class="no-content">无充值记录</div>
             <div v-else>
                 <table class="table">
                     <thead>
                         <tr>
                             <td width="132">申请时间</td>
                             <td width="156" style="text-indent:65px;">订单号</td>
-                            <td width="100" style="text-align:center;">提现账号</td>
-                            <td width="120" style="text-align:center;">提现金额</td>
+                            <td width="100" style="text-align:center;">充值账号</td>
+                            <td width="120" style="text-align:center;">充值金额</td>
                             <td width="100" style="text-align:right; padding-right:18px;">手续费</td>
                             <td width="100" style="text-align:right; padding-right:18px;">状态</td>
                         </tr>
@@ -107,9 +107,9 @@ export default {
     data() {
         return {
             infoTitle: {
-                title:'提现记录',
+                title:'充值记录',
                 todu:{
-                    title:'申请提现',
+                    title:'申请充值',
                 }
             },
             dealDate: [
@@ -123,7 +123,7 @@ export default {
                 {name: '已通过', value: '1'},
                 {name: '未审核', value: '0'},
                 {name: '已拒绝', value: '-2'},
-                // {name: '失败', value: '-1'}
+                {name: '失败', value: '-1'}
             ],
             modelTime: '',//model
             start_time: '',// 开始时间
@@ -132,7 +132,7 @@ export default {
             type: '2',// 交易状态(已拒绝-2，失败-1，未审核0，已通过1，全部2)
             page: 1,// 页码
             page_size: 10,// 每页数量
-            dep_with: 2,//充值或提现（1：充值，2：为提现）
+            dep_with: 1,//充值或提现（1：充值，2：为提现）
             curData: [],
             pageInput: 1
         }
@@ -143,7 +143,7 @@ export default {
     methods:{
         ...mapActions(['paymenTrecord']),
         toDoMore() {
-            this.$router.push('/member/withdrawDeposit')
+            this.$router.push('/member/recharge')
         },
         withdrawalrecordFun() {
             this.paymenTrecord({

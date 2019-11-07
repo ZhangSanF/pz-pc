@@ -20,12 +20,11 @@
             <!-- 通过原手机号码重置 -->
             <el-form v-if="!isEncrypted" class="step1-form" label-width="200px" >
                 <el-form-item label="原手机号码">
-                    <!-- <el-input size="mini" class="step-input" v-model.trim="phoneStep.mobile"></el-input> -->
                     <span class="bank_city" >{{getUserInfo.mobile}}</span>
-                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取短信验证码</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
                     <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
-                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">验证码{{smsCodeNumber}}秒有效</el-button>
-                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取</el-button>
                 </el-form-item>
                 <el-form-item label="短信验证码">
                     <el-input size="mini" class="step-input" v-model.trim="phoneStep.mobile_verify_code"></el-input>
@@ -58,10 +57,10 @@
             <el-form class="step1-form" label-width="200px">
                 <el-form-item label="新手机号码">
                     <el-input size="mini" class="step-input" v-model.trim="phoneStep.mobile"></el-input>
-                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取短信验证码</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
                     <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
-                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">验证码{{smsCodeNumber}}秒有效</el-button>
-                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取</el-button>
                 </el-form-item>
                 <el-form-item label="短信验证码">
                     <el-input size="mini" class="step-input" v-model.trim="phoneStep.mobile_verify_code"></el-input>
@@ -193,6 +192,7 @@ export default {
                 }
                 this.verifyProtection(params).then(res => {
                     if(res.code == 200) {
+                        this.index = 2
                         // 第一步后存 密保问题
                         this.newSetPhone.type = 2                
                         this.newSetPhone.password_protection = JSON.stringify(obj)

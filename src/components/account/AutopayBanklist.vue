@@ -2,7 +2,17 @@
   <div class="auto-pay">
     <h3 class="money-title">请选择银行</h3>
     <div class="pay-banklist">
-      <el-radio v-for="(item, index) of data" v-model="bank" :label="index" :border="true" @change="bankChange(item.bankcode,item.banktype)" :bankcode="item.bankcode" :key="index"><i :class="item.class"></i>{{item.bankname}}</el-radio>
+      <el-radio 
+        v-for="(item, index) of data" 
+        v-model="bank" 
+        :label="index" 
+        :border="true" 
+        @change="bankChange(item.bankcode, item.banktype)" 
+        :bankcode="item.bankcode" 
+        :key="index">
+        <i :class="item.class"></i>
+        {{item.bankname}}
+      </el-radio>
     </div>
   </div>
 </template>
@@ -14,13 +24,16 @@ export default {
   props: [ 'data' ],
   data() {
     return {
-      bank: 0
+      bank: '',
     }
+  },
+  created() {
+    this.bank = Object.keys(this.data)[0] || ''   
   },
   mounted() {
     setTimeout(() => {
       this.$emit('bankChange', {type: this.bank});
-    }, 20);
+    }, 20)
   },
   methods: {
     bankChange(c, t) {
@@ -32,8 +45,6 @@ export default {
 
 <style lang="scss" scoped>
   .pay-con {
-    // width: 1100px;
-    // min-height: 560px;
     padding: 20px 40px;
     border-radius: 4px;
     box-sizing: border-box;

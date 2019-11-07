@@ -6,23 +6,6 @@
                 <div class="classify-selected-time pz-selected-time">
                     <div class="classify-selected clearfix">
                         <p class="title">配资时间</p>
-                        <!-- <dd>
-                            <datepicker
-                                class="datepicker"                    
-                                :input-class="'datepickerInput'"
-                                :format="dateOption.format"
-                                :language="dateOption.language"
-                                v-model="create_start"
-                            ></datepicker>
-                           <span>-</span>
-                           <datepicker
-                                class="datepicker"                    
-                                :input-class="'datepickerInput'"
-                                :format="dateOption.format"
-                                :language="dateOption.language"
-                                v-model="create_end"
-                            ></datepicker>
-                        </dd> -->
                         <p class="start-time">
                             <el-date-picker
                             v-model="start_time"
@@ -110,8 +93,6 @@ import PzList from '@/components/member/PzList'
 import Pagination from '@/components/member/Pagination'
 import { mapGetters, mapActions } from "vuex"
 import { formatDate } from '@/js/utils'
-// import Datepicker from "vuejs-datepicker"
-// import { zh } from "vuejs-datepicker/dist/locale"
 
 export default {
     components:{ Title, PzList, Pagination },
@@ -123,10 +104,6 @@ export default {
                     title:'',
                 }
             },
-            // dateOption: {
-            //     language: zh,
-            //     format: "yyyy-MM-dd"
-            // },
             start_time: '',//model
             end_time: '',//model
             page: 1,
@@ -150,10 +127,11 @@ export default {
                 {name: '待审核', value: 1, label: 'wait'},
                 {name: '操盘中', value: 2, label: 'operatestop'},
                 {name: '审核失败', value: 3, label: 'no'},
-                {name: '操盘结束', value: 4, label: 'end'}
+                {name: '操盘结束', value: 4, label: 'end'},
+                {name: '已到期', value: 11, label: 'timeEnd'}
             ],
             pzStatusActive: 'all',
-            pageInput: '1'
+            pageInput: 1
         }
     },
     created() {
@@ -175,12 +153,14 @@ export default {
         },
         // 配资类型判断
         changeType(label, value) {
+            this.page = 1
             this.paTypeActive = label
             this.order_type = value
             this.getOrderFun(this.page, this.page_size, this.order_type, this.status, this.create_start, this.create_end, this.end_time_start, this.end_time_end)
         },
         // 配资状态判断
         changeStatus(label, value) {
+            this.page = 1
             this.pzStatusActive = label
             this.status = value
             this.getOrderFun(this.page, this.page_size, this.order_type, this.status, this.create_start, this.create_end, this.end_time_start, this.end_time_end)
@@ -212,7 +192,7 @@ export default {
                     }
                     break;
                 case 'jump' : 
-                    if(this.sumPage != 1 && this.pageInput <= this.sumPage) {
+                    if(this.sumPage != 1 && this.pageInput <= this.sumPage && this.pageInput > 0) {
                         this.page = this.pageInput
                         this.getOrderFun(this.page, this.page_size, this.order_type, this.status, this.create_start, this.create_end, this.end_time_start, this.end_time_end)
                     }
@@ -227,7 +207,7 @@ export default {
         },
         // 计算共多少页
         sumPage() {
-            return Math.ceil(this.orderObj.total/5)
+            return Math.ceil(this.orderObj.total / 5)
         }
     },
     watch: {
@@ -235,6 +215,7 @@ export default {
         'start_time': {
             handler(val, b) {
                 if(val != null) {
+                    this.page = 1
                     this.create_start = formatDate(val[0].getTime())
                     this.create_end = formatDate(val[1].getTime())
                 }else {
@@ -249,6 +230,7 @@ export default {
         'end_time': {
             handler(val, b) {
                 if(val != null) {
+                    this.page = 1
                     this.end_time_start = formatDate(val[0].getTime())
                     this.end_time_end = formatDate(val[1].getTime())
                 }else {
@@ -302,7 +284,7 @@ export default {
                 }
             }
             .classify-selected-a{
-                width: 390px;float: left;font-size: 14px;
+                width: 460px;float: left;font-size: 14px;
                 a{
                     padding: 4px 10px;text-align: center;display: inline-block;
                 }

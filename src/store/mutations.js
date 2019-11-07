@@ -11,9 +11,9 @@ const mutations = {
         state.userInfo = obj
     },
 
-    // 是否初始化手机号码
-    [types.INIT_MOBILE](state, data) {
-        state.initMobile = data
+    // 是否显示初始化手机
+    [types.IS_SHOW_PHONE](state, data) {
+        state.isShowPhone = data
     },
 
     // 首页今日充值
@@ -65,6 +65,9 @@ const mutations = {
     // 系统配置
     [types.SETTING_BASE](state, data) {
         state.settingBase = data
+    },
+    [types.SETTING_SYS](state, data) {
+        state.settingSys = data
     },
     [types.SETTING_STOCK](state, data) {
         state.settingStock = data

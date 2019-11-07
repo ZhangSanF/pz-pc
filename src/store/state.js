@@ -3,7 +3,7 @@ const state = {
     isLogin: JSON.parse(sessionStorage.getItem("store")) == null ? '' : JSON.parse(sessionStorage.getItem("store")).isLogin,//是否登录
     depositList:[],//首页今日充值
     userInfo: {},//个人信息
-    initMobile: '',// 是否初始化手机号码
+    isShowPhone: false,//是否显示初始化手机
     pcIndexCarousel: [],//首页轮播图
     stockInfo: [],//股市行情
     encyclopedias: [],//配资百科
@@ -14,6 +14,7 @@ const state = {
     industryCertification: [],//底部行业认证
     payData:{},//充值
     settingBase:{},//系统配置
+    settingSys:{},
     settingStock:{},//系统配置
     settingOrder:{},//系统配置
     settingFree:{},//系统配置

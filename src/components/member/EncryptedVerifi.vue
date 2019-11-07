@@ -10,6 +10,16 @@
                 label-width="200px" 
                 v-if="safeSteps == 1"
                 class="step1-form">
+                <el-form-item label="手机号码">
+                    <span class="bank_city fl" >{{getUserInfo.mobile}}</span>
+                </el-form-item>
+                <el-form-item label="手机验证码" prop="mobile_verify_code">
+                    <el-input v-model.trim="pwdSafeInit.mobile_verify_code" placeholder="请输入手机验证码" size="mini" class="step-input" ></el-input>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
+                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
+                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取</el-button>
+                </el-form-item>
                 <el-form-item label="请选择问题" prop="keyOne">
                     <el-select v-model="pwdSafeInit.keyOne" size="mini" placeholder="请选择当前密保问题">
                         <el-option
@@ -36,7 +46,7 @@
                     </el-select> 
                 </el-form-item>
                 <el-form-item label="请输入答案" prop="valueTwo">
-                        <el-input size="mini"  v-model="pwdSafeInit.valueTwo" placeholder="请输入答案" class="step-input"></el-input>
+                    <el-input size="mini"  v-model="pwdSafeInit.valueTwo" placeholder="请输入答案" class="step-input"></el-input>
                 </el-form-item>
                 <el-form-item >
                     <el-button  size="mini" class="step-btn" @click="setSafeStep">设置</el-button>
@@ -175,10 +185,10 @@
                 </el-form-item>
                 <el-form-item label="短信验证码" prop="mobile_verify_code">
                     <el-input v-model.trim="iphoneEncrypted.mobile_verify_code" size="mini" placeholder="请输入短信验证码"  class="step-input"></el-input>
-                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取短信验证码</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
                     <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
-                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">验证码{{smsCodeNumber}}秒有效</el-button>
-                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                    <el-button size="mini" class="step-btn" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+                    <el-button size="mini" class="step-btn" @click="getVerify" v-if="isShowSmsCode == 'four'">重新获取</el-button>
                 </el-form-item>
                 <el-form-item >
                     <el-button size="mini"  class="step-btn" @click="safeByPhone" >点击验证</el-button>
@@ -190,20 +200,24 @@
 </template>
 
 <script>
-import { protectionData } from '@/config/index.js'
+import { protectionData } from '@/config/index'
 import { mapGetters, mapActions } from "vuex";
-import { checkRules, rePhone, smsCodeNumber } from '@/config/rules.js'
+import { checkRules, rePhone, smsCodeNumber } from '@/config/rules'
+import { smsCodeMixin } from "@/config/miXin"
 
 export default {
     inject: ['reload'],
+    mixins:[smsCodeMixin],
     data() {
         return {
             checkRules: checkRules,
             protectionData: protectionData,
             isShowSmsCode: 'one',
+            actionTemplate: 'password_protection',
             smsCodeNumber: smsCodeNumber,  
             safeSteps: 1,
             pwdSafeInit :{//初始化密保数据
+                mobile_verify_code: '',
                 keyOne:'',
                 valueOne:'',
                 keyTwo:'',
@@ -230,28 +244,32 @@ export default {
                 valueOne:'',
                 keyTwo:'',
                 valueTwo:'',
-                // mobile:'',
                 mobile_verify_code:''
             },
         }
     },
     methods: {
-        ...mapActions(['initProtection','sendSmsCode', 'verifyProtection', 'changeProtection']),
+        ...mapActions(['initProtection', 'sendSmsCode', 'verifyProtection', 'changeProtection']),
         //初始化密码保护
         setSafeStep() {
             this.$refs['pwdSafeInit'].validate((valid) => {
                 if (valid) {
-                    let params = {
-                        protection:`{"${this.pwdSafeInit.keyOne}":"${this.pwdSafeInit.valueOne}","${this.pwdSafeInit.keyTwo}":"${this.pwdSafeInit.valueTwo}"}`
-                    }
-                    let password_protection = [this.pwdSafeInit.keyOne,this.pwdSafeInit.keyTwo]
-                    this.initProtection(params).then(res=>{
-                        if(res.code == 200){
-                            this.$message.success(res.message)
-                            this.$store.commit('PROTECT', {is_protect: true, password_protection: password_protection})
-                            this.reload()
+                    if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four'){
+                        let params = {
+                            mobile_verify_code: this.pwdSafeInit.mobile_verify_code,
+                            protection:`{"${this.pwdSafeInit.keyOne}":"${this.pwdSafeInit.valueOne}","${this.pwdSafeInit.keyTwo}":"${this.pwdSafeInit.valueTwo}"}`
                         }
-                    })
+                        let password_protection = [this.pwdSafeInit.keyOne, this.pwdSafeInit.keyTwo]
+                        this.initProtection(params).then(res=>{
+                            if(res.code == 200){
+                                this.$message.success(res.message)
+                                this.$store.commit('PROTECT', {is_protect: true, password_protection: password_protection})
+                                this.reload()
+                            }
+                        })
+                    }else {
+                        this.$message.error(`请获取短信验证码`);
+                    }
                 }
             });
         },
@@ -275,7 +293,6 @@ export default {
                             // 保存旧密保数据
                             this.changeEncrypted.oldProtection = JSON.stringify(obj)
                             this.changeEncrypted.type = 1
-                            // this.$store.commit('PROTECT', {is_protect: false, password_protection: []})
                             this.setPwdStep = false
                         }
                     })                 
@@ -339,40 +356,7 @@ export default {
                     }
                 }
             });
-        }, 
-        // 获取短信验证码
-        getVerify() {
-            let _this = this
-            let obj = {
-                template: 'password_protection',
-                member_id: this.getUserInfo.id
-            }
-            // if (rePhone.test(obj.mobile)) { 
-                _this.isShowSmsCode = 'two'               
-                _this.sendSmsCode(obj).then((res) => {
-                    if(res.code == 200) {
-                        _this.$message.success(res.message)
-                        _this.isShowSmsCode = 'three'
-                        let _run = () => {
-                            setTimeout(() => {
-                                _this.smsCodeNumber--
-                                if (_this.smsCodeNumber > 0) {
-                                    _run();
-                                } else {
-                                    _this.isShowSmsCode = 'four'
-                                    _this.smsCodeNumber = smsCodeNumber
-                                }
-                            }, 1000);
-                        };
-                        _run();
-                    }else {
-                        _this.isShowSmsCode = 'one'
-                    }
-                })
-            // }else {
-            //     this.$message.error(`请输入正确的手机号`);
-            // }
-        },
+        }
     },
     computed: {
         ...mapGetters(['getUserInfo']),

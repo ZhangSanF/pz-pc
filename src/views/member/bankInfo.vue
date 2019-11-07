@@ -24,11 +24,11 @@
             <div class="form-warm-prompt-1 clearfix" v-if="isAdd">
                 <span class="form-warm-prompt-title">温馨提示：</span>
                     <p class="form-warm-prompt-con form-warm-prompt-con-a">
-                <span style="color:#B73736">
-                    1.&nbsp;&nbsp;提现手续费收取说明及提现金额的先后顺序：<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;a. 已赚取利息（免手续费）<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;b. 到期本金（免手续费；投资可得续投积分，积分可以 <a href="#" style="color:#fe6e00;" class="strong">兑换优惠券</a>）<br>
-                    &nbsp;&nbsp;&nbsp;&nbsp;c. 充值未投资金额（收取0.5%手续费）<br>
+                <span >
+                    1.&nbsp;&nbsp;提现均不收取手续费<br>
+                    <!-- &nbsp;&nbsp;&nbsp;&nbsp;a. 已赚取利息（免手续费）<br> -->
+                    <!-- &nbsp;&nbsp;&nbsp;&nbsp;b. 到期本金（免手续费；投资可得续投积分，积分可以 <a href="#" style="color:#fe6e00;" class="strong">兑换优惠券</a>）<br>
+                    &nbsp;&nbsp;&nbsp;&nbsp;c. 充值未投资金额（收取0.5%手续费）<br> -->
                     </span>
                     2.&nbsp;&nbsp;为了您的资金安全，请确保提现银行账号的姓名和您进行实名验证的姓名一致。<br>
                     3.&nbsp;&nbsp;请确保您输入的是正确的储蓄卡账号，而非信用卡账号。<br>

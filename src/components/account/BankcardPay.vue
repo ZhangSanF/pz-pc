@@ -8,7 +8,6 @@
         <el-radio v-for="(item, index) of data" :key="index" v-model="bank" :label="index" :border="true" @change="radioChange(index)">
           {{item.bank_name}}
         </el-radio>
-        <!-- <p class="rebateText" v-if="parseFloat(bankInfo.rebate) > 0">当前支付方式赠送充值金额的<span class="rebateMoney">{{parseFloat(bankInfo.rebate)}}%</span></p> -->
       </div>
 
       <h3 class="money-title" v-text="type == 'bankcard' ? '2. 请转账到以下账户:' : '2. 请用支付宝APP扫描二维码转账:'"></h3>
@@ -33,7 +32,7 @@
           <span class="input-item-title">开户行：</span>
           <span class="card-info-detail">{{bankInfo.bank_adress}}</span>
         </p>
-
+        <p v-if="bankInfo.remark">备注: {{bankInfo.remark}}</p>
         <p class="redFont" v-if="bankInfo.int_limit_type != 0" v-text="bankInfo.int_limit_type == 1 ? '该支付仅支持充值100整数倍的金额，请充值如100,500等整数金额' : '该支付不支持充值100整数倍的金额，请充值如101,502等金额'"></p>
         <p class="redFont" v-if="bankInfo.float_limit_type == 1">该支付充值金额需有两位小数，请充值如100.66,500.05等小数金额</p>
       </div>

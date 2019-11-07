@@ -21,7 +21,7 @@
             </div>
             <h3>填写提现金额：</h3>
             <div class="form-style">
-                <ul>
+                <ul ref="inputEle">
                     <li class="form-style-item">
                         <label class="form-style-label">提现金额</label>
                         <input type="text" class="input-text-style" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur">
@@ -47,9 +47,11 @@ import Bank from '@/components/member/Bank'
 import { mapGetters, mapActions } from "vuex";
 import md5 from 'js-md5';
 import { reChinese } from '@/config/rules.js'
+import { noOnCopy } from "@/config/miXin"
 
 export default {
     inject: ['reload'],
+    mixins:[noOnCopy],
     components:{ Title, Bank },
     data() {
         return {

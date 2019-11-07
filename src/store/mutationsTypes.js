@@ -4,8 +4,8 @@ export const IS_LOGIN = 'IS_LOGIN'
 //存储个人信息
 export const SAVE_USER_INFO = 'SAVE_USER_INFO'
 
-// 是否初始化手机号码
-export const INIT_MOBILE = 'INIT_MOBILE'
+// 是否显示初始化手机
+export const IS_SHOW_PHONE = 'IS_SHOW_PHONE'
 
 //首页今日充值
 export const DEPOSIT_LIST = 'DEPOSIT_LIST'
@@ -35,6 +35,7 @@ export const PAY_DATA = 'PAY_DATA'
 
 // 系统配置
 export const SETTING_BASE = 'SETTING_BASE'
+export const SETTING_SYS = 'SETTING_SYS'
 export const SETTING_STOCK = 'SETTING_STOCK'
 export const SETTING_ORDER = 'SETTING_ORDER'
 export const SETTING_FREE = 'SETTING_FREE'

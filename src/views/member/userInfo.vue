@@ -151,9 +151,6 @@
                         </table>
                     </div>
                     <el-form ref="editForm" label-width="266px" size="small "  v-if="edit" :model="editForm" >
-                        <!-- <el-form-item label="出生日期((不可修改))" >
-                            {{editForm.birthday}}
-                        </el-form-item> -->
                         <el-form-item label="性别" >
                             <el-radio-group v-model="editForm.gender" >
                                 <el-radio :label="true">男</el-radio>
@@ -178,12 +175,12 @@
                         </el-form-item>
                         <el-form-item label="婚姻状态" >
                             <el-radio-group v-model="editForm.marital_status" >
-                                <el-radio label="1">已婚</el-radio>
-                                <el-radio label="0">未婚</el-radio>
+                                <el-radio :label="1">已婚</el-radio>
+                                <el-radio :label="0">未婚</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="现就职于" >
-                            <el-input maxlength="100" show-word-limit v-model="editForm.working_company" placeholder="请输入"></el-input>
+                            <el-input maxlength="50" show-word-limit v-model="editForm.working_company" placeholder="请输入"></el-input>
                         </el-form-item>
                         <el-form-item label="职位" >
                             <el-input maxlength="30" show-word-limit v-model="editForm.job" placeholder="请输入职位"></el-input>
@@ -205,7 +202,15 @@
                             <el-input type="text" v-model="editForm.emergency_mobile" placeholder="请输入紧急联系人手机"></el-input>
                         </el-form-item>
                         <el-form-item label="紧急联系人关系" >
-                            <el-input type="text" maxlength="30"  v-model="editForm.emergency_relationship" placeholder="请输入紧急联系人关系"></el-input>
+                            <!-- <el-input type="text" maxlength="30"  v-model="editForm.emergency_relationship" placeholder="请输入紧急联系人关系"></el-input> -->
+                            <el-select v-model="editForm.emergency_relationship"   placeholder="请选择">
+                                <el-option
+                                v-for="item in education2"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.label">
+                                </el-option>
+                            </el-select>
                         </el-form-item>
                         <el-form-item  >
                             <el-button size="mini" type="warning" @click="saveInfo">保存</el-button>
@@ -255,8 +260,7 @@ export default {
         return {
             selectedCity: [],
             pcaa: pcaa,
-             editForm: {
-                // birthday:'1984-09-16',
+            editForm: {
                 gender: '',//性别
                 education:'',//本人学历
                 province: '',//省份
@@ -284,6 +288,16 @@ export default {
                 { label: '5000-10000元' }, 
                 { label: '10000-20000元' }
             ],
+            education2: [
+                { label: '父母' }, 
+                { label: '配偶' }, 
+                { label: '子女' }, 
+                { label: '兄弟姐妹' }, 
+                { label: '亲戚' },
+                { label: '朋友' },
+                { label: '同事' },
+                { label: '同学' }
+            ],           
             edit: false,
             infoTitle: {
                 title:'个人中心',
@@ -294,6 +308,9 @@ export default {
             isShowUpImg: false,
         }
     },
+    created() {
+        
+    },
     methods:{
         ...mapActions(['getModifybasicdata','portraitUpload']),
         toDoMore() {
@@ -301,13 +318,14 @@ export default {
             this.edit = e == true? false : true
         },
         resetForm() {
-            const obj = this.editForm
-            Object.keys(obj).forEach(function(key){
-                if(key =='birthday') return false
-                obj[key] =  ''
-            });
-            this.editForm = obj
-            this.edit = false
+            // const obj = this.editForm
+            // Object.keys(obj).forEach(function(key){
+            //     if(key =='birthday') return false
+            //     obj[key] =  ''
+            // });
+            // this.editForm = obj
+            // this.edit = false
+            this.reload()
         },
         goSafeSetting(id) {
             this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
@@ -322,18 +340,18 @@ export default {
         saveInfo() {
             let obj = {
                 gender: this.editForm.gender,//性别
-                education: this.editForm.education || this.getUserInfo.education,//本人学历                
-                province: this.editForm.province || this.getUserInfo.province,//省份
-                city: this.editForm.city || this.getUserInfo.city,//城市
-                area: this.editForm.area || this.getUserInfo.area,//地区
-                address: this.editForm.address || this.getUserInfo.address,//通讯地址
-                marital_status: this.editForm.marital_status || this.getUserInfo.marital_status,//婚姻
-                working_company:this.editForm.working_company || this.getUserInfo.working_company,//现就职于 
-                job: this.editForm.job || this.getUserInfo.job, //职位
-                monthly_income: this.editForm.monthly_income || this.getUserInfo.monthly_income, //月收入
-                emergency_name: this.editForm.emergency_name || this.getUserInfo.emergency_name, //紧急联系人  
-                emergency_mobile: this.editForm.emergency_mobile || this.getUserInfo.emergency_mobile, //紧急联系人手机            
-                emergency_relationship: this.editForm.emergency_relationship || this.getUserInfo.emergency_relationship, //紧急联系人关系
+                education: this.editForm.education,//本人学历                
+                province: this.editForm.province,//省份
+                city: this.editForm.city,//城市
+                area: this.editForm.area,//地区
+                address: this.editForm.address,//通讯地址
+                marital_status: this.editForm.marital_status,//婚姻
+                working_company:this.editForm.working_company,//现就职于 
+                job: this.editForm.job, //职位
+                monthly_income: this.editForm.monthly_income, //月收入
+                emergency_name: this.editForm.emergency_name, //紧急联系人  
+                emergency_mobile: this.editForm.emergency_mobile, //紧急联系人手机            
+                emergency_relationship: this.editForm.emergency_relationship, //紧急联系人关系
             }
             this.getModifybasicdata(obj).then(res=>{
                 if( res.code == 200){
@@ -373,6 +391,21 @@ export default {
                 }
             }
         }
+    },
+    mounted() {
+        this.$nextTick(() => {
+            this.editForm.gender = this.getUserInfo.gender
+            this.editForm.education = this.getUserInfo.education
+            this.editForm.address = this.getUserInfo.address
+            this.editForm.marital_status = this.getUserInfo.marital_status
+            this.editForm.working_company = this.getUserInfo.working_company
+            this.editForm.job = this.getUserInfo.job
+            this.editForm.monthly_income = this.getUserInfo.monthly_income
+            this.editForm.emergency_name = this.getUserInfo.emergency_name
+            this.editForm.emergency_mobile = this.getUserInfo.emergency_mobile
+            this.editForm.emergency_relationship = this.getUserInfo.emergency_relationship
+            this.selectedCity = [this.getUserInfo.province, this.getUserInfo.city, this.getUserInfo.area]            
+        })
     },
     computed: {
         ...mapGetters(['getUserInfo', 'getSettingBase']),

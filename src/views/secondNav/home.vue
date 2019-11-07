@@ -951,11 +951,21 @@ export default {
     }
   }
 </style>
-<style>
-.swiper-pagination-bullet{
-  display: inline-block;cursor: pointer;margin: 0 5px;height: 15px;width: 15px;background: #fff;border-radius: 50%;opacity: 0.6;background-color: #fff;
+<style lang="scss">
+ .swiper-pagination-bullet{
+  display: inline-block !important;
+  cursor: pointer !important;
+  margin: 0 5px !important;
+  height: 15px !important;
+  width: 15px !important;
+  background: #fff !important;
+  border-radius: 50% !important; 
+  opacity: 0.6 !important;
+  background-color: #fff !important;
 }
 .swiper-pagination-bullet-active{
-  opacity: 1;height: 18px;width: 18px;
+  opacity: 1 !important;
+  height: 18px !important;
+  width: 18px !important;
 }
 </style>

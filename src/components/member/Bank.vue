@@ -28,10 +28,10 @@
             </el-form-item>
             <el-form-item label="短信验证码" >
                  <el-input  v-model.trim="bankForm.mobile_verify_code" class="bank_input"  placeholder="请输入短信验证码"></el-input>
-                 <el-button @click="getVerify" v-if="isShowSmsCode == 'one'" size="mini" class="bank_city" type="warning">获取短信验证码</el-button>
+                 <el-button @click="getVerify" v-if="isShowSmsCode == 'one'" size="mini" class="bank_city" type="warning">获取验证码</el-button>
                 <el-button v-if="isShowSmsCode == 'two'" size="mini" class="bank_city" type="warning">短信发送中...</el-button>
-                <el-button v-if="isShowSmsCode == 'three'" size="mini" class="bank_city" type="warning">验证码{{smsCodeNumber}}秒有效</el-button>
-                <el-button @click="getVerify" v-if="isShowSmsCode == 'four'" size="mini" class="bank_city" type="warning">重新获取验证码</el-button>
+                <el-button v-if="isShowSmsCode == 'three'" size="mini" class="bank_city" type="warning">重新获取({{smsCodeNumber}})</el-button>
+                <el-button @click="getVerify" v-if="isShowSmsCode == 'four'" size="mini" class="bank_city" type="warning">重新获取</el-button>
             </el-form-item>
             <el-form-item v-if="prompt.length > 0" label="温馨提示" >
                  <p class="prompt" v-for="(item,index) in prompt" :key="index">
@@ -81,13 +81,6 @@ export default {
     methods:{
         ...mapActions(['bindBankCard', 'sendSmsCode', 'bankList']),
         resetForm() {
-            // const obj = this.bankForm? this.bankForm: {}
-            // Object.keys(obj).forEach(function(key){
-            //     if(key =='name' || key =='bankPhone') return false
-            //     obj[key] =  ''
-            // });
-            // this.bankForm = obj
-            // this.bankPhone = ''
             this.reload()
         },
         add(obj) {

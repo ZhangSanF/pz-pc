@@ -208,10 +208,10 @@ export function transacTionrecordApi(){
     }
 }
 
-//提现记录
-export function withdrawalrecordApi(){
+//充值提现记录
+export function paymenTrecordApi(){
     return {
-        url: '/server/index/member/withdrawalrecord'
+        url: '/server/index/member/paymentrecord'
     }
 }
 

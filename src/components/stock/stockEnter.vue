@@ -70,7 +70,8 @@
                     <span><input type="checkbox" v-model="isCheckbox" id="agreementCheckbox">我已经同意</span>
                     <a style="color:#f00;" href="javascript:void(0);" @click="toAbout('配资合作协议', '11')">《出彩速配配资协议》</a>
                 </label>
-                <span href="javascript:;" class="pz-me" @click="applyFinancing()">确认配资</span>
+                <span v-if="canAction" class="pz-me" @click="applyFinancing()">确认配资</span>
+                <span v-else class="pz-me-no">确认配资</span>
             </div>
         </div>
         <div class=" pz-ware-software">
@@ -127,7 +128,8 @@ export default {
     },
     data(){
         return{
-            isCheckbox: true
+            isCheckbox: true,
+            canAction: true
         }
     },
     methods:{
@@ -135,7 +137,17 @@ export default {
         //确认配资
         applyFinancing() {
             if(this.isCheckbox == false) return this.$message.error('请勾选我已同意出彩速配配资协议！');
-            this.addOrder(this.pzObj)
+            if(!this.canAction) return false
+            this.canAction = false
+            this.addOrder(this.pzObj).then(res=>{
+                if(res.code == 200){
+                    this.$message.success(res.message)
+                    this.$router.push('/member/myAccount')
+                    this.canAction = true
+                }else {
+                    this.canAction = true
+                }
+            })
         },
         toAbout(title, active) {
             this.$router.push('/user/about')
@@ -155,36 +167,6 @@ export default {
             money >= 0 ? show_money = 0 : show_money = Math.abs(money);
             return show_money
         }
-        // 计算账户余额还需多少
-        // moneyC() {
-        //     // 共需要多少金额
-        //     let money = this.pzSureData.principal*1 + this.pzSureData.sumMFee*1
-        //     let sumMoney = money*1 - this.getUserInfo.available_money*1 - this.getUserInfo.gift_money*1
-        //     return sumMoney
-        // },
-        //是否显示需要充值
-        // showRecharge() {
-        //     // true为显示需要充值
-        //     // pzSureData.principal 保证金
-        //     // pzSureData.sumMFee 利息
-        //     // getUserInfo.available_money 账户余额
-        //     // getUserInfo.gift_money 账户管理费
-        //     // 账户余额大于保证金且账户利息小于当前利息
-        //     if((this.getUserInfo.available_money*1) > (this.pzSureData.principal*1) && (this.getUserInfo.gift_money*1) < (this.pzSureData.sumMFee*1)) {
-        //         let zMoney = this.getUserInfo.available_money - this.pzSureData.principal // 账户余额扣除保证金后还剩的money
-        //         let lMoney = this.pzSureData.sumMFee - this.getUserInfo.gift_money // 还差多少利息
-        //         if(zMoney > lMoney) {
-        //             return false
-        //         }else {
-        //             return true
-        //         }
-        //     // 账户余额大于保证金且账户利息大于当前利息
-        //     }else if((this.getUserInfo.available_money*1) > (this.pzSureData.principal*1) && (this.getUserInfo.gift_money*1) > (this.pzSureData.sumMFee*1)) {
-        //         return false
-        //     }else {
-        //         return true     
-        //     }
-        // }
     }
 }
 </script>
@@ -296,6 +278,18 @@ font-size: 19px;}
     height: 50px;
     line-height: 50px;
     background: #E95B5B;
+    color: #fff;
+    margin: 20px auto;
+}
+.pz-me-no{
+    cursor: pointer;
+    display: block;
+    font-size: 20px;
+    width: 300px;
+    text-align: center;
+    height: 50px;
+    line-height: 50px;
+    background: #eee;
     color: #fff;
     margin: 20px auto;
 }

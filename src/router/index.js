@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import routes from './routers'
 import store from '../store'
-import {  Message } from 'element-ui'
+
 Vue.use(Router)
 
 const router = new Router({
@@ -12,17 +12,19 @@ const router = new Router({
   }
 })
 
-router.beforeEach((to, from, next) => {
-  if(to.meta.showInitMobile) {
-    setTimeout(() => {
-      if(store.state.userInfo.mobile == '' || store.state.userInfo.mobile == undefined) {
-        store.commit('INIT_MOBILE', true)
-      }
-    },20)
-    next()
-  }
-  next()
-})
+// router.beforeEach((to, from, next) => {
+//   // 是否显示初始化手机号
+//   if(to.meta.showInitMobile) {
+//     setTimeout(() => {
+//       if(store.state.userInfo.mobile == '' || store.state.userInfo.mobile == undefined) {
+//         store.commit('INIT_MOBILE', true)
+//       }
+//     },20)
+//     next()
+//   }
+//   next()
+// })
+
 // router.beforeEach((to,from,next)=>{
 //   if(to.meta.auth) { //是否验证
 //     //是否登录

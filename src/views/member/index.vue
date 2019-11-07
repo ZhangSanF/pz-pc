@@ -1,5 +1,5 @@
 <template>
-    <div class="member">
+    <div class="member" v-if="Object.keys(getUserInfo).length !== 0">
         <div class="wrapper user-main">
             <!-- left -->
             <div class="user-sidebar">
@@ -34,12 +34,18 @@
                             <span :class="getUserInfo.is_real_name?'identity-yes-static':'identity-not-static'"></span>
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" placement="bottom">
-                            <span slot="content">您已绑定手机{{getUserInfo.mobile}}
-                                <span 
-                                 @click="goSafeSetting(1)"
-                                 class="blue" >点击修改</span>
+                            <span slot="content">
+                                <span v-if="getUserInfo.mobile == '' || getUserInfo.mobile == undefined">您尚未绑定手机</span>
+                                <span v-else>
+                                    您已绑定手机{{getUserInfo.mobile}}
+                                    <span 
+                                    @click="goSafeSetting(1)"
+                                    class="blue" >
+                                    点击修改
+                                    </span>
+                                </span>
                             </span>
-                            <span :class="getUserInfo.mobile?'phone-yes-static':'phone-not-static'" ></span>
+                            <span :class="getUserInfo.mobile ? 'phone-yes-static' : 'phone-not-static'" ></span>
                         </el-tooltip>
                         <el-tooltip class="item" effect="light" placement="bottom">
                             <span  slot="content"> 
@@ -58,7 +64,7 @@
                         <div class="user-info-status-txt">
                             <div style="float:left">
                                 安全等级：
-                                <strong  style="color: #00c25f" v-if="safeNum == 1" >低</strong>
+                                <strong  style="color: #00c25f" v-if="safeNum == 1 || safeNum == 0" >低</strong>
                                 <strong  style="color: #00c25f" v-if="safeNum == 2" >中</strong>
                                 <strong  style="color: #00c25f" v-if="safeNum == 3" >高</strong>
                             </div>
@@ -147,10 +153,11 @@
                 <router-view/>
             </div>
         </div>
-        <div class="init-mobile" v-if="getInitMobile">
+        <!-- 会员手机号认证 -->
+        <div class="init-mobile" v-if="getIsShowPhone">
             <div class="mobile-alert">
                 <div class="title">验证手机号</div>
-                <dir class="info">您还未对手机验证，请先进行验证！</dir>
+                <div class="info">您还未对手机验证，请先进行验证！</div>
                 <div class="setwin" @click="closeAlert">
                     <a href="javascript:void(0);"></a>
                 </div>
@@ -161,10 +168,10 @@
                     <el-form-item prop="mobile_verify_code" class="reg-item" >
                         <el-input  class="verifi-input" placeholder="请输入手机验证码"  v-model.trim="ruleForm.mobile_verify_code">
                             <template slot-scope="">
-                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'one'">点击发送验证码</el-button>
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'one'">获取验证码</el-button>
                                 <el-button slot="append" v-if="isShowSmsCode == 'two'">短信发送中...</el-button>
-                                <el-button slot="append" class="second" v-if="isShowSmsCode == 'three'">{{smsCodeNumber}}秒</el-button>
-                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'four'">重新获取验证码</el-button>
+                                <el-button slot="append" class="second" v-if="isShowSmsCode == 'three'">重新获取({{smsCodeNumber}})</el-button>
+                                <el-button slot="append" @click="getCode" v-if="isShowSmsCode == 'four'">重新获取</el-button>
                             </template>
                         </el-input>
                     </el-form-item>
@@ -228,7 +235,7 @@ export default {
             this.$router.push({ path: '/member/safeSetting', query: { showId: id} })
         },
         closeAlert() {
-            this.$store.commit('INIT_MOBILE', false)
+            this.$store.commit('IS_SHOW_PHONE', false)
         },
         // 初始化手机
         initMobileAction() {
@@ -237,8 +244,8 @@ export default {
                     if(this.isShowSmsCode == 'three' || this.isShowSmsCode == 'four') {
                         this.initMobile(this.ruleForm).then(res=>{ 
                             if( res.code == 200) {
+                                this.$store.commit('IS_SHOW_PHONE', false)
                                 this.$message.success(res.message)
-                                this.$store.commit('INIT_MOBILE', false)
                                 let phone = this.ruleForm.mobile.slice(0,3) + '****' + this.ruleForm.mobile.slice(-4)
                                 this.$store.commit('SET_MOBILE',  phone)
                             }
@@ -283,20 +290,35 @@ export default {
             }
         }
     },
+    mounted() {
+
+    },
     computed:{
-        ...mapGetters(['getUserInfo', 'getIsLogin', 'getInitMobile']),
+        ...mapGetters(['getUserInfo', 'getIsLogin', 'getIsShowPhone']),
         safeNum() {
-            return Number(this.getUserInfo.is_real_name) + Number(this.getUserInfo.is_pay_password) + 1
+            let phone = 0
+            if(this.getUserInfo.mobile) {
+                phone = 1
+            }
+            return Number(this.getUserInfo.is_real_name) + Number(this.getUserInfo.is_pay_password) + phone
         },
         percentage() {
-            return Number(this.safeNum) * 30
+            if(this.safeNum == 0) {
+                return 10
+            }else {
+                return Number(this.safeNum) * 30
+            }
         }
     },
     watch: {
         $route(to, from) {
             this.activeRouter = to.path
             this.isNavActive()
-        },
+            // 判断是否有初始化手机号码 
+            if(this.$store.state.userInfo.mobile == '' || this.$store.state.userInfo.mobile == undefined) {
+                this.$store.commit('IS_SHOW_PHONE', true)
+            }
+        }
     }
 }
 </script>
@@ -312,6 +334,7 @@ export default {
         }
         .info{
             text-align: center;
+            margin-top: 10px;
         } 
     }
 }

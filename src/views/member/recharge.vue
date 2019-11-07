@@ -92,7 +92,7 @@ export default {
             infoTitle: {
                 title:'充值',
                 todu:{
-                    title:'',
+                    title:'查看充值记录',
                 }
             }
         }
@@ -101,7 +101,10 @@ export default {
         this.paymentinfo()
     },
     methods:{
-        ...mapActions(['paymentinfo'])
+        ...mapActions(['paymentinfo']),
+        toDoMore() {
+            this.$router.push('/member/rechargeRecord')
+        },
     },
     mounted() {
         

@@ -15,13 +15,15 @@
             <!--手机认证  -->
             <div  class="safe_content" >
                 <div class="safe-lable ">
-                    <span class="icon-check" ></span>
+                    <span class="icon-tanhao" v-if="getUserInfo.mobile == '' || getUserInfo.mobile == undefined"></span>
+                    <span class="icon-check" v-else></span>
                     <span>手机认证</span>
                 </div>
                 <div class="safe-value">
-                    <span >{{getUserInfo.mobile}}</span>
+                    <span class="isSet" v-if="getUserInfo.mobile == '' || getUserInfo.mobile == undefined">未设置</span>
+                    <span v-else>{{getUserInfo.mobile}}</span>
                 </div>
-                <div class="safe-edit fr"  @click="show(1)">
+                <div class="safe-edit fr"  @click="show(1)" v-if="getUserInfo.mobile">
                     <span class="options-state" >{{safeData[1].showEdit ? '取消修改':'修改'}} </span>
                 </div>
                 <div class=" edit clearfix"   v-if="safeData[1].showEdit">
@@ -95,27 +97,8 @@
                 </div>
                 <div class=" edit clearfix"  v-if="safeData[3].showEdit">
                     <!-- 登录密码 -->
-                    <div class="user-safety-options-edit"  >
-                        <el-form
-                        :model="loginPwd"
-                        size="mini"
-                        ref="loginForm"
-                        :rules="checkRules"
-                        label-width="200px"
-                        class="step1-form">
-                            <el-form-item label="原登录密码" prop="opwd" >
-                                <el-input  class="step-input password-font" v-model.trim="loginPwd.opwd"></el-input>
-                            </el-form-item>
-                            <el-form-item label="新登录密码" prop="npwd">
-                                <el-input class="step-input password-font" v-model.trim="loginPwd.npwd"></el-input>
-                            </el-form-item>
-                            <el-form-item label="再次输入新登录密码" prop="cpwd">
-                                <el-input class="step-input password-font" v-model.trim="loginPwd.cpwd"></el-input>
-                            </el-form-item>
-                            <el-form-item >
-                                <el-button size="mini"  class="step-btn" @click="modifyLoginPwd()" >修改登录密码</el-button>
-                            </el-form-item>
-                        </el-form >
+                    <div class="user-safety-options-edit">
+                        <LoginVerifi />
                         <Warm :warmData="pwdWarm"/>
                     </div>
                 </div>
@@ -169,18 +152,17 @@
 </template>
 
 <script>
-import { checkRules, reChinese } from '@/config/rules.js'
-import md5 from 'js-md5';
-import { mapGetters, mapActions } from "vuex";
+import { checkRules } from '@/config/rules'
+import { mapGetters, mapActions } from "vuex"
 import Title from '@/components/member/Title'
 import Warm from '@/components/member/Warm'
 import PhoneVerifi from '@/components/member/PhoneVerifi'
 import PayPasswordVerifi from '@/components/member/PayPasswordVerifi'
 import EncryptedVerifi from '@/components/member/EncryptedVerifi'
-
+import LoginVerifi from '@/components/member/LoginVerifi'
 
 export default {
-    components:{ Title ,PhoneVerifi, PayPasswordVerifi, EncryptedVerifi, Warm },
+    components:{ Title ,PhoneVerifi, PayPasswordVerifi, EncryptedVerifi, Warm, LoginVerifi },
     inject: ['reload'],
     data() {
         return {
@@ -188,12 +170,6 @@ export default {
                 title:'安全设置',
             },
             checkRules: checkRules,       
-            //设置登录密码
-            loginPwd:{
-                opwd:'',
-                npwd:'',
-                cpwd:''
-            },
             //实名认证
             verifiedForm:{
                 name:'',
@@ -210,7 +186,7 @@ export default {
         }
     },
     methods:{
-        ...mapActions(['initProtection','realNameAuth','setLoginPassWord']),
+        ...mapActions(['initProtection','realNameAuth']),
         show(i) {
             for (let m = 0 ; m <this.safeData.length; m++  ) {
                 if(i== -1) {
@@ -240,28 +216,7 @@ export default {
                     })
                 } 
             });
-        },
-        //修改登录密码
-        modifyLoginPwd() {
-            this.$refs['loginForm'].validate((valid) => {
-                if (valid) {
-                    const params = {
-                        oldPassword: md5(this.loginPwd.opwd),
-                        newPassword: md5(this.loginPwd.npwd),
-                        confirmNewPassword: md5(this.loginPwd.cpwd)
-                    }
-                    this.setLoginPassWord(params).then((res) => {
-                        if(res.code == 200) {
-                            this.$message.success(res.message)
-                            this.reload()
-                        }
-                        // else {
-                        //     this.$message.error(`${res.message}`);
-                        // }
-                    })
-                }
-            });
-        },         
+        },        
         // 服务协议
         toAbout(title, active) {
             this.$router.push('/user/about')
@@ -313,27 +268,6 @@ export default {
                 if(a) return this.show(a)
             },
             deep:true
-        },
-        // 去掉中文双字节字符
-        'loginPwd.opwd': {
-            handler(newVal, old) {
-                this.loginPwd.opwd = newVal.replace(reChinese,'');
-            },
-            deep: true
-        },
-        // 去掉中文双字节字符
-        'loginPwd.npwd': {
-            handler(newVal, old) {
-                this.loginPwd.npwd = newVal.replace(reChinese,'');
-            },
-            deep: true
-        },
-        // 去掉中文双字节字符
-        'loginPwd.cpwd': {
-            handler(newVal, old) {
-                this.loginPwd.cpwd = newVal.replace(reChinese,'');
-            },
-            deep: true
         }
     },
 }

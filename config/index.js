@@ -10,7 +10,6 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    // proxyTable: {},
     proxyTable: {
       '/': { 
         target: 'https://www-peizi-dev.e2048.com',

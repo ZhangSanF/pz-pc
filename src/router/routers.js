@@ -114,6 +114,13 @@ const routes =  [
                 }
             },
             {
+                path: 'rechargeRecord',
+                component: () => import ('@/views/member/rechargeRecord'),//充值记录
+                meta: {
+                    showInitMobile: true
+                }
+            },
+            {
                 path: 'withdrawDeposit',
                 component: () => import ('@/views/member/withdrawDeposit'),//提现
                 meta: {

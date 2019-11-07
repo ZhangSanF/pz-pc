@@ -9,7 +9,7 @@
             <h5 class="choose-title" v-if="item.type == 12 || item.type == 13">1. 请用转账到下方账户。</h5>
             <h5 class="choose-title" v-else>1. 请用APP扫描下方二维码，转账前请核对账号和账户名。</h5>
             <div class="pay-img">
-              <img :src="'/upload/payment/third/qrcode/' + item.code_url" alt="">
+              <img :src="item.code_url" alt="">
             </div>
             <p class="pay-account-info">账号：<span class="pay-account">{{item.account}}</span></p>
             <p class="pay-account-info">账户名：<span class="pay-account">{{item.name}}</span></p>
@@ -21,37 +21,33 @@
         </el-tabs>
 
         <h5 class="money-title">2. 请填入您的转账信息</h5>
-        <div class="pay-input">
-
-          <p class="input-item">
-            <span class="input-item-title">账户姓名：</span><el-input placeholder="请输入账户名" v-model="name" clearable></el-input>
-          </p>
-
-          <p class="input-item">
-            <span class="input-item-title">账号：</span><el-input placeholder="请输入账号" v-model="account" clearable></el-input>
-          </p>
-
-          <p class="input-item">
-            <span class="input-item-title">转账金额：</span><el-input placeholder="请输入转账金额" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
-          </p>
-
-          <p class="input-item">
-            <span class="input-item-title">转账时间：</span>
-            <el-date-picker
-              popper-class="date-picker-pop"
-              v-model="date"
-              type="datetime"
-              placeholder="点击选择日期时间">
-            </el-date-picker>
-          </p>
-          
+        <div class="box-info">
+          <div class="pay-input">
+            <p class="input-item">
+              <span class="input-item-title">账户姓名：</span><el-input placeholder="请输入账户名" v-model="name" clearable></el-input>
+            </p>
+            <p class="input-item">
+              <span class="input-item-title">账号：</span><el-input placeholder="请输入账号" v-model="account" clearable></el-input>
+            </p>
+            <p class="input-item">
+              <span class="input-item-title">转账金额：</span><el-input placeholder="请输入转账金额" v-model="money" @keyup.native="moneyKeyUp" @blur="moneyBlur" clearable></el-input>
+            </p>
+            <p class="input-item">
+              <span class="input-item-title">转账时间：</span>
+              <el-date-picker
+                popper-class="date-picker-pop"
+                v-model="date"
+                type="datetime"
+                placeholder="点击选择日期时间">
+              </el-date-picker>
+            </p>         
+          </div>       
+          <el-button type="warning" @click="payAction">提交充值</el-button>
         </div>
-        
-        <el-button type="warning" @click="payAction">提交充值</el-button>
       </div>
       
       <div class="right">
-        <img :src="'/upload/payment/third/qrcode/' + studyImg">
+        <img :src="studyImg">
       </div>
 
     </div>
@@ -80,9 +76,7 @@
       }
     },
     mounted() {
-      setTimeout(() => {
-          // console.log(this.data)
-      }, 20);
+
     },
     methods: {
       ...mapActions(['depositwithdrawplatform']),
@@ -133,9 +127,6 @@
             this.date = '';
             this.$alert('您的存款信息已提交，请稍后客服处理！', '提交成功', {type: 'success'});
           }
-          // else{
-          //   this.$alert(`${res.message}`, '提交失败', {type: 'error'});
-          // }
         })
         .catch(err=>{
           this.$alert(`${err}`, '提交失败', {type: 'error'});
@@ -147,20 +138,16 @@
           switch(parseInt(e.type)) {
             case 3:
               return '支付宝扫码支付';
-              break;
-            
+              break;           
             case 4:
               return '微信扫码支付';
               break;
-
             case 12:
               return '人工支付宝收款';
               break;
-
             case 13:
               return '微信/支付宝转帐';
               break;
-
             default:
               return '支付通道';
           }
@@ -183,7 +170,6 @@
 
 <style lang="scss" scoped>
   .pay-con {
-    // width: 1100px;852
     height: 600px;
     padding: 20px 40px;
     border-radius: 4px;
@@ -256,8 +242,9 @@
     }
     /deep/ button {
       // margin-left: 10px;
-      position: relative;
-      top: -6px;
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
     }
     h3 {
       color: #555;
@@ -287,14 +274,16 @@
     border: none;
     box-shadow: none;
   }
-
+  .box-info{
+    position: relative;
+  }
 </style>
 <style lang="scss" >
 .scan-pay{
-.el-tabs__content {
-        background-color: #fff ;
-        min-height: 300px !important;
-    }
+  .el-tabs__content {
+    background-color: #fff ;
+    min-height: 300px !important;
+  }
 }
 </style>
 

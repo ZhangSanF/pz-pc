@@ -7,7 +7,7 @@
                     <!-- 状态(1待审核、2审核通过、3审核失败，4操盘结束) -->
                     <span v-if="item.status == 1" class="state_all state_wait"></span>
                     <span v-else-if="item.status == 2 && outTime(item.end_time) == false" class="state_all"></span>
-                    <span v-else-if="item.status == 2 && outTime(item.end_time) == true" class="state_all end"></span>
+                    <span v-else-if="item.status == 2 && outTime(item.end_time) == true" class="state_all end"></span>                   
                     <span v-else-if="item.status == 3" class="state_all state_no"></span>
                     <span v-else-if="item.status == 4" class="state_all state_end"></span>
                 </div>
@@ -29,10 +29,10 @@
                         <td width="13%">{{item.credit_money | number}}元</td>
                         <td width="13%">{{item.member_money | number}}元</td>
                         <td width="13%">{{item.interest_money | number}}元</td>
-                        <td width="12%" v-if="item.status == 1 || item.status == 3">--</td>
-                        <td width="12%" v-else>{{item.warning_amount | number}}</td>
-                        <td width="12%" v-if="item.status == 1 || item.status == 3">--</td>
-                        <td width="12%" v-else>{{item.closeout_amount | number}}</td>
+                        <!-- <td width="12%" v-if="item.status == 1 || item.status == 3">--</td> -->
+                        <td width="12%">{{isNaN(item.warning_amount) ? item.warning_amount : item.warning_amount.toFixed(2)}}</td>
+                        <!-- <td width="12%" v-if="item.status == 1 || item.status == 3">--</td> -->
+                        <td width="12%">{{isNaN(item.closeout_amount) ? item.closeout_amount : item.closeout_amount.toFixed(2)}}</td>
                         <td width="25%">{{item.start_time.split(' ')[0]}} ~ {{item.end_time.split(' ')[0]}}</td>
                     </tr>
                 </tbody>
@@ -40,12 +40,16 @@
             <div class="stock-data">
                 <div class="table_info">
                     可提金额：
-                    <span class="font_red14" v-if="item.status == 1 || item.status == 3">{{item.withdrawable_profit}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <span class="font_red14" v-if="item.status == 1 || item.status == 3">--&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     <span class="font_red14" v-else>{{item.withdrawable_profit | number}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     操盘周期：<span class="font_red14">
                         {{item.period}}
                         <span v-if="item.order_type == 1 || item.order_type == 2">天</span>
                         <span v-else>个月</span>
+                    </span>&nbsp;&nbsp;&nbsp;
+                    <span v-if="item.add_member_money*1 > 0">
+                        追加保证金：
+                        <span>{{item.add_member_money | number}}&nbsp;元</span>
                     </span>
                 </div>
                 <div class="put_up">
@@ -205,7 +209,7 @@ export default {
             }else {
                 return false
             }
-        }
+        },
         // 收益率 = 收益 / 操盘资金 * 100
         // userConfiguration(loss_profit, member_money, credit_money) {
         //     return loss_profit / (member_money * 1 + credit_money * 1) * 100;

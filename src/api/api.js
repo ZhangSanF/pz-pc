@@ -173,10 +173,10 @@ export function transacTionrecord(params) {
     return axios.post(urls.transacTionrecordApi(),params);
 }
 
-//提现记录
-export function withdrawalrecord(params) {
+//充值提现记录
+export function paymenTrecord(params) {
     if(!params && params !== Object ) return false
-    return axios.post(urls.withdrawalrecordApi(),params);
+    return axios.post(urls.paymenTrecordApi(),params);
 }
 
 //短信验证码(发送)

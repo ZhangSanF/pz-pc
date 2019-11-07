@@ -151,7 +151,6 @@
             </p>
         </div>
     </div>
-
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
@@ -170,7 +169,8 @@ export default {
             active: 0,
             pzType: '',
             orderType: null,
-            principal: 100,//input金额
+            // principal: 100,//input金额
+            principal: 0,//input金额
             term: '',//交易周期
             mFee: 0,//账户管理费
             multiple: 0,//杠杆倍数
@@ -184,6 +184,7 @@ export default {
             this.multiple = this.programData[0].multiple
             this.pzType = this.stockType.lable
             this.orderType = this.stockType.value
+            this.principal = this.termData.min
         },20)
     },
     methods: {
@@ -232,7 +233,6 @@ export default {
                 multiple:  this.multiple ,//杠杆倍数
                 period: this.periodData.length > 1 ? this.term : this.periodData[0]//期限，周期
             }
-
             // 确认配资页面显示的数据
             let pzData = {
                 principal: this.principal || 0, //保证金
@@ -279,6 +279,7 @@ export default {
                             })
                         }
                     }
+                    this.term = arr[0].value
                     return arr
                 }
             }
@@ -316,9 +317,6 @@ export default {
                 if(a.length > this.termData.max.length) {
                     this.principal = this.termData.max
                 }              
-                // var re=/[^\d，,]]*/g;
-                // this.principal = String(a).replace(re,"");
-                // this.mFee = isNaN(this.principal) ? 0 : this.principal * this.multiple * (this.rate /100)
                 this.mFee = this.principal * this.multiple * (this.rate /100)
             },
             deep: true

@@ -8,7 +8,7 @@
                     <span class="fr">市场有风险，投资需谨慎</span> 
                     </div>
                 </div>
-            <div class="reg-form find-password">
+            <div class="reg-form find-password" ref="inputEle">
                 <el-form ref="findPassword" :rules="checkRules" :model="resetPassword">
                     <el-form-item class="reg-item">
                         <span class="text">用户名</span>
@@ -47,10 +47,12 @@
 
 <script>
     import { mapActions, mapGetters } from "vuex"
-    import { checkRules, rePhone, reChinese, smsCodeNumber } from '@/config/rules.js'
-    import md5 from 'js-md5';
+    import { checkRules, rePhone, reChinese, smsCodeNumber } from '@/config/rules'
+    import md5 from 'js-md5'
+    import { noOnCopy } from "@/config/miXin"
 
     export default {
+        mixins:[noOnCopy],
         data(){
             return{
                 checkRules: checkRules,

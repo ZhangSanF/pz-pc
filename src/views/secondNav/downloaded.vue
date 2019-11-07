@@ -7,7 +7,7 @@
                     <h3 class="tit">{{tit}}</h3>
                     <p class="brief">{{brief}}</p>
                     <div class="down-btn">
-                        <a :href="getSettingBase.shares_pc_url" class="dpc">
+                        <a :href="getSettingBase.stock_pc_url" class="dpc">
                             <el-tooltip effect="light" placement="right">
                                 <div slot="content">
                                     <p class="ti-title">下载说明</p>

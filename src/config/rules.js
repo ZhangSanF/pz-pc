@@ -6,7 +6,6 @@ export const checkRules ={
     username: [
         {   
             required: true,  
-            // pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9_]+$/,
             pattern: /^(?=.{6,16}$)[a-zA-Z]+[A-Za-z0-9]+$/,
             message: '用户名须由字母开头，共6到16位，可包含数字',
             max: 16,
@@ -35,7 +34,6 @@ export const checkRules ={
             min: 6,
             trigger: 'blur' 
         },
-        // { validator: checkPass, trigger: 'blur' }
     ],
     // 图片验证码
     captcha: [

@@ -82,6 +82,9 @@ new Vue({
     // 获取基础数据
     store.dispatch('setting')
   },
+  methods: {
+
+  },
   mounted() {
     
   }

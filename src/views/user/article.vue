@@ -138,7 +138,7 @@ export default {
         ...mapGetters(['getStockInfo', 'getEncyclopedias', 'getAnnouncement', 'getArticleQuery']),
         // 计算共多少页
         sumPage() {
-            return Math.ceil(this.articleData.total/20)
+            return Math.ceil(this.articleData.total / 20)
         }
     }
 }

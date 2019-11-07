@@ -10,7 +10,16 @@
                 class="state_btn"
                 :class="selected == index ? 'selected' :''">
                     {{item.lable}}
-                </span>
+            </span>
+            <strong class="date-style">选择日期</strong>
+            <el-date-picker
+                v-model="modelTime"
+                size="mini"
+                type="daterange"
+                range-separator="-"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期">
+            </el-date-picker>
         </el-row>
         <!-- 无数据显示 -->
         <div v-if="pageData.total <= 0" class="no-content">无站内信息</div>
@@ -46,7 +55,8 @@
 import Title from '@/components/member/Title'
 import Notice from '@/components/member/Notice'
 import Pagination from '@/components/member/Pagination'
-import { mapGetters, mapActions } from "vuex";
+import { mapGetters, mapActions } from "vuex"
+import { formatDate } from '@/js/utils'
 
 export default {
     components:{ Title , Notice ,Pagination},
@@ -55,36 +65,41 @@ export default {
             infoTitle: {
                 title:'站内信息',
             },
+            modelTime: '',//model
             selected: '0',
             stateData:[
                 {lable:'全部', value: '-1'},
                 {lable:'未读', value: '0'},
                 {lable:'已读', value: '1'},
             ],
-            stateValue: '-1',
+            read_status: '-1',//阅读状态(未读0，已读1，全部-1)
             page: 1,
             page_size: 10,
+            start_time: '',// 开始时间
+            end_time: '',// 结束时间
             noticeData:[],
             pageData:{},
-            pageInput: '1'
+            pageInput: 1
         }
     },
     created() {
-        this.internalMessageFun('-1', this.page, this.page_size)
+        this.internalMessageFun()
     },
     methods:{
         ...mapActions(['internalMessage']),
         getInstation(value,index) {
             this.page = 1
-            this.stateValue = value
+            this.read_status = value
             this.selected = index
-            this.internalMessageFun(value, this.page, this.page_size)
+            this.internalMessageFun()
         },
-        internalMessageFun(read_status, page, page_size) {
+        internalMessageFun() {
             this.internalMessage({
-                read_status: read_status,
-                page: page,
-                page_size: page_size
+                read_status: this.read_status,
+                page: this.page,
+                page_size: this.page_size,
+                start_time: this.start_time,
+                end_time: this.end_time
             }).then((res) => {
                 if(res.code == 200) {
                     this.noticeData = res.data.rows
@@ -97,31 +112,31 @@ export default {
                 case 'index' : 
                     if(this.page != 1) {
                         this.page = 1
-                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                        this.internalMessageFun();
                     }
                     break;
                 case 'prev' : 
                     if(this.page > 1) {
                         this.page -- 
-                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                        this.internalMessageFun();
                     }
                     break;
                 case 'next' : 
                     if(this.page < this.sumPage) {
                         this.page ++ 
-                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                        this.internalMessageFun();
                     }
                     break;
                 case 'end' : 
                     if(this.page != this.sumPage) {
                         this.page = this.sumPage
-                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                        this.internalMessageFun();
                     }
                     break;
                 case 'jump' : 
-                    if(this.sumPage != 1 && this.pageInput <= this.sumPage) {
+                    if(this.sumPage != 1 && this.pageInput <= this.sumPage && this.pageInput > 0) {
                         this.page = this.pageInput
-                        this.internalMessageFun(this.stateValue, this.page, this.page_size);
+                        this.internalMessageFun();
                     }
                     break;
             }
@@ -130,7 +145,23 @@ export default {
     computed:{
         // 计算共多少页
         sumPage() {
-            return Math.ceil(this.pageData.total/10)
+            return Math.ceil(this.pageData.total / 10)
+        }
+    },
+    watch: {
+        'modelTime':{
+            handler(val, b) {
+                if(val != null) {
+                    this.page = 1
+                    this.start_time = formatDate(val[0].getTime(), 'YY-MM-DD hh:mm:ss')
+                    this.end_time = formatDate(val[1].getTime(), 'YY-MM-DD 23:59:59')
+                }else {
+                    this.start_time = ''
+                    this.end_time = ''
+                }               
+                this.internalMessageFun();
+            },
+            deep: true
         }
     }
 
@@ -138,6 +169,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.date-style{
+    margin-left: 20px;
+    margin-right: 10px;
+}
 .no-content{
     text-align: center;
     padding-bottom: 20px;
@@ -153,6 +188,7 @@ export default {
     padding: 10px 0;
 }
 .state_btn {
+    cursor: pointer;
     display: inline-block;
     margin-left: 10px;
     border-radius: 5px;
